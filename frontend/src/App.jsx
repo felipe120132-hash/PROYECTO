@@ -575,8 +575,8 @@ function App() {
         {/* ── VISTA POR EQUIPO ── */}
         {pestaña === 'jugadores' && equipoSeleccionado && (
           <div className="table-card anim-fade">
-            <button className="btn-edit-inline" onClick={() => setPestaña('clasificacion')} style={{ marginBottom: '20px' }}>
-              ← Volver a Clasificación
+            <button className="btn-cancel" onClick={() => setPestaña('clasificacion')} style={{ marginBottom: '20px' }}>
+              <span>←</span> Volver a Clasificación
             </button>
 
             <div className="section-header-flex">
@@ -650,8 +650,8 @@ function App() {
                           <td><input className="edit-input" value={datosEdicionJugador.categoria} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, categoria: e.target.value })} /></td>
                           <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
                           <td>
-                            <button onClick={() => guardarCambiosJugador(j.id)}>💾</button>
-                            <button onClick={() => setEditandoJugadorId(null)}>✖</button>
+                            <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)} style={{ marginRight: '4px' }}>💾</button>
+                            <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}>✖</button>
                           </td>
                         </>
                       ) : (
@@ -661,8 +661,8 @@ function App() {
                           <td>{j.puntos_anotados ?? j.Puntos_anotados ?? 0}</td>
                           {token && (
                             <td>
-                              <button onClick={() => iniciarEdicionJugador(j)}>✏️</button>
-                              <button onClick={() => eliminarJugador(j.id)}>🗑️</button>
+                              <button className="btn-edit-inline" onClick={() => iniciarEdicionJugador(j)} style={{ marginRight: '4px' }}>✏️</button>
+                              <button className="btn-delete-inline" onClick={() => eliminarJugador(j.id)}>🗑️</button>
                             </td>
                           )}
                         </>

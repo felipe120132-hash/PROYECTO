@@ -14,6 +14,16 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Modern Colors */
+  --success: #10b981;
+  --success-hover: #059669;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --info: #3b82f6;
+  --info-hover: #2563eb;
+  --warning: #f59e0b;
+  --warning-hover: #d97706;
 }
 
 * {
@@ -268,6 +278,102 @@ h1, h2, h3, h4 {
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 55, 0.3);
+}
+
+/* Base Button Styles */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  outline: none;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* Specialized Buttons */
+.btn-success {
+  background: var(--success);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-success:hover {
+  background: var(--success-hover);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  background: var(--danger-hover);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* Inline Action Buttons (for Tables/Lists) */
+.btn-edit-inline {
+  background: white;
+  color: var(--primary);
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-edit-inline:hover {
+  background: #f8fafc;
+  border-color: var(--info);
+  color: var(--info);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-delete-inline {
+  background: white;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  padding: 6px;
+  border-radius: 6px;
+  min-width: 32px;
+  height: 32px;
+}
+
+.btn-delete-inline:hover {
+  background: #fff1f2;
+  border-color: #fecaca;
+  color: var(--danger);
 }
 
 /* MVP Section */
