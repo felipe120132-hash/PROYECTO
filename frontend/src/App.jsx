@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
+import heroBg from './assets/hero_bg.png';
+import mvpImg from './assets/mvp_player.png';
 
 const API = 'http://localhost:3000/api';
 
@@ -351,97 +353,170 @@ function App() {
 
   // ── RENDER ───────────────────────────────────────────────────────────────────
   return (
-    <div className="container">
-
-      {/* HEADER */}
-      <header className="main-header">
-        <div className="header-flex">
-          <h1>🏀 Basketball League</h1>
-          <div className="season-selector">
-            <label>Temporada: </label>
-            <select value={temporada} onChange={(e) => setTemporada(e.target.value)}>
-              <option value="2025-2">2025-II</option>
-              <option value="2026-2">2026-II</option>
-            </select>
+    <div className="app-layout">
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="user-profile">
+          <div className="avatar">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Usuario" />
+          </div>
+          <div className="user-info">
+            <h4>PRO DIVISION</h4>
+            <p>Temporada {temporada}</p>
           </div>
         </div>
-        {token && <span className="admin-status">⚙️ Modo Admin Activo</span>}
-      </header>
 
-      {/* NAVEGACIÓN */}
-      <nav className="nav-menu">
-        <button className={pestaña === 'landing' ? 'active' : ''} onClick={() => setPestaña('landing')}>
-          🏠 Inicio
-        </button>
-        <button className={pestaña === 'clasificacion' ? 'active' : ''} onClick={() => setPestaña('clasificacion')}>
-          📊 Tabla
-        </button>
-        <button className={pestaña === 'partidos' ? 'active' : ''} onClick={() => setPestaña('partidos')}>
-          🗓️ Partidos
-        </button>
-        {token && (
-          <button className={pestaña === 'gestion' ? 'active' : ''} onClick={() => setPestaña('gestion')}>
-            ⚙️ Gestión
+        <nav className="sidebar-nav">
+          <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => setPestaña('landing')}>
+            <span>🏠 Inicio</span>
           </button>
-        )}
-        {token ? (
-          <button className="btn-logout-nav" onClick={handleLogout}>Cerrar Sesión</button>
-        ) : (
-          <button className={pestaña === 'login' ? 'active' : ''} onClick={() => setPestaña('login')}>
-            🔐 Admin
+          <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => setPestaña('clasificacion')}>
+            <span>📊 Resultados</span>
           </button>
-        )}
-      </nav>
+          <button className={`nav-item ${pestaña === 'partidos' ? 'active' : ''}`} onClick={() => setPestaña('partidos')}>
+            <span>🗓️ Calendario</span>
+          </button>
+          {token && (
+            <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => setPestaña('gestion')}>
+              <span>⚙️ Ajustes</span>
+            </button>
+          )}
+        </nav>
 
-      <main className="content">
+        <button className="upgrade-box">
+          Mejorar a Pro
+        </button>
+      </aside>
+
+      <div className="main-wrapper">
+        {/* NAVBAR */}
+        <header className="navbar">
+          <div className="brand">HOOP LEAGUE</div>
+          <nav className="top-nav">
+            <span className="active" onClick={() => setPestaña('landing')}>Ligas</span>
+            <span onClick={() => setPestaña('partidos')}>Calendario</span>
+            <span onClick={() => setPestaña('clasificacion')}>Equipos</span>
+            <span onClick={() => setPestaña('clasificacion')}>Estadísticas</span>
+          </nav>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <span style={{ cursor: 'pointer', fontSize: '20px' }}>🔔</span>
+            {token ? (
+              <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
+            ) : (
+              <button className="login-btn" onClick={() => setPestaña('login')}>
+                👤 Iniciar Sesión
+              </button>
+            )}
+          </div>
+        </header>
+
+        <main className="content-area">
 
         {/* ── LANDING PAGE ── */}
         {pestaña === 'landing' && (
-          <div className="card anim-fade landing-card">
-            <div className="landing-hero">
-              <span className="landing-icon">🏀</span>
-              <h2>Liga de Baloncesto Juvenil</h2>
-              <p className="landing-season">Temporada {temporada}</p>
-              <p className="landing-desc">
-                Sigue en tiempo real la clasificación, el calendario de partidos y el detalle de cada equipo de la liga.
-              </p>
-            </div>
-            <div className="landing-actions">
-              <button className="btn-landing" onClick={() => setPestaña('clasificacion')}>
-                📊 Ver Clasificación
-              </button>
-              <button className="btn-landing" onClick={() => setPestaña('partidos')}>
-                🗓️ Ver Calendario
-              </button>
-            </div>
-            <div className="landing-equipos">
-              <h3>Equipos participantes</h3>
-              <div className="equipos-grid">
+          <div className="landing-grid anim-fade">
+            {/* HERO */}
+            <section className="hero-section">
+              <img src={heroBg} alt="Basketball" className="hero-bg" />
+              <div className="hero-content">
+                <h1>Liga de Baloncesto Juvenil</h1>
+                <p>
+                  La plataforma definitiva para el desarrollo del talento joven. 
+                  Sigue a los equipos, consulta estadísticas en vivo y no te pierdas la acción de la temporada {temporada}.
+                </p>
+                <button className="btn-primary" onClick={() => setPestaña('clasificacion')}>
+                  📊 Ver Clasificación
+                </button>
+              </div>
+            </section>
+
+            {/* MVP SECTION */}
+            <section className="mvp-section">
+              <div className="mvp-info">
+                <span className="mvp-badge">MVP de la Semana</span>
+                <h2>Carlos "El Rayo" Méndez</h2>
+                <p className="mvp-desc">
+                  Promedió 28 puntos, 8 asistencias y 5 robos liderando a los Halcones hacia una racha de 3 victorias consecutivas.
+                </p>
+                <div className="mvp-stats">
+                  <div className="stat-box">
+                    <span className="stat-val">28</span>
+                    <span className="stat-label">PTS</span>
+                  </div>
+                  <div className="stat-box">
+                    <span className="stat-val">8</span>
+                    <span className="stat-label">AST</span>
+                  </div>
+                  <div className="stat-box">
+                    <span className="stat-val">5</span>
+                    <span className="stat-label">ROB</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mvp-image-container">
+                <img src={mvpImg} alt="MVP Player" className="mvp-img" />
+              </div>
+            </section>
+
+            {/* TEAMS SECTION */}
+            <section className="teams-section">
+              <div className="section-header">
+                <span>👥</span>
+                <h2>Equipos Participantes</h2>
+              </div>
+              <div className="teams-grid">
                 {equipos.length > 0 ? equipos.map((eq, i) => (
-                  <div key={eq.clas_id ?? eq.equipo_id ?? eq.id} className="equipo-card" onClick={() => verJugadores(eq)}>
-                    <span className="equipo-pos">#{i + 1}</span>
-                    <span className="equipo-nombre">{eq.nombre}</span>
-                    <span className="equipo-pts">{eq.puntos ?? 0} pts</span>
+                  <div key={`${eq.clas_id ?? ''}-${eq.equipo_id ?? ''}-${eq.id ?? ''}-${i}`} className="team-card" onClick={() => verJugadores(eq)}>
+                    <div className="team-logo-circle">
+                      {eq.nombre.substring(0, 2).toUpperCase()}
+                    </div>
+                    <h3>{eq.nombre}</h3>
+                    <p className="team-division">División Juvenil</p>
+                    <div className="team-metrics">
+                      <div className="metric">
+                        <span className="metric-val">{eq.pg ?? 0}-{eq.pp ?? 0}</span>
+                        <span className="metric-label">Récord</span>
+                      </div>
+                      <div className="metric">
+                        <span className="metric-val metric-pos">{i + 1}º</span>
+                        <span className="metric-label">Posición</span>
+                      </div>
+                    </div>
                   </div>
                 )) : (
-                  <p style={{ textAlign: 'center', color: '#888' }}>Sin equipos registrados para esta temporada.</p>
+                  <p style={{ gridColumn: '1/-1', textAlign: 'center', color: '#64748b' }}>
+                    Sin equipos registrados para esta temporada.
+                  </p>
                 )}
               </div>
-            </div>
+            </section>
           </div>
         )}
 
         {/* ── TABLA DE CLASIFICACIÓN ── */}
         {pestaña === 'clasificacion' && (
-          <div className="card anim-fade">
-            <h3>Clasificación Actual — {temporada}</h3>
+          <div className="table-card anim-fade">
+            <div className="section-header-flex">
+              <div>
+                <h2>Tabla de Clasificación</h2>
+                <p style={{ color: '#64748b', fontSize: '14px' }}>Sigue el rendimiento de los equipos en la liga actual.</p>
+              </div>
+              <div className="table-controls">
+                <select className="season-select" value={temporada} onChange={(e) => setTemporada(e.target.value)}>
+                  <option value="2025-2">Temporada 2025-II</option>
+                  <option value="2026-2">Temporada 2026-II</option>
+                </select>
+                <button className="filter-btn">≡</button>
+              </div>
+            </div>
+
             <div className="table-wrapper">
               <table>
                 <thead>
                   <tr>
-                    <th>Pos</th><th>Equipo</th><th>Pts</th>
-                    <th>PJ</th><th>PG</th><th>PE</th><th>PP</th>
-                    <th>TF</th><th>TC</th><th>DIF</th><th>Acciones</th>
+                    <th>Pos</th><th>Equipo</th><th className="highlight-col">PTS</th>
+                    <th>PJ</th><th>PG</th><th>PP</th>
+                    <th>TF</th><th>TC</th><th>DIF</th><th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -453,13 +528,15 @@ function App() {
                         return (b.tf ?? 0) - (a.tf ?? 0);
                       })
                       .map((eq, i) => (
-                        <tr key={eq.clas_id ?? eq.equipo_id ?? eq.id}>
+                        <tr key={`${eq.clas_id ?? ''}-${eq.equipo_id ?? ''}-${eq.id ?? ''}-${i}`}>
                           <td><strong>{i + 1}</strong></td>
-                          <td className="bold">{eq.nombre}</td>
-                          <td className="score-cell">{eq.puntos ?? 0}</td>
+                          <td className="team-cell">
+                            <div className="team-icon-sm">{eq.nombre.substring(0, 2).toUpperCase()}</div>
+                            {eq.nombre}
+                          </td>
+                          <td className="score-cell highlight-col">{eq.puntos ?? 0}</td>
                           <td>{eq.pj ?? 0}</td>
                           <td>{eq.pg ?? 0}</td>
-                          <td>{eq.pe ?? 0}</td>
                           <td>{eq.pp ?? 0}</td>
                           <td>{eq.tf ?? 0}</td>
                           <td>{eq.tc ?? 0}</td>
@@ -467,7 +544,7 @@ function App() {
                             {(eq.dif ?? 0) > 0 ? '+' : ''}{eq.dif ?? 0}
                           </td>
                           <td>
-                            <button className="btn-edit-inline" onClick={() => verJugadores(eq)}>👥 Ver</button>
+                            <button className="btn-edit-inline" onClick={() => verJugadores(eq)}>👥 Plantilla</button>
                             {token && (
                               <button className="btn-delete-inline" onClick={() => eliminarEquipo(eq.equipo_id ?? eq.id)}>🗑️</button>
                             )}
@@ -476,7 +553,7 @@ function App() {
                       ))
                   ) : (
                     <tr>
-                      <td colSpan="11" style={{ textAlign: 'center', padding: '20px' }}>
+                      <td colSpan="11" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
                         No hay datos para la temporada {temporada}.
                       </td>
                     </tr>
@@ -484,52 +561,67 @@ function App() {
                 </tbody>
               </table>
             </div>
+            
+            <div className="table-legend">
+              <span>● PTS: Puntos</span>
+              <span>● PJ: Partidos Jugados</span>
+              <span>● PG: Ganados</span>
+              <span>● PP: Perdidos</span>
+              <span>● TF/TC: Tantos Favor/Contra</span>
+            </div>
           </div>
         )}
 
         {/* ── VISTA POR EQUIPO ── */}
         {pestaña === 'jugadores' && equipoSeleccionado && (
-          <div className="card anim-fade">
-            <button className="btn-cancel" onClick={() => setPestaña('clasificacion')}>← Volver a Clasificación</button>
+          <div className="table-card anim-fade">
+            <button className="btn-edit-inline" onClick={() => setPestaña('clasificacion')} style={{ marginBottom: '20px' }}>
+              ← Volver a Clasificación
+            </button>
 
-            <div style={{ margin: '20px 0' }}>
-              <h3>🏀 {equipoSeleccionado.nombre}</h3>
-              <p>
-                <strong>DT: </strong>
-                {token ? (
-                  <input
-                    type="text"
-                    className="edit-input-small"
-                    value={equipoSeleccionado.entrenador || ''}
-                    onChange={(e) => setEquipoSeleccionado({ ...equipoSeleccionado, entrenador: e.target.value })}
-                    onBlur={(e) => guardarEntrenador(equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, e.target.value)}
-                  />
-                ) : (
-                  equipoSeleccionado.entrenador || 'Sin asignar'
-                )}
-              </p>
+            <div className="section-header-flex">
+              <div>
+                <h2>🏀 {equipoSeleccionado.nombre}</h2>
+                <p style={{ color: '#64748b' }}>
+                  <strong>Director Técnico: </strong>
+                  {token ? (
+                    <input
+                      type="text"
+                      className="season-select"
+                      value={equipoSeleccionado.entrenador || ''}
+                      onChange={(e) => setEquipoSeleccionado({ ...equipoSeleccionado, entrenador: e.target.value })}
+                      onBlur={(e) => guardarEntrenador(equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, e.target.value)}
+                    />
+                  ) : (
+                    equipoSeleccionado.entrenador || 'Sin asignar'
+                  )}
+                </p>
+              </div>
             </div>
 
             {token && (
-              <div style={{ marginBottom: '16px' }}>
-                <h4>Agregar jugador</h4>
+              <div style={{ marginBottom: '32px', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
+                <h4>Añadir Jugador a la Plantilla</h4>
                 <form onSubmit={guardarJugador} className="grid-form">
                   <input
                     type="text" placeholder="Nombre y Apellido"
                     value={nuevoJugador.nombre}
                     onChange={e => setNuevoJugador({ ...nuevoJugador, nombre: e.target.value })}
+                    className="season-select"
                     required
                   />
                   <input
-                    type="text" placeholder="Categoría"
+                    type="text" placeholder="Categoría (ej. Sub-18)"
                     value={nuevoJugador.categoria}
                     onChange={e => setNuevoJugador({ ...nuevoJugador, categoria: e.target.value })}
+                    className="season-select"
                     required
                   />
                   <input
-                    type="number" placeholder="Pts anotados"
+                    type="number" placeholder="Puntos"
                     value={nuevoJugador.puntos_anotados}
                     onChange={e => setNuevoJugador({ ...nuevoJugador, puntos_anotados: e.target.value })}
+                    className="season-select"
                     required
                   />
                   <button type="submit" className="btn-success">Añadir</button>
@@ -537,46 +629,50 @@ function App() {
               </div>
             )}
 
-            <h4>Plantilla</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th>Nombre y Apellido</th><th>Categoría</th><th>Pts</th>
-                  {token && <th>Acciones</th>}
-                </tr>
-              </thead>
+            <h4>Plantilla del Equipo</h4>
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Jugador</th><th>Categoría</th><th>Puntos Totales</th>
+                    {token && <th>Acciones</th>}
+                  </tr>
+                </thead>
               <tbody>
                 {jugadores.length === 0 ? (
                   <tr><td colSpan="4" style={{ textAlign: 'center', padding: '12px' }}>Sin jugadores registrados.</td></tr>
-                ) : jugadores.map(j => (
-                  <tr key={j.id}>
-                    {editandoJugadorId === j.id ? (
-                      <>
-                        <td><input className="edit-input" value={datosEdicionJugador.nombre} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, nombre: e.target.value })} /></td>
-                        <td><input className="edit-input" value={datosEdicionJugador.categoria} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, categoria: e.target.value })} /></td>
-                        <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
-                        <td>
-                          <button onClick={() => guardarCambiosJugador(j.id)}>💾</button>
-                          <button onClick={() => setEditandoJugadorId(null)}>✖</button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td>{j.nombre}</td>
-                        <td>{j.categoria}</td>
-                        <td>{j.puntos_anotados ?? j.Puntos_anotados ?? 0}</td>
-                        {token && (
+                ) : (
+                  jugadores.map(j => (
+                    <tr key={j.id}>
+                      {editandoJugadorId === j.id ? (
+                        <>
+                          <td><input className="edit-input" value={datosEdicionJugador.nombre} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, nombre: e.target.value })} /></td>
+                          <td><input className="edit-input" value={datosEdicionJugador.categoria} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, categoria: e.target.value })} /></td>
+                          <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
                           <td>
-                            <button onClick={() => iniciarEdicionJugador(j)}>✏️</button>
-                            <button onClick={() => eliminarJugador(j.id)}>🗑️</button>
+                            <button onClick={() => guardarCambiosJugador(j.id)}>💾</button>
+                            <button onClick={() => setEditandoJugadorId(null)}>✖</button>
                           </td>
-                        )}
-                      </>
-                    )}
-                  </tr>
-                ))}
+                        </>
+                      ) : (
+                        <>
+                          <td>{j.nombre}</td>
+                          <td>{j.categoria}</td>
+                          <td>{j.puntos_anotados ?? j.Puntos_anotados ?? 0}</td>
+                          {token && (
+                            <td>
+                              <button onClick={() => iniciarEdicionJugador(j)}>✏️</button>
+                              <button onClick={() => eliminarJugador(j.id)}>🗑️</button>
+                            </td>
+                          )}
+                        </>
+                      )}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
+          </div>
 
             <h4 style={{ marginTop: '24px' }}>Partidos jugados</h4>
             {(() => {
@@ -626,8 +722,11 @@ function App() {
 
         {/* ── CALENDARIO DE PARTIDOS ── */}
         {pestaña === 'partidos' && (
-          <div className="card anim-fade">
-            <h3>Calendario — {temporada}</h3>
+          <div className="table-card anim-fade">
+            <div className="section-header">
+              <span>🗓️</span>
+              <h2>Calendario de Partidos</h2>
+            </div>
 
             {editandoPartido && (
               <form
@@ -745,66 +844,101 @@ function App() {
 
         {/* ── PANEL DE GESTIÓN (solo admin) ── */}
         {pestaña === 'gestion' && token && (
-          <div className="card anim-fade">
-            <h3>Panel de Gestión</h3>
+          <div className="table-card anim-fade">
+            <div className="section-header">
+              <span>⚙️</span>
+              <h2>Panel de Gestión Administrativa</h2>
+            </div>
 
-            <h4>Crear equipo</h4>
-            <form onSubmit={crearEquipo} className="grid-form">
-              <input
-                type="text"
-                placeholder="Nombre del Equipo"
-                value={nuevoEquipo.nombre}
-                onChange={e => setNuevoEquipo({ ...nuevoEquipo, nombre: e.target.value })}
-                required
-              />
-              <select
-                value={nuevoEquipo.temporadaEquipo}
-                onChange={e => setNuevoEquipo({ ...nuevoEquipo, temporadaEquipo: e.target.value })}
-                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px' }}
-              >
-                <option value="2025-2">Temporada 2025-II</option>
-                <option value="2026-2">Temporada 2026-II</option>
-              </select>
-              <button type="submit" className="btn-success">Crear Equipo</button>
-            </form>
+            <div style={{ marginBottom: '32px' }}>
+              <h4>Crear Nuevo Equipo</h4>
+              <form onSubmit={crearEquipo} className="grid-form">
+                <input
+                  type="text"
+                  placeholder="Nombre del Equipo"
+                  value={nuevoEquipo.nombre}
+                  onChange={e => setNuevoEquipo({ ...nuevoEquipo, nombre: e.target.value })}
+                  required
+                />
+                <select
+                  value={nuevoEquipo.temporadaEquipo}
+                  onChange={e => setNuevoEquipo({ ...nuevoEquipo, temporadaEquipo: e.target.value })}
+                  className="season-select"
+                >
+                  <option value="2025-2">Temporada 2025-II</option>
+                  <option value="2026-2">Temporada 2026-II</option>
+                </select>
+                <button type="submit" className="btn-success">Crear Equipo</button>
+              </form>
+            </div>
 
-            <div className="btn-group-vertical" style={{ marginTop: '20px' }}>
-              <p style={{ fontSize: '13px', color: '#666', margin: '0 0 8px' }}>
-                Las siguientes acciones aplican a la temporada seleccionada en el encabezado: <strong>{temporada}</strong>
+            <div className="btn-group-vertical">
+              <h4>Acciones Globales</h4>
+              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+                Las siguientes acciones aplican a la temporada seleccionada: <strong>{temporada}</strong>
               </p>
-              <button className="btn-primary" onClick={generarCalendarioAleatorio}>
-                🔄 Generar Calendario Todo vs Todo (ida y vuelta)
-              </button>
-              <button className="btn-danger" onClick={reiniciarTodo}>
-                ⚠️ Reiniciar Temporada
-              </button>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <button className="btn-primary" onClick={generarCalendarioAleatorio}>
+                  🔄 Generar Calendario Todo vs Todo
+                </button>
+                <button className="btn-danger" onClick={reiniciarTodo}>
+                  ⚠️ Reiniciar Temporada (Borrar Todo)
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* ── LOGIN ── */}
         {pestaña === 'login' && !token && (
-          <div className="card anim-fade login-card">
-            <h3>Acceso Administrativo</h3>
-            <form onSubmit={handleLogin}>
-              <input
-                type="text" placeholder="Usuario"
-                onChange={e => setLoginData({ ...loginData, usuario: e.target.value })}
-                required
-              />
-              <input
-                type="password" placeholder="Clave"
-                onChange={e => setLoginData({ ...loginData, password: e.target.value })}
-                required
-              />
-              <button type="submit" className="btn-primary">Entrar</button>
+          <div className="table-card anim-fade login-card" style={{ maxWidth: '400px', margin: '60px auto' }}>
+            <div className="section-header" style={{ justifyContent: 'center' }}>
+              <span>👤</span>
+              <h2>Acceso Administrativo</h2>
+            </div>
+            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="input-group">
+                <label>Usuario</label>
+                <input
+                  type="text" placeholder="Tu nombre de usuario"
+                  onChange={e => setLoginData({ ...loginData, usuario: e.target.value })}
+                  className="season-select"
+                  style={{ width: '100%' }}
+                  required
+                />
+              </div>
+              <div className="input-group">
+                <label>Contraseña</label>
+                <input
+                  type="password" placeholder="Tu clave de acceso"
+                  onChange={e => setLoginData({ ...loginData, password: e.target.value })}
+                  className="season-select"
+                  style={{ width: '100%' }}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-primary" style={{ width: '100%' }}>Entrar al Panel</button>
             </form>
           </div>
         )}
 
       </main>
+
+        <footer className="footer">
+          <div className="footer-content">
+            <div className="brand">HOOP LEAGUE</div>
+            <div className="footer-links">
+              <span>Política de Privacidad</span>
+              <span>Términos de Servicio</span>
+              <span>Soporte Técnico</span>
+              <span>Patrocinios</span>
+            </div>
+          </div>
+          <p className="copyright">© 2024 HOOP LEAGUE. TODOS LOS DERECHOS RESERVADOS.</p>
+        </footer>
+      </div>
     </div>
   );
-}
+} 
 
 export default App;
