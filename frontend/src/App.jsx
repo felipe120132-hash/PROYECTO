@@ -757,58 +757,77 @@ function App() {
             {partidos.length === 0 ? (
               <p style={{ textAlign: 'center', margin: '20px' }}>Sin partidos generados para esta temporada.</p>
             ) : (
-              partidos.map(p => (
-                <div key={p.id} className="partido-item">
-                  <div className="teams">
-                    <span>{p.nombre_local}</span>
-                    <span className="score">
-                      {p.jugado ? `${p.puntos_local} — ${p.puntos_visitante}` : 'vs'}
-                    </span>
-                    <span>{p.nombre_visitante}</span>
-                  </div>
-                  <div className="estadio-info">
-                    📅 {p.fecha ? new Date(p.fecha).toLocaleDateString('es-AR') : 'Fecha pendiente'}
-                    &nbsp;·&nbsp;🕐 {p.horario || 'Horario pendiente'}
-                    &nbsp;·&nbsp;📍 {p.lugar || 'Lugar pendiente'}
-                  </div>
-                  {token && (
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                      <button
-                        className="btn-edit-inline"
-                        onClick={() => setEditandoPartido({
-                          id: p.id,
-                          nombre_local: p.nombre_local,
-                          nombre_visitante: p.nombre_visitante,
-                          fecha: p.fecha ? p.fecha.split('T')[0] : '',
-                          horario: p.horario || '',
-                          lugar: p.lugar || '',
-                        })}
-                      >
-                        📋 Editar datos
-                      </button>
-                      <button
-                        className="btn-edit-inline"
-                        onClick={() => {
-                          setResultadoData({
-                            partidoId: p.id,
-                            puntos_local: p.puntos_local || 0,
-                            puntos_visitante: p.puntos_visitante || 0,
-                          });
-                          setPestaña('cargar');
-                        }}
-                      >
-                        ✏️ Marcador
-                      </button>
-                      <button
-                        className="btn-delete-inline"
-                        onClick={() => eliminarPartido(p.id)}
-                      >
-                        🗑️ Eliminar
-                      </button>
+              <div className="calendar-grid">
+                {partidos.map(p => (
+                  <div key={p.id} className="partido-item anim-fade">
+                    <div className="match-main">
+                      <div className="match-team team-local">
+                        <span>{p.nombre_local}</span>
+                        <div className="team-icon-sm">{p.nombre_local.substring(0, 2).toUpperCase()}</div>
+                      </div>
+                      
+                      {p.jugado ? (
+                        <div className="match-score-badge">
+                          {p.puntos_local} — {p.puntos_visitante}
+                        </div>
+                      ) : (
+                        <div className="match-vs-badge">VS</div>
+                      )}
+
+                      <div className="match-team team-visitante">
+                        <div className="team-icon-sm">{p.nombre_visitante.substring(0, 2).toUpperCase()}</div>
+                        <span>{p.nombre_visitante}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
+
+                    <div className="match-details">
+                      <div className="detail-item">
+                        <span>📅</span> {p.fecha ? new Date(p.fecha).toLocaleDateString('es-AR') : 'Pendiente'}
+                      </div>
+                      <div className="detail-item">
+                        <span>🕐</span> {p.horario || 'Pendiente'}
+                      </div>
+                      <div className="detail-item">
+                        <span>📍</span> {p.lugar || 'Cancha por asignar'}
+                      </div>
+                    </div>
+
+                    {token && (
+                      <div className="match-actions">
+                        <button
+                          className="btn-edit-inline"
+                          onClick={() => setEditandoPartido({
+                            id: p.id,
+                            nombre_local: p.nombre_local,
+                            nombre_visitante: p.nombre_visitante,
+                            fecha: p.fecha ? p.fecha.split('T')[0] : '',
+                            horario: p.horario || '',
+                            lugar: p.lugar || '',
+                          })}
+                        >
+                          📋 Datos
+                        </button>
+                        <button
+                          className="btn-edit-inline"
+                          onClick={() => {
+                            setResultadoData({
+                              partidoId: p.id,
+                              puntos_local: p.puntos_local || 0,
+                              puntos_visitante: p.puntos_visitante || 0,
+                            });
+                            setPestaña('cargar');
+                          }}
+                        >
+                          ✏️ Marcador
+                        </button>
+                        <button className="btn-delete-inline" onClick={() => eliminarPartido(p.id)}>
+                          🗑️
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
