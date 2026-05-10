@@ -1,11 +1,12 @@
 const db = require('../config/db');
+
 // Controlador para obtener los equipos de una temporada específica
 exports.getEquipos = async (req, res) => {
     const { temporada } = req.query;
     if (!temporada) return res.status(400).json({ msg: 'Se requiere el parámetro temporada.' });
     try {
         const [rows] = await db.query(`
-            SELECT equipos.id, equipos.nombre, equipos.entrenador,
+            SELECT equipos.id, equipos.nombre, equipos.entrenador, equipos.logo,
                    c.id AS clas_id, c.equipo_id, c.pj, c.pg, c.pe, c.pp,
                    c.tf, c.tc, (c.tf - c.tc) AS dif, c.puntos
             FROM clasificacion c
@@ -19,24 +20,23 @@ exports.getEquipos = async (req, res) => {
         res.status(500).json({ msg: 'Error al obtener equipos', error });
     }
 };
+
 // Controlador para crear un nuevo equipo en una temporada específica
 exports.createEquipo = async (req, res) => {
     const { nombre, temporada } = req.body;
     if (!nombre || !nombre.trim()) return res.status(400).json({ msg: 'El nombre del equipo es obligatorio.' });
     if (!temporada) return res.status(400).json({ msg: 'La temporada es obligatoria.' });
-// Usamos una transacción para asegurar la integridad de los datos
+
     const conn = await db.getConnection();
     try {
         await conn.beginTransaction();
 
-        // Buscar si el equipo ya existe
         const [[equipoExistente]] = await conn.query(
             'SELECT id FROM equipos WHERE nombre = ?', [nombre.trim()]
         );
 
         let equipoId; 
         if (equipoExistente) {
-            // Verificar si ya está en esta temporada
             const [[yaEnTemporada]] = await conn.query(
                 'SELECT id FROM clasificacion WHERE equipo_id = ? AND temporada = ?',
                 [equipoExistente.id, temporada]
@@ -51,16 +51,6 @@ exports.createEquipo = async (req, res) => {
                 'INSERT INTO equipos (nombre, entrenador) VALUES (?, ?)', [nombre.trim(), '']
             );
             equipoId = result.insertId;
-        }
-
-        // Verificar una vez más antes de insertar en clasificacion
-        const [[claDupe]] = await conn.query(
-            'SELECT id FROM clasificacion WHERE equipo_id = ? AND temporada = ?',
-            [equipoId, temporada]
-        );
-        if (claDupe) {
-            await conn.rollback();
-            return res.status(409).json({ msg: 'Este equipo ya existe en esta temporada.' });
         }
 
         await conn.query(
@@ -79,6 +69,7 @@ exports.createEquipo = async (req, res) => {
         conn.release();
     }
 };
+
 // Controlador para eliminar un equipo de una temporada específica
 exports.deleteEquipo = async (req, res) => {
     const { id } = req.params;
@@ -100,7 +91,6 @@ exports.deleteEquipo = async (req, res) => {
             [id, temporada]
         );
 
-        // Verificar si el equipo participa en otras temporadas antes de eliminarlo completamente
         const [[{ otras }]] = await conn.query(
             'SELECT COUNT(*) AS otras FROM clasificacion WHERE equipo_id = ?', [id]
         );
@@ -125,6 +115,7 @@ exports.deleteEquipo = async (req, res) => {
         conn.release();
     }
 };
+
 // Controlador para actualizar el entrenador de un equipo
 exports.actualizarEntrenador = async (req, res) => {
     const { id } = req.params;
@@ -135,5 +126,21 @@ exports.actualizarEntrenador = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error al actualizar entrenador.' });
+    }
+};
+
+// Controlador para subir el logo (archivo)
+exports.subirLogo = async (req, res) => {
+    const { id } = req.params;
+    if (!req.file) {
+        return res.status(400).json({ error: 'No se subió ningún archivo.' });
+    }
+    const logoUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+    try {
+        await db.query('UPDATE equipos SET logo = ? WHERE id = ?', [logoUrl, id]);
+        res.json({ success: true, logo: logoUrl });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al actualizar logo.' });
     }
 };

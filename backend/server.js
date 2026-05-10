@@ -1,5 +1,6 @@
 const express = require('express'); // Framework web para Node.js.
 const cors = require('cors'); // Middleware para permitir peticiones desde diferentes dominios (CORS).
+const path = require('path');
 const equipoRoutes = require('./routes/equipoRoutes'); // Rutas para la gestión de equipos.
 const jugadorRoutes = require('./routes/jugadorRoutes'); // Rutas para la gestión de jugadores.
 const partidoRoutes = require('./routes/partidoRoutes'); // Rutas para la gestión de partidos y resultados.
@@ -10,6 +11,7 @@ const app = express(); // Inicialización de la aplicación Express.
 // MIDDLEWARES GLOBALES
 app.use(cors()); // Habilita el intercambio de recursos de origen cruzado para el frontend.
 app.use(express.json()); // Permite que el servidor entienda y procese datos en formato JSON en el cuerpo de las peticiones.
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- REGISTRO DE RUTAS ---
 // Montamos los enrutadores específicos bajo sus respectivos prefijos de API.

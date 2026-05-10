@@ -72,7 +72,9 @@ exports.obtenerPartidos = async (req, res) => {
                 p.equipo_local_id,
                 p.equipo_visitante_id,
                 e1.nombre AS nombre_local,
-                e2.nombre AS nombre_visitante
+                e1.logo AS logo_local,
+                e2.nombre AS nombre_visitante,
+                e2.logo AS logo_visitante
             FROM partidos p
             JOIN equipos e1 ON p.equipo_local_id    = e1.id
             JOIN equipos e2 ON p.equipo_visitante_id = e2.id
@@ -118,7 +120,7 @@ exports.crearPartido = async (req, res) => {
         res.status(201).json({ msg: 'Partido creado exitosamente.' });
     } catch (err) {
         console.error('[crearPartido]', err);
-        res.status(500).json({ error: 'Error al crear el partido.' });
+        res.status(500).json({ error: 'Error al crear the partido.' });
     }
 };
 

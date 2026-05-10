@@ -157,6 +157,27 @@ function App() {
     }
   };
 
+  const subirLogoArchivo = async (id, archivo) => {
+    if (!archivo) return;
+    const formData = new FormData();
+    formData.append('logo', archivo);
+
+    try {
+      const res = await axios.put(`${API}/equipos/${id}/logo`, formData, {
+        headers: {
+          ...authHeader().headers,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setEquipoSeleccionado(prev => ({ ...prev, logo: res.data.logo }));
+      cargarEquipos(temporada);
+      alert('✅ Escudo actualizado correctamente.');
+    } catch (err) {
+      if (err.response?.status === 401) handleLogout();
+      alert('Error al subir el escudo.');
+    }
+  };
+
   // ── GESTIÓN DE JUGADORES ─────────────────────────────────────────────────────
   const verJugadores = async (equipo) => {
     setEquipoSeleccionado(equipo);
@@ -354,7 +375,6 @@ function App() {
   // ── RENDER ───────────────────────────────────────────────────────────────────
   return (
     <div className="app-layout">
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="user-profile">
           <div className="avatar">
@@ -370,6 +390,9 @@ function App() {
           <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => setPestaña('landing')}>
             <span>🏠 Inicio</span>
           </button>
+          <button className={`nav-item ${pestaña === 'equipos' ? 'active' : ''}`} onClick={() => setPestaña('equipos')}>
+            <span>👥 Equipos</span>
+          </button>
           <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => setPestaña('clasificacion')}>
             <span>📊 Resultados</span>
           </button>
@@ -383,20 +406,23 @@ function App() {
           )}
         </nav>
 
-        <button className="upgrade-box">
-          Mejorar a Pro
-        </button>
+        <div className="sidebar-footer">
+          <p className="sidebar-label">Temporada activa</p>
+          <select className="season-select sidebar-select" value={temporada} onChange={(e) => setTemporada(e.target.value)}>
+            <option value="2025-2">Temporada 2025-II</option>
+            <option value="2026-2">Temporada 2026-II</option>
+          </select>
+        </div>
       </aside>
 
       <div className="main-wrapper">
-        {/* NAVBAR */}
         <header className="navbar">
           <div className="brand">HOOP LEAGUE</div>
           <nav className="top-nav">
-            <span className="active" onClick={() => setPestaña('landing')}>Ligas</span>
-            <span onClick={() => setPestaña('partidos')}>Calendario</span>
-            <span onClick={() => setPestaña('clasificacion')}>Equipos</span>
-            <span onClick={() => setPestaña('clasificacion')}>Estadísticas</span>
+            <span className={pestaña === 'landing' ? 'active' : ''} onClick={() => setPestaña('landing')}>Inicio</span>
+            <span className={pestaña === 'partidos' ? 'active' : ''} onClick={() => setPestaña('partidos')}>Calendario</span>
+            <span className={pestaña === 'equipos' ? 'active' : ''} onClick={() => setPestaña('equipos')}>Equipos</span>
+            <span className={pestaña === 'clasificacion' ? 'active' : ''} onClick={() => setPestaña('clasificacion')}>Estadísticas</span>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <span style={{ cursor: 'pointer', fontSize: '20px' }}>🔔</span>
@@ -434,7 +460,7 @@ function App() {
             <section className="mvp-section">
               <div className="mvp-info">
                 <span className="mvp-badge">MVP de la Semana</span>
-                <h2>Carlos "El Rayo" Méndez</h2>
+                <h2>Carlos \"El Rayo\" Méndez</h2>
                 <p className="mvp-desc">
                   Promedió 28 puntos, 8 asistencias y 5 robos liderando a los Halcones hacia una racha de 3 victorias consecutivas.
                 </p>
@@ -468,7 +494,11 @@ function App() {
                 {equipos.length > 0 ? equipos.map((eq, i) => (
                   <div key={`${eq.clas_id ?? ''}-${eq.equipo_id ?? ''}-${eq.id ?? ''}-${i}`} className="team-card" onClick={() => verJugadores(eq)}>
                     <div className="team-logo-circle">
-                      {eq.nombre.substring(0, 2).toUpperCase()}
+                      {eq.logo ? (
+                        <img src={eq.logo} alt={eq.nombre} />
+                      ) : (
+                        eq.nombre.substring(0, 2).toUpperCase()
+                      )}
                     </div>
                     <h3>{eq.nombre}</h3>
                     <p className="team-division">División Juvenil</p>
@@ -493,6 +523,47 @@ function App() {
           </div>
         )}
 
+        {/* ── SECCIÓN DE EQUIPOS ── */}
+        {pestaña === 'equipos' && (
+          <div className="table-card anim-fade">
+            <section className="teams-section">
+              <div className="section-header">
+                <span>👥</span>
+                <h2>Equipos de la Temporada {temporada}</h2>
+              </div>
+              <div className="teams-grid">
+                {equipos.length > 0 ? equipos.map((eq, i) => (
+                  <div key={`${eq.clas_id ?? ''}-${eq.equipo_id ?? ''}-${eq.id ?? ''}-${i}`} className="team-card" onClick={() => verJugadores(eq)}>
+                    <div className="team-logo-circle">
+                      {eq.logo ? (
+                        <img src={eq.logo} alt={eq.nombre} />
+                      ) : (
+                        eq.nombre.substring(0, 2).toUpperCase()
+                      )}
+                    </div>
+                    <h3>{eq.nombre}</h3>
+                    <p className="team-division">División Juvenil</p>
+                    <div className="team-metrics">
+                      <div className="metric">
+                        <span className="metric-val">{eq.pg ?? 0}-{eq.pp ?? 0}</span>
+                        <span className="metric-label">Récord</span>
+                      </div>
+                      <div className="metric">
+                        <span className="metric-val metric-pos">{i + 1}º</span>
+                        <span className="metric-label">Posición</span>
+                      </div>
+                    </div>
+                  </div>
+                )) : (
+                  <p style={{ textAlign: 'center', color: '#64748b' }}>
+                    Sin equipos registrados para esta temporada.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+
         {/* ── TABLA DE CLASIFICACIÓN ── */}
         {pestaña === 'clasificacion' && (
           <div className="table-card anim-fade">
@@ -502,10 +573,6 @@ function App() {
                 <p style={{ color: '#64748b', fontSize: '14px' }}>Sigue el rendimiento de los equipos en la liga actual.</p>
               </div>
               <div className="table-controls">
-                <select className="season-select" value={temporada} onChange={(e) => setTemporada(e.target.value)}>
-                  <option value="2025-2">Temporada 2025-II</option>
-                  <option value="2026-2">Temporada 2026-II</option>
-                </select>
                 <button className="filter-btn">≡</button>
               </div>
             </div>
@@ -531,7 +598,9 @@ function App() {
                         <tr key={`${eq.clas_id ?? ''}-${eq.equipo_id ?? ''}-${eq.id ?? ''}-${i}`}>
                           <td><strong>{i + 1}</strong></td>
                           <td className="team-cell">
-                            <div className="team-icon-sm">{eq.nombre.substring(0, 2).toUpperCase()}</div>
+                            <div className="team-icon-sm">
+                              {eq.logo ? <img src={eq.logo} alt={eq.nombre} /> : eq.nombre.substring(0, 2).toUpperCase()}
+                            </div>
                             {eq.nombre}
                           </td>
                           <td className="score-cell highlight-col">{eq.puntos ?? 0}</td>
@@ -580,22 +649,46 @@ function App() {
             </button>
 
             <div className="section-header-flex">
-              <div>
-                <h2>🏀 {equipoSeleccionado.nombre}</h2>
-                <p style={{ color: '#64748b' }}>
-                  <strong>Director Técnico: </strong>
-                  {token ? (
-                    <input
-                      type="text"
-                      className="season-select"
-                      value={equipoSeleccionado.entrenador || ''}
-                      onChange={(e) => setEquipoSeleccionado({ ...equipoSeleccionado, entrenador: e.target.value })}
-                      onBlur={(e) => guardarEntrenador(equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, e.target.value)}
-                    />
-                  ) : (
-                    equipoSeleccionado.entrenador || 'Sin asignar'
-                  )}
-                </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div className="team-logo-circle" style={{ marginBottom: 0, width: '100px', height: '100px', fontSize: '32px' }}>
+                   {equipoSeleccionado.logo ? (
+                     <img src={equipoSeleccionado.logo} alt={equipoSeleccionado.nombre} />
+                   ) : (
+                     equipoSeleccionado.nombre.substring(0, 2).toUpperCase()
+                   )}
+                </div>
+                <div>
+                  <h2>🏀 {equipoSeleccionado.nombre}</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <strong>DT:</strong>
+                      {token ? (
+                        <input
+                          type="text"
+                          className="season-select"
+                          style={{ padding: '4px 12px', fontSize: '13px' }}
+                          value={equipoSeleccionado.entrenador || ''}
+                          onChange={(e) => setEquipoSeleccionado({ ...equipoSeleccionado, entrenador: e.target.value })}
+                          onBlur={(e) => guardarEntrenador(equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, e.target.value)}
+                        />
+                      ) : (
+                        equipoSeleccionado.entrenador || 'Sin asignar'
+                      )}
+                    </p>
+                    {token && (
+                      <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <strong>Cambiar Escudo:</strong>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="season-select"
+                          style={{ padding: '4px 12px', fontSize: '13px', width: '250px' }}
+                          onChange={(e) => subirLogoArchivo(equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, e.target.files[0])}
+                        />
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -763,7 +856,9 @@ function App() {
                     <div className="match-main">
                       <div className="match-team team-local">
                         <span>{p.nombre_local}</span>
-                        <div className="team-icon-sm">{p.nombre_local.substring(0, 2).toUpperCase()}</div>
+                        <div className="team-icon-sm">
+                           {p.logo_local ? <img src={p.logo_local} alt={p.nombre_local} /> : p.nombre_local.substring(0, 2).toUpperCase()}
+                        </div>
                       </div>
                       
                       {p.jugado ? (
@@ -775,7 +870,9 @@ function App() {
                       )}
 
                       <div className="match-team team-visitante">
-                        <div className="team-icon-sm">{p.nombre_visitante.substring(0, 2).toUpperCase()}</div>
+                        <div className="team-icon-sm">
+                           {p.logo_visitante ? <img src={p.logo_visitante} alt={p.nombre_visitante} /> : p.nombre_visitante.substring(0, 2).toUpperCase()}
+                        </div>
                         <span>{p.nombre_visitante}</span>
                       </div>
                     </div>
@@ -958,6 +1055,6 @@ function App() {
       </div>
     </div>
   );
-} 
+}
 
 export default App;

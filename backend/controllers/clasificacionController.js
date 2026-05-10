@@ -13,6 +13,7 @@ exports.obtenerTabla = async (req, res) => {
                 e.id,
                 e.nombre, 
                 e.entrenador,
+                e.logo,
                 c.id        AS clas_id,
                 c.equipo_id,
                 c.puntos, 
