@@ -12,6 +12,7 @@ function App() {
   const [temporada, setTemporada] = useState('2026-2');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [loginData, setLoginData] = useState({ usuario: '', password: '' });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // ── DATOS PRINCIPALES ───────────────────────────────────────────────────────
   const [equipos, setEquipos] = useState([]);
@@ -95,6 +96,7 @@ function App() {
     setToken('');
     localStorage.removeItem('token');
     setPestaña('clasificacion');
+    setMenuOpen(false);
   };
 
   // ── GESTIÓN DE EQUIPOS ───────────────────────────────────────────────────────
@@ -190,6 +192,7 @@ function App() {
       setJugadores(resJugadores.data);
       setPartidos(resPartidos.data);
       setPestaña('jugadores');
+      window.scrollTo(0, 0);
     } catch {
       alert('Error al cargar la plantilla.');
     }
@@ -372,10 +375,19 @@ function App() {
     return { label: 'Empate', cls: 'resultado-empate' };
   };
 
+  const navigateTo = (p) => {
+    setPestaña(p);
+    setMenuOpen(false);
+    window.scrollTo(0, 0);
+  };
+
   // ── RENDER ───────────────────────────────────────────────────────────────────
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      {/* Overlay para cerrar menu mobile */}
+      {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
+
+      <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`}>
         <div className="user-profile">
           <div className="avatar">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Usuario" />
@@ -387,20 +399,20 @@ function App() {
         </div>
 
         <nav className="sidebar-nav">
-          <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => setPestaña('landing')}>
+          <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => navigateTo('landing')}>
             <span>🏠 Inicio</span>
           </button>
-          <button className={`nav-item ${pestaña === 'equipos' ? 'active' : ''}`} onClick={() => setPestaña('equipos')}>
+          <button className={`nav-item ${pestaña === 'equipos' ? 'active' : ''}`} onClick={() => navigateTo('equipos')}>
             <span>👥 Equipos</span>
           </button>
-          <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => setPestaña('clasificacion')}>
+          <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => navigateTo('clasificacion')}>
             <span>📊 Resultados</span>
           </button>
-          <button className={`nav-item ${pestaña === 'partidos' ? 'active' : ''}`} onClick={() => setPestaña('partidos')}>
+          <button className={`nav-item ${pestaña === 'partidos' ? 'active' : ''}`} onClick={() => navigateTo('partidos')}>
             <span>🗓️ Calendario</span>
           </button>
           {token && (
-            <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => setPestaña('gestion')}>
+            <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => navigateTo('gestion')}>
               <span>⚙️ Ajustes</span>
             </button>
           )}
@@ -417,7 +429,13 @@ function App() {
 
       <div className="main-wrapper">
         <header className="navbar">
-          <div className="brand">HOOP LEAGUE</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+              ☰
+            </button>
+            <div className="brand">HOOP LEAGUE</div>
+          </div>
+          
           <nav className="top-nav">
             <span className={pestaña === 'landing' ? 'active' : ''} onClick={() => setPestaña('landing')}>Inicio</span>
             <span className={pestaña === 'partidos' ? 'active' : ''} onClick={() => setPestaña('partidos')}>Calendario</span>
@@ -649,7 +667,7 @@ function App() {
             </button>
 
             <div className="section-header-flex">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
                 <div className="team-logo-circle" style={{ marginBottom: 0, width: '100px', height: '100px', fontSize: '32px' }}>
                    {equipoSeleccionado.logo ? (
                      <img src={equipoSeleccionado.logo} alt={equipoSeleccionado.nombre} />
@@ -676,13 +694,13 @@ function App() {
                       )}
                     </p>
                     {token && (
-                      <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                         <strong>Cambiar Escudo:</strong>
                         <input
                           type="file"
                           accept="image/*"
                           className="season-select"
-                          style={{ padding: '4px 12px', fontSize: '13px', width: '250px' }}
+                          style={{ padding: '4px 12px', fontSize: '13px', width: '220px' }}
                           onChange={(e) => subirLogoArchivo(equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, e.target.files[0])}
                         />
                       </p>
@@ -931,7 +949,7 @@ function App() {
 
         {/* ── CARGAR RESULTADO ── */}
         {pestaña === 'cargar' && (
-          <div className="card anim-fade">
+          <div className="table-card anim-fade">
             <h3>Actualizar Marcador</h3>
             <form onSubmit={enviarResultado} className="grid-form">
               <div className="input-group">
