@@ -817,7 +817,7 @@ function App() {
                 <div key={p.id} className="partido-item">
                   <div className="teams">
                     <span>{p.nombre_local}</span>
-                    <span className="score">vs</span>
+                    <span className="score"> vs </span>
                     <span>{p.nombre_visitante}</span>
                   </div>
                   <div className="estadio-info">
