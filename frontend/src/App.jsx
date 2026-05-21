@@ -1060,7 +1060,7 @@ function App() {
 
         <footer className="footer">
           <div className="footer-content">
-            <div className="brand">HOOP </div>
+            <div className="brand">LA SUPER LIGA </div>
             <div className="footer-links">
               <span></span>
               <span></span>
