@@ -14,7 +14,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  
+
   /* Modern Colors */
   --success: #10b981;
   --success-hover: #059669;
@@ -39,7 +39,10 @@ body {
   line-height: 1.5;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
 }
@@ -236,7 +239,8 @@ h1, h2, h3, h4 {
   transition: 0.2s;
 }
 
-.top-nav span:hover, .top-nav span.active {
+.top-nav span:hover,
+.top-nav span.active {
   opacity: 1;
 }
 
@@ -685,8 +689,15 @@ button:active {
   font-size: 16px;
 }
 
-.team-local { justify-content: flex-end; text-align: right; }
-.team-visitante { justify-content: flex-start; text-align: left; }
+.team-local {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.team-visitante {
+  justify-content: flex-start;
+  text-align: left;
+}
 
 .match-vs-badge {
   background: white;
@@ -870,8 +881,15 @@ td {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Styles */
@@ -879,18 +897,23 @@ td {
   .sidebar {
     transform: translateX(-100%);
   }
+
   .main-wrapper {
     margin-left: 0;
   }
+
   .navbar {
     padding: 0 20px;
   }
+
   .top-nav {
     display: none;
   }
+
   .sidebar.mobile-open {
     transform: translateX(0);
   }
+
   .menu-toggle {
     display: block;
   }
@@ -971,7 +994,8 @@ td {
     width: calc(100% + 32px);
   }
 
-  table th, table td {
+  table th,
+  table td {
     padding: 12px 8px;
     font-size: 13px;
   }
@@ -1003,13 +1027,14 @@ td {
     width: 100%;
     justify-content: center;
   }
-  
+
   .match-main {
     flex-direction: column;
     gap: 12px;
   }
-  
-  .team-local, .team-visitante {
+
+  .team-local,
+  .team-visitante {
     justify-content: center !important;
     text-align: center !important;
     width: 100%;

@@ -433,7 +433,7 @@ function App() {
             <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
               ☰
             </button>
-            <div className="brand">HOOP LEAGUE</div>
+            <div className="brand">LA SUPER LIGA</div>
           </div>
           
           <nav className="top-nav">
@@ -1060,15 +1060,15 @@ function App() {
 
         <footer className="footer">
           <div className="footer-content">
-            <div className="brand">HOOP LEAGUE</div>
+            <div className="brand">HOOP </div>
             <div className="footer-links">
-              <span>Política de Privacidad</span>
-              <span>Términos de Servicio</span>
-              <span>Soporte Técnico</span>
-              <span>Patrocinios</span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
             </div>
           </div>
-          <p className="copyright">© 2024 HOOP LEAGUE. TODOS LOS DERECHOS RESERVADOS.</p>
+          <p className="copyright"></p>
         </footer>
       </div>
     </div>
