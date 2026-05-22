@@ -434,7 +434,7 @@ function App() {
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Usuario" />
           </div>
           <div className="user-info">
-            <h4>PRO DIVISION</h4>
+            <h4>USUARIO</h4>
             <p>Temporada {temporada}</p>
           </div>
         </div>
