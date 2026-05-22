@@ -1,42 +1,43 @@
 require('dotenv').config();
-const express = require('express'); // Framework web para Node.js.
-const cors = require('cors'); // Middleware para permitir peticiones desde diferentes dominios (CORS).
+const express = require('express');
+const cors = require('cors');
 const path = require('path');
-const equipoRoutes = require('./routes/equipoRoutes'); // Rutas para la gestión de equipos.
-const jugadorRoutes = require('./routes/jugadorRoutes'); // Rutas para la gestión de jugadores.
-const partidoRoutes = require('./routes/partidoRoutes'); // Rutas para la gestión de partidos y resultados.
-const clasificacionRoutes = require('./routes/clasificacionRoutes'); // Rutas para consultar la tabla de posiciones.
 
-const app = express(); // Inicialización de la aplicación Express.
+const equipoRoutes = require('./routes/equipoRoutes');
+const jugadorRoutes = require('./routes/jugadorRoutes');
+const partidoRoutes = require('./routes/partidoRoutes');
+const clasificacionRoutes = require('./routes/clasificacionRoutes');
+const authController = require('./controllers/authController');
 
-// MIDDLEWARES GLOBALES
-app.use(cors()); // Habilita el intercambio de recursos de origen cruzado para el frontend.
-app.use(express.json()); // Permite que el servidor entienda y procese datos en formato JSON en el cuerpo de las peticiones.
+const app = express();
+
+// CORS explícito antes de todo
+app.use(cors({
+  origin: [
+    'https://proyecto-pink-five.vercel.app',
+    'http://localhost:5173'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// Preflight para todas las rutas
+app.options('*', cors());
+
+app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// --- REGISTRO DE RUTAS ---
-// Montamos los enrutadores específicos bajo sus respectivos prefijos de API.
-app.use('/api/equipos', equipoRoutes); // Endpoint: http://localhost:3000/api/equipos
-app.use('/api/partidos', partidoRoutes); // Endpoint: http://localhost:3000/api/partidos
-app.use('/api/jugadores', jugadorRoutes); // Endpoint: http://localhost:3000/api/jugadores
-app.use('/api/clasificacion', clasificacionRoutes); // Endpoint: http://localhost:3000/api/clasificacion
+// RUTAS
+app.use('/api/equipos', equipoRoutes);
+app.use('/api/partidos', partidoRoutes);
+app.use('/api/jugadores', jugadorRoutes);
+app.use('/api/clasificacion', clasificacionRoutes);
 
-//  AUTENTICACIÓN 
-// Endpoint simplificado para el login administrativo. 
-// En un entorno de producción, esto debería validar contra una base de datos y usar JWT.
-app.post('/api/auth/login', (req, res) => {
-    const { usuario, password } = req.body;
-    // Validación estática de credenciales para el administrador.
-    if (usuario === 'danielfonseca' && password === '1141316532Df.') {
-        // Retornamos un token estático que el frontend enviará en el header 'Authorization'.
-        res.json({ success: true, token: "token_app" });
-    } else {
-        res.status(401).json({ success: false, msg: "Credenciales incorrectas" });
-    }
-});
+// AUTH usando la BD
+app.post('/api/auth/login', authController.login);
 
-// INICIO DEL SERVIDOR 
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });
