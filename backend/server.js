@@ -11,7 +11,6 @@ const authController = require('./controllers/authController');
 
 const app = express();
 
-// CORS explícito antes de todo
 app.use(cors({
   origin: [
     'https://proyecto-pink-five.vercel.app',
@@ -22,18 +21,14 @@ app.use(cors({
   credentials: true
 }));
 
-// Preflight para todas las rutas
-app.options('/(.*)', cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// RUTAS
 app.use('/api/equipos', equipoRoutes);
 app.use('/api/partidos', partidoRoutes);
 app.use('/api/jugadores', jugadorRoutes);
 app.use('/api/clasificacion', clasificacionRoutes);
 
-// AUTH usando la BD
 app.post('/api/auth/login', authController.login);
 
 const PORT = process.env.PORT || 3000;
