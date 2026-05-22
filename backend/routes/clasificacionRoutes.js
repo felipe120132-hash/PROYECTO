@@ -6,5 +6,6 @@ const clasificacionController = require('../controllers/clasificacionController'
 // Define la ruta base para obtener los datos de la tabla (PJ, PG, PE, PP, Puntos, etc.).
 // Esta ruta es pública para que cualquier usuario pueda ver las estadísticas de la liga.
 router.get('/', clasificacionController.obtenerTabla);
+router.get('/temporadas', clasificacionController.obtenerTemporadas);
 
 module.exports = router; // Exportamos el enrutador para que pueda ser montado en el servidor principal

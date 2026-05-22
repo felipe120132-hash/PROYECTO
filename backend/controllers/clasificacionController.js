@@ -37,3 +37,21 @@ exports.obtenerTabla = async (req, res) => {
         res.status(500).json({ msg: 'Error al cargar la tabla.' });
     }
 };
+
+// Controlador para obtener todas las temporadas únicas registradas
+exports.obtenerTemporadas = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT DISTINCT temporada FROM clasificacion 
+            UNION 
+            SELECT DISTINCT temporada FROM partidos 
+            ORDER BY temporada ASC
+        `);
+        // Mapear a una lista simple de strings
+        const temporadas = rows.map(r => r.temporada).filter(Boolean);
+        res.json(temporadas);
+    } catch (error) {
+        console.error('Error en obtenerTemporadas:', error);
+        res.status(500).json({ msg: 'Error al obtener las temporadas.' });
+    }
+};

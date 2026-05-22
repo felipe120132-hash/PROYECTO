@@ -10,6 +10,7 @@ function App() {
   // ── NAVEGACIÓN ──────────────────────────────────────────────────────────────
   const [pestaña, setPestaña] = useState('landing');
   const [temporada, setTemporada] = useState('2026-2');
+  const [temporadas, setTemporadas] = useState(['2025-2', '2026-2']);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [loginData, setLoginData] = useState({ usuario: '', password: '' });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -41,7 +42,35 @@ function App() {
     }
   });
 
+  const formatearTemporada = (temp) => {
+    if (!temp) return '';
+    const partes = temp.split('-');
+    if (partes.length < 2) return `Temporada ${temp}`;
+    const anio = partes[0];
+    const periodo = partes[1];
+    const romano = periodo === '1' ? 'I' : (periodo === '2' ? 'II' : periodo);
+    return `Temporada ${anio}-${romano}`;
+  };
+
+  const obtenerTemporadaSiguiente = (temp) => {
+    if (!temp) return '2026-2';
+    const partes = temp.split('-');
+    if (partes.length < 2) return `${temp}-2`;
+    const anio = parseInt(partes[0]);
+    const periodo = partes[1];
+    if (periodo === '1') {
+      return `${anio}-2`;
+    } else {
+      return `${anio + 1}-1`;
+    }
+  };
+
+
   // ── CARGA DE DATOS ───────────────────────────────────────────────────────────
+  useEffect(() => {
+    cargarTemporadas();
+  }, []);
+
   useEffect(() => {
     setEquipos([]);
     setPartidos([]);
@@ -54,6 +83,17 @@ function App() {
     setNuevoEquipo(prev => ({ ...prev, temporadaEquipo: temporada }));
     creandoEquipo.current = false; // resetear guard al cambiar temporada
   }, [temporada]);
+
+  const cargarTemporadas = async () => {
+    try {
+      const res = await axios.get(`${API}/clasificacion/temporadas`);
+      if (res.data && res.data.length > 0) {
+        setTemporadas(res.data);
+      }
+    } catch (err) {
+      console.error('[cargarTemporadas]', err);
+    }
+  };
 
   const cargarEquipos = async (temp) => {
     const t = temp ?? temporada;
@@ -346,16 +386,17 @@ function App() {
   };
 
   const reiniciarTodo = async () => {
-    if (!window.confirm(`¿REINICIAR la temporada ${temporada}? Se borrarán todos los resultados y el calendario.`)) return;
+    const siguienteTemporada = obtenerTemporadaSiguiente(temporada);
+    if (!window.confirm(`¿Iniciar la siguiente temporada ${formatearTemporada(siguienteTemporada)}?\nSe conservará el histórico de la temporada actual (${formatearTemporada(temporada)}) y se registrarán los mismos equipos en la nueva temporada con 0 puntos.`)) return;
     try {
-      await axios.post(`${API}/partidos/reiniciar`, { temporada }, authHeader());
-      await cargarEquipos(temporada);
-      await cargarPartidos(temporada);
+      await axios.post(`${API}/partidos/siguiente-temporada`, { temporada, siguienteTemporada }, authHeader());
+      await cargarTemporadas();
+      setTemporada(siguienteTemporada);
       setPestaña('clasificacion');
-      alert('✅ Temporada reiniciada.');
+      alert(`✅ Nueva temporada ${formatearTemporada(siguienteTemporada)} iniciada con éxito.`);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ Error al reiniciar:\n' + (err.response?.data?.error || err.message));
+      alert('⚠️ Error al iniciar siguiente temporada:\n' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -421,8 +462,9 @@ function App() {
         <div className="sidebar-footer">
           <p className="sidebar-label">Temporada activa</p>
           <select className="season-select sidebar-select" value={temporada} onChange={(e) => setTemporada(e.target.value)}>
-            <option value="2025-2">Temporada 2025-II</option>
-            <option value="2026-2">Temporada 2026-II</option>
+            {temporadas.map(temp => (
+              <option key={temp} value={temp}>{formatearTemporada(temp)}</option>
+            ))}
           </select>
         </div>
       </aside>
@@ -999,8 +1041,9 @@ function App() {
                   onChange={e => setNuevoEquipo({ ...nuevoEquipo, temporadaEquipo: e.target.value })}
                   className="season-select"
                 >
-                  <option value="2025-2">Temporada 2025-II</option>
-                  <option value="2026-2">Temporada 2026-II</option>
+                  {temporadas.map(temp => (
+                    <option key={temp} value={temp}>{formatearTemporada(temp)}</option>
+                  ))}
                 </select>
                 <button type="submit" className="btn-success">Crear Equipo</button>
               </form>
@@ -1016,7 +1059,7 @@ function App() {
                   🔄 Generar Calendario Todo vs Todo
                 </button>
                 <button className="btn-danger" onClick={reiniciarTodo}>
-                  ⚠️ Reiniciar Temporada (Borrar Todo)
+                  ⚠️ Iniciar Siguiente Temporada
                 </button>
               </div>
             </div>

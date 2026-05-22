@@ -276,3 +276,52 @@ exports.reiniciarLiga = async (req, res) => {
         if (conn) conn.release();
     }
 };
+
+// la función para iniciar la siguiente temporada (copiando equipos con estadísticas a cero)
+exports.iniciarSiguienteTemporada = async (req, res) => {
+    const { temporada, siguienteTemporada } = req.body;
+
+    if (!temporada || !siguienteTemporada) {
+        return res.status(400).json({ error: 'Se requieren temporada actual y temporada siguiente.' });
+    }
+
+    const conn = await db.getConnection();
+    try {
+        await conn.beginTransaction();
+
+        // 1. Obtener los equipos que participan en la temporada actual (desde la tabla clasificacion)
+        const [equiposActuales] = await conn.query(
+            'SELECT equipo_id FROM clasificacion WHERE temporada = ?',
+            [temporada]
+        );
+
+        // 2. Si hay equipos en la temporada actual, registrarlos en la clasificación de la siguiente temporada (con 0 puntos, etc.)
+        if (equiposActuales && equiposActuales.length > 0) {
+            // Verificar primero si ya existen en la temporada siguiente para evitar duplicados
+            const [equiposExistentesSiguiente] = await conn.query(
+                'SELECT equipo_id FROM clasificacion WHERE temporada = ?',
+                [siguienteTemporada]
+            );
+            const existentesSet = new Set(equiposExistentesSiguiente.map(e => e.equipo_id));
+
+            const equiposAInsertar = equiposActuales.filter(e => !existentesSet.has(e.equipo_id));
+
+            if (equiposAInsertar.length > 0) {
+                const valores = equiposAInsertar.map(e => [e.equipo_id, 0, 0, 0, 0, 0, 0, 0, siguienteTemporada]);
+                await conn.query(
+                    `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada) VALUES ?`,
+                    [valores]
+                );
+            }
+        }
+
+        await conn.commit();
+        res.json({ msg: 'Siguiente temporada iniciada correctamente.', siguienteTemporada });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error('[iniciarSiguienteTemporada]', err);
+        res.status(500).json({ error: 'Error al iniciar la siguiente temporada.', detalle: err.message });
+    } finally {
+        if (conn) conn.release();
+    }
+};

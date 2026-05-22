@@ -20,6 +20,9 @@ router.put('/:id', verificarToken, partidoController.editarPartido);
 // Reiniciar los resultados de todos los partidos de una temporada y resetear la clasificación (Acción protegida).
 router.post('/reiniciar', verificarToken, partidoController.reiniciarLiga);
 
+// Iniciar la temporada siguiente agregándola a la lista (Acción protegida).
+router.post('/siguiente-temporada', verificarToken, partidoController.iniciarSiguienteTemporada);
+
 // Eliminar un partido individual y, si ya fue jugado, recalcular la clasificación (Acción protegida).
 router.delete('/:id', verificarToken, partidoController.eliminarPartido);
 
