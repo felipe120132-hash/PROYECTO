@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express'); // Framework web para Node.js.
 const cors = require('cors'); // Middleware para permitir peticiones desde diferentes dominios (CORS).
 const path = require('path');
