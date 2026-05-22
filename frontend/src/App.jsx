@@ -87,6 +87,7 @@ function App() {
   const cargarTemporadas = async () => {
     try {
       const res = await axios.get(`${API}/clasificacion/temporadas`);
+      console.log('Temporadas recibidas:', res.data);
       if (res.data && res.data.length > 0) {
         setTemporadas(res.data);
       }
