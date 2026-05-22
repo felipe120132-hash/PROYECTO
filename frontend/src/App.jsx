@@ -1059,7 +1059,7 @@ function App() {
                   🔄 Generar Calendario Todo vs Todo
                 </button>
                 <button className="btn-danger" onClick={reiniciarTodo}>
-                  ⚠️ Iniciar Siguiente Temporada
+                  ❗ Iniciar Siguiente Temporada
                 </button>
               </div>
             </div>
