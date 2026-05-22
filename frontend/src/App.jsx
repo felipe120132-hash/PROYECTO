@@ -454,7 +454,7 @@ function App() {
           </button>
           {token && (
             <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => navigateTo('gestion')}>
-              <span>⚙️ Ajustes</span>
+              <span> Panel administrativo</span>
             </button>
           )}
         </nav>
