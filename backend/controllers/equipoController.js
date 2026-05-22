@@ -1,4 +1,12 @@
-const db = require('../config/db');
+const db = require('../config/db');// Importamos la conexión a la base de datos MySQL utilizando el pool de conexiones
+const cloudinary = require('cloudinary').v2; // Importamos la biblioteca de Cloudinary para manejar la subida de imágenes
+
+// Configuración de las credenciales de Cloudinary (vienen de variables de entorno)
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_NAME, 
+  api_key: process.env.CLOUDINARY_KEY, 
+  api_secret: process.env.CLOUDINARY_SECRET 
+});
 
 // Controlador para obtener los equipos de una temporada específica
 exports.getEquipos = async (req, res) => {
@@ -21,9 +29,9 @@ exports.getEquipos = async (req, res) => {
     }
 };
 
-// Controlador para crear un nuevo equipo en una temporada específica
+// Controlador para crear un nuevo equipo en una temporada específica 
 exports.createEquipo = async (req, res) => {
-    const { nombre, temporada } = req.body;
+    const { nombre, temporada, entrenador } = req.body;
     if (!nombre || !nombre.trim()) return res.status(400).json({ msg: 'El nombre del equipo es obligatorio.' });
     if (!temporada) return res.status(400).json({ msg: 'La temporada es obligatoria.' });
 
@@ -47,8 +55,18 @@ exports.createEquipo = async (req, res) => {
             }
             equipoId = equipoExistente.id;
         } else {
+            // Manejo de imagen si se envía al crear el equipo
+            let logoUrl = null;
+            if (req.file) {
+                const resultado = await cloudinary.uploader.upload(req.file.path, {
+                    folder: 'liga_baloncesto'
+                });
+                logoUrl = resultado.secure_url; // URL inmutable de Cloudinary
+            }
+
             const [result] = await conn.query(
-                'INSERT INTO equipos (nombre, entrenador) VALUES (?, ?)', [nombre.trim(), '']
+                'INSERT INTO equipos (nombre, entrenador, logo) VALUES (?, ?, ?)', 
+                [nombre.trim(), entrenador || '', logoUrl]
             );
             equipoId = result.insertId;
         }
@@ -129,18 +147,24 @@ exports.actualizarEntrenador = async (req, res) => {
     }
 };
 
-// Controlador para subir el logo (archivo)
+// Controlador para subir/actualizar el logo usando Cloudinary
 exports.subirLogo = async (req, res) => {
     const { id } = req.params;
     if (!req.file) {
         return res.status(400).json({ error: 'No se subió ningún archivo.' });
     }
-    const logoUrl = `http://localhost:3000/uploads/${req.file.filename}`;
     try {
+        // Sube la imagen temporal procesada por multer hacia Cloudinary
+        const resultado = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'liga_baloncesto'
+        });
+
+        const logoUrl = resultado.secure_url; // Obtiene la URL definitiva HTTPS de internet
+
         await db.query('UPDATE equipos SET logo = ? WHERE id = ?', [logoUrl, id]);
         res.json({ success: true, logo: logoUrl });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error al actualizar logo.' });
+        console.error('❌ Error al subir a Cloudinary:', err);
+        res.status(500).json({ error: 'Error al actualizar logo con Cloudinary.' });
     }
 };
