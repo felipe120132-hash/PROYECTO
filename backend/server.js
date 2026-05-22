@@ -23,8 +23,7 @@ app.use(cors({
 }));
 
 // Preflight para todas las rutas
-app.options('*', cors());
-
+app.options('/(.*)', cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
