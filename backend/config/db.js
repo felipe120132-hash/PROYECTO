@@ -1,14 +1,19 @@
-const mysql = require('mysql2/promise');
-//crear una conexión a la base de datos utilizando las variables de entorno
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,//localhost
-    user: process.env.DB_USER,//root
-    password: process.env.DB_PASSWORD,//password
-    database: process.env.DB_NAME,//mydb
-    port: process.env.DB_PORT,//3306
-    waitForConnections: true,//esperar a que haya conexiones disponibles
-    connectionLimit: 10,//limite de conexiones simultaneas
-    queueLimit: 0//sin limite de conexiones en espera
+const { Pool } = require('pg');
+
+// Conexión a Supabase (PostgreSQL) usando variable de entorno
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
-//exportar la conexión para que pueda ser utilizada en otras partes de la aplicación
+
+// Verificar conexión al iniciar
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('❌ Error conectando a Supabase:', err.message);
+  } else {
+    console.log('✅ Conectado a Supabase correctamente');
+    release();
+  }
+});
+
 module.exports = pool;

@@ -1,26 +1,24 @@
-const db = require('../config/db'); // Importamos la configuración de la base de datos para ejecutar consultas SQL.
+const db = require('../config/db');
 
-// Controlador para obtener la lista de jugadores que pertenecen a un equipo específico.
+// Obtener jugadores por equipo
 exports.obtenerJugadoresPorEquipo = async (req, res) => {
-    const { equipoId } = req.params; // Obtenemos el ID del equipo desde los parámetros de la URL.
+    const { equipoId } = req.params;
     try {
-        // Realizamos la consulta para obtener los datos básicos y puntos del jugador.
-        const [rows] = await db.query(
-            'SELECT id, nombre, categoria, Puntos_anotados AS puntos_anotados FROM jugadores WHERE equipo_id = ?',
+        const { rows } = await db.query(
+            'SELECT id, nombre, categoria, puntos_anotados FROM jugadores WHERE equipo_id = $1',
             [equipoId]
         );
-        res.json(rows); // Devolvemos la lista de jugadores en formato JSON.
+        res.json(rows);
     } catch (err) {
         console.error('[obtenerJugadoresPorEquipo]', err);
         res.status(500).json({ error: 'Error al cargar la plantilla.' });
     }
 };
 
-// Controlador para registrar un nuevo jugador en la base de datos.
+// Agregar jugador
 exports.agregarJugador = async (req, res) => {
-    const { nombre, categoria, equipo_id, puntos_anotados } = req.body; // Extraemos los datos del cuerpo de la petición.
+    const { nombre, categoria, equipo_id, puntos_anotados } = req.body;
 
-    // Validaciones de seguridad: el nombre, categoría y el ID del equipo son obligatorios.
     if (!nombre || !nombre.trim()) {
         return res.status(400).json({ error: 'El nombre del jugador es obligatorio.' });
     }
@@ -32,38 +30,32 @@ exports.agregarJugador = async (req, res) => {
     }
 
     try {
-        // Insertamos el jugador. Usamos trim() para evitar espacios accidentales y 0 como valor por defecto de puntos.
-        const [result] = await db.query(
-            'INSERT INTO jugadores (nombre, categoria, equipo_id, Puntos_anotados) VALUES (?, ?, ?, ?)',
+        const { rows } = await db.query(
+            'INSERT INTO jugadores (nombre, categoria, equipo_id, puntos_anotados) VALUES ($1, $2, $3, $4) RETURNING id',
             [nombre.trim(), categoria.trim(), equipo_id, puntos_anotados || 0]
         );
-        // Devolvemos éxito con el ID generado automáticamente.
-        res.status(201).json({ message: '✅ Jugador registrado.', id: result.insertId });
+        res.status(201).json({ message: '✅ Jugador registrado.', id: rows[0].id });
     } catch (err) {
         console.error('[agregarJugador]', err);
-        // Se envía el mensaje de error de SQL si existe para facilitar el debug.
-        res.status(500).json({ error: err.sqlMessage || 'Error al registrar jugador.' });
+        res.status(500).json({ error: err.message || 'Error al registrar jugador.' });
     }
 };
 
-// Controlador para editar la información de un jugador existente.
+// Actualizar jugador
 exports.actualizarJugador = async (req, res) => {
-    const { id } = req.params; // ID del jugador a actualizar.
+    const { id } = req.params;
     const { nombre, categoria, puntos_anotados } = req.body;
 
-    // El nombre sigue siendo obligatorio para evitar registros vacíos.
     if (!nombre || !nombre.trim()) {
         return res.status(400).json({ error: 'El nombre es obligatorio.' });
     }
 
     try {
-        // Ejecutamos la actualización. El operador ?? asegura que si puntos_anotados es null/undefined, se use 0.
-        const [result] = await db.query(
-            'UPDATE jugadores SET nombre = ?, categoria = ?, Puntos_anotados = ? WHERE id = ?',
+        const { rowCount } = await db.query(
+            'UPDATE jugadores SET nombre = $1, categoria = $2, puntos_anotados = $3 WHERE id = $4',
             [nombre.trim(), categoria, puntos_anotados ?? 0, id]
         );
-        // Verificamos si se encontró el jugador por su ID.
-        if (result.affectedRows === 0) {
+        if (rowCount === 0) {
             return res.status(404).json({ error: 'Jugador no encontrado.' });
         }
         res.json({ message: '✅ Jugador actualizado.' });
@@ -72,13 +64,15 @@ exports.actualizarJugador = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar jugador.' });
     }
 };
-// Controlador para dar de baja a un jugador de la base de datos.
+
+// Eliminar jugador
 exports.eliminarJugador = async (req, res) => {
-    const { id } = req.params; // ID del jugador a eliminar.
+    const { id } = req.params;
     try {
-        const [result] = await db.query('DELETE FROM jugadores WHERE id = ?', [id]);
-        // Si no se borró nada, significa que el ID no existe.
-        if (result.affectedRows === 0) {
+        const { rowCount } = await db.query(
+            'DELETE FROM jugadores WHERE id = $1', [id]
+        );
+        if (rowCount === 0) {
             return res.status(404).json({ error: 'Jugador no encontrado.' });
         }
         res.json({ message: '✅ Jugador eliminado.' });
