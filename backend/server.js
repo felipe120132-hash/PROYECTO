@@ -35,5 +35,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // INICIO DEL SERVIDOR 
-const PORT = 3000; // Puerto donde escuchará el servidor.
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));
+const PORT = process.env.PORT || 3000; 
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+});
