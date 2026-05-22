@@ -5,7 +5,7 @@ const auth = require('../middlewares/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
-// Configuración de multer para subir archivos
+// Configuración de multer para almacenar temporalmente los archivos en el servidor
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../uploads/'));
@@ -22,8 +22,8 @@ const upload = multer({ storage: storage });
 // Obtener la lista de equipos filtrada por temporada (Público).
 router.get('/', equipoController.getEquipos);
 
-// Crear un nuevo equipo en la liga (Acción protegida para administradores).
-router.post('/', auth, equipoController.createEquipo);
+// Crear un nuevo equipo en la liga (¡Ajustado para recibir el archivo del logo!).
+router.post('/', auth, upload.single('logo'), equipoController.createEquipo);
 
 // Eliminar un equipo por su ID (Acción protegida para administradores).
 router.delete('/:id', auth, equipoController.deleteEquipo);
