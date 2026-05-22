@@ -4,7 +4,7 @@ import './App.css';
 import heroBg from './assets/hero_bg.png';
 import mvpImg from './assets/mvp_player.png';
 
-const API = 'http://localhost:3000/api';
+const API = 'https://proyecto-4t2l.onrender.com/api';
 
 function App() {
   // ── NAVEGACIÓN ──────────────────────────────────────────────────────────────
