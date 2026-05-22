@@ -441,16 +441,16 @@ function App() {
 
         <nav className="sidebar-nav">
           <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => navigateTo('landing')}>
-            <span>🏠 Inicio</span>
+            <span> Inicio</span>
           </button>
           <button className={`nav-item ${pestaña === 'equipos' ? 'active' : ''}`} onClick={() => navigateTo('equipos')}>
-            <span>👥 Equipos</span>
+            <span> Equipos</span>
           </button>
           <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => navigateTo('clasificacion')}>
-            <span>📊 Resultados</span>
+            <span> Resultados</span>
           </button>
           <button className={`nav-item ${pestaña === 'partidos' ? 'active' : ''}`} onClick={() => navigateTo('partidos')}>
-            <span>🗓️ Calendario</span>
+            <span> Calendario</span>
           </button>
           {token && (
             <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => navigateTo('gestion')}>
@@ -485,7 +485,7 @@ function App() {
             <span className={pestaña === 'clasificacion' ? 'active' : ''} onClick={() => setPestaña('clasificacion')}>Estadísticas</span>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <span style={{ cursor: 'pointer', fontSize: '20px' }}>🔔</span>
+            <span style={{ cursor: 'pointer', fontSize: '20px' }}></span>
             {token ? (
               <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
             ) : (
@@ -511,7 +511,7 @@ function App() {
                   Sigue a los equipos, consulta estadísticas en vivo y no te pierdas la acción de la temporada {temporada}.
                 </p>
                 <button className="btn-primary" onClick={() => setPestaña('clasificacion')}>
-                  📊 Ver Clasificación
+                   Ver Clasificación
                 </button>
               </div>
             </section>
@@ -547,7 +547,7 @@ function App() {
             {/* TEAMS SECTION */}
             <section className="teams-section">
               <div className="section-header">
-                <span>👥</span>
+                <span></span>
                 <h2>Equipos Participantes</h2>
               </div>
               <div className="teams-grid">
@@ -718,7 +718,7 @@ function App() {
                    )}
                 </div>
                 <div>
-                  <h2>🏀 {equipoSeleccionado.nombre}</h2>
+                  <h2> {equipoSeleccionado.nombre}</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
                     <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <strong>DT:</strong>
@@ -803,7 +803,7 @@ function App() {
                           <td><input className="edit-input" value={datosEdicionJugador.categoria} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, categoria: e.target.value })} /></td>
                           <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
                           <td>
-                            <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)} style={{ marginRight: '4px' }}>💾</button>
+                            <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)} style={{ marginRight: '4px' }}></button>
                             <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}>✖</button>
                           </td>
                         </>
