@@ -1,15 +1,16 @@
 const { Pool } = require('pg');
 
-// Conexión a Supabase (PostgreSQL) usando variable de entorno
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
-// Verificar conexión al iniciar
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('❌ Error conectando a Supabase:', err.message);
+    console.error('Error conectando a Supabase:', err.message);
   } else {
     console.log('✅ Conectado a Supabase correctamente');
     release();
