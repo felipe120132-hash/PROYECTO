@@ -463,24 +463,24 @@ function App() {
 
         <nav className="sidebar-nav">
           <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => navigateTo('landing')}>
-            <span>🏠 Inicio</span>
+            <span> INICIO</span>
           </button>
           <button className={`nav-item ${pestaña === 'equipos' ? 'active' : ''}`} onClick={() => navigateTo('equipos')}>
-            <span>👥 Equipos</span>
+            <span> EQUIPOS</span>
           </button>
           <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => navigateTo('clasificacion')}>
-            <span>📊 Resultados</span>
+            <span> RESULTADOS</span>
           </button>
           <button className={`nav-item ${pestaña === 'partidos' ? 'active' : ''}`} onClick={() => navigateTo('partidos')}>
-            <span>🗓️ Calendario</span>
+            <span> CALENDARIO</span>
           </button>
           {token && (
             <>
               <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => navigateTo('gestion')}>
-                <span>⚙️ Ajustes</span>
+                <span> AJUSTES</span>
               </button>
               <button className={`nav-item ${pestaña === 'temporadas' ? 'active' : ''}`} onClick={() => navigateTo('temporadas')}>
-                <span>🗂️ Temporadas</span>
+                <span> TEMPORADAS</span>
               </button>
             </>
           )}
