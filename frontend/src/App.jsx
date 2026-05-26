@@ -532,9 +532,9 @@ function App() {
             <section className="hero-section">
               <img src={heroBg} alt="Basketball" className="hero-bg" />
               <div className="hero-content">
-                <h1>Liga de Baloncesto Juvenil</h1>
+                <h1>LA SUPER LIGA</h1>
                 <p>
-                  La plataforma definitiva para el desarrollo del talento joven. 
+                  La plataforma definitiva para el desarrollo del talento. 
                   Sigue a los equipos, consulta estadísticas en vivo y no te pierdas la acción de la temporada {temporada}.
                 </p>
                 <button className="btn-primary" onClick={() => setPestaña('clasificacion')}>
