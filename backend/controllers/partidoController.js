@@ -305,45 +305,35 @@ exports.iniciarSiguienteTemporada = async (req, res) => {
         conn.release();
     }
 };
-// Eliminar temporada completa
 exports.eliminarTemporada = async (req, res) => {
     const { temporada } = req.query;
-
     if (!temporada) {
         return res.status(400).json({ error: 'Se requiere el parámetro temporada.' });
     }
 
-    const conn = await db.getConnection();
+    const conn = await db.connect();
     try {
-        await conn.beginTransaction();
-        await conn.query('SET SQL_SAFE_UPDATES = 0');
-        await conn.query('SET FOREIGN_KEY_CHECKS = 0');
+        await conn.query('BEGIN');
 
-        // 1. Obtener todos los equipos de esta temporada antes de borrar
-        const [equipos] = await conn.query(
-            'SELECT equipo_id FROM clasificacion WHERE temporada = ?', [temporada]
+        // Obtener equipos antes de borrar
+        const { rows: equipos } = await conn.query(
+            'SELECT equipo_id FROM clasificacion WHERE temporada = $1', [temporada]
         );
 
-        // 2. Eliminar partidos
-        await conn.query('DELETE FROM partidos WHERE temporada = ?', [temporada]);
+        // Borrar partidos y clasificacion
+        await conn.query('DELETE FROM partidos WHERE temporada = $1', [temporada]);
+        await conn.query('DELETE FROM clasificacion WHERE temporada = $1', [temporada]);
 
-        // 3. Eliminar clasificacion
-        await conn.query('DELETE FROM clasificacion WHERE temporada = ?', [temporada]);
-
-        // 4. Eliminar jugadores y equipos de cada equipo de la temporada
+        // Borrar jugadores y equipos
         for (const { equipo_id } of equipos) {
-            await conn.query('DELETE FROM jugadores WHERE equipo_id = ?', [equipo_id]);
-            await conn.query('DELETE FROM equipos WHERE id = ?', [equipo_id]);
+            await conn.query('DELETE FROM jugadores WHERE equipo_id = $1', [equipo_id]);
+            await conn.query('DELETE FROM equipos WHERE id = $1', [equipo_id]);
         }
 
-        await conn.query('SET FOREIGN_KEY_CHECKS = 1');
-        await conn.query('SET SQL_SAFE_UPDATES = 1');
-        await conn.commit();
-
+        await conn.query('COMMIT');
         res.json({ msg: `Temporada ${temporada} eliminada correctamente.` });
-
     } catch (err) {
-        await conn.rollback();
+        await conn.query('ROLLBACK');
         console.error('[eliminarTemporada]', err);
         res.status(500).json({ error: 'Error al eliminar la temporada.', detalle: err.message });
     } finally {
