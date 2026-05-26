@@ -512,7 +512,7 @@ function App() {
             <span className={pestaña === 'clasificacion' ? 'active' : ''} onClick={() => setPestaña('clasificacion')}>Estadísticas</span>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <span style={{ cursor: 'pointer', fontSize: '20px' }}>🔔</span>
+            <span style={{ cursor: 'pointer', fontSize: '20px' }}></span>
             {token ? (
               <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
             ) : (
@@ -538,7 +538,7 @@ function App() {
                   Sigue a los equipos, consulta estadísticas en vivo y no te pierdas la acción de la temporada {temporada}.
                 </p>
                 <button className="btn-primary" onClick={() => setPestaña('clasificacion')}>
-                  📊 Ver Clasificación
+                   Ver Clasificación
                 </button>
               </div>
             </section>
@@ -574,7 +574,7 @@ function App() {
             {/* TEAMS SECTION */}
             <section className="teams-section">
               <div className="section-header">
-                <span>👥</span>
+                <span></span>
                 <h2>Equipos Participantes</h2>
               </div>
               <div className="teams-grid">
@@ -615,7 +615,7 @@ function App() {
           <div className="table-card anim-fade">
             <section className="teams-section">
               <div className="section-header">
-                <span>👥</span>
+                <span></span>
                 <h2>Equipos de la Temporada {temporada}</h2>
               </div>
               <div className="teams-grid">
@@ -745,7 +745,7 @@ function App() {
                    )}
                 </div>
                 <div>
-                  <h2>🏀 {equipoSeleccionado.nombre}</h2>
+                  <h2> {equipoSeleccionado.nombre}</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
                     <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <strong>DT:</strong>
@@ -1049,7 +1049,7 @@ function App() {
         {pestaña === 'gestion' && token && (
           <div className="table-card anim-fade">
             <div className="section-header">
-              <span>⚙️</span>
+              <span></span>
               <h2>Panel de Gestión Administrativa</h2>
             </div>
 
@@ -1097,7 +1097,7 @@ function App() {
         {pestaña === 'temporadas' && token && (
           <div className="table-card anim-fade">
             <div className="section-header">
-              <span>🗂️</span>
+              <span></span>
               <h2>Administración de Temporadas</h2>
             </div>
             <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
@@ -1128,7 +1128,7 @@ function App() {
                         <td>
                           {temp === temporada
                             ? <span style={{ color: '#22c55e', fontWeight: 'bold' }}>● Activa</span>
-                            : <span style={{ color: '#94a3b8' }}>○ Inactiva</span>
+                            : <span style={{ color: '#ff0808' }}>○ Inactiva</span>
                           }
                         </td>
                         <td>
