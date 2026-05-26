@@ -904,7 +904,7 @@ function App() {
         {pestaña === 'partidos' && (
           <div className="table-card anim-fade">
             <div className="section-header">
-              <span>🗓️</span>
+              <span></span>
               <h2>Calendario de Partidos</h2>
             </div>
 
