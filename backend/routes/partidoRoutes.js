@@ -26,4 +26,6 @@ router.post('/siguiente-temporada', verificarToken, partidoController.iniciarSig
 // Eliminar un partido individual y, si ya fue jugado, recalcular la clasificación (Acción protegida).
 router.delete('/:id', verificarToken, partidoController.eliminarPartido);
 
+router.delete('/temporada', verificarToken, partidoController.eliminarTemporada);
+
 module.exports = router; // Exportamos el enrutador para ser montado en app.js.

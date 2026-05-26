@@ -4,7 +4,7 @@ import './App.css';
 import heroBg from './assets/hero_bg.png';
 import mvpImg from './assets/mvp_player.png';
 
-const API = 'https://proyecto-4t2l.onrender.com/api';
+const API = 'http://localhost:3000/api';
 
 function App() {
   // ── NAVEGACIÓN ──────────────────────────────────────────────────────────────
@@ -65,7 +65,6 @@ function App() {
     }
   };
 
-
   // ── CARGA DE DATOS ───────────────────────────────────────────────────────────
   useEffect(() => {
     cargarTemporadas();
@@ -81,13 +80,12 @@ function App() {
   // ── SINCRONIZAR SELECTOR DE TEMPORADA Y RESETEAR GUARD ──────────────────────
   useEffect(() => {
     setNuevoEquipo(prev => ({ ...prev, temporadaEquipo: temporada }));
-    creandoEquipo.current = false; // resetear guard al cambiar temporada
+    creandoEquipo.current = false;
   }, [temporada]);
 
   const cargarTemporadas = async () => {
     try {
       const res = await axios.get(`${API}/clasificacion/temporadas`);
-      console.log('Temporadas recibidas:', res.data);
       if (res.data && res.data.length > 0) {
         setTemporadas(res.data);
       }
@@ -171,13 +169,6 @@ function App() {
   };
 
   const eliminarEquipo = async (id) => {
-    const tieneJugados = partidos.some(
-      p => (Number(p.equipo_local_id) === Number(id) || Number(p.equipo_visitante_id) === Number(id)) && p.jugado === 1
-    );
-    if (tieneJugados) {
-      alert('🚫 No se puede eliminar: el equipo tiene partidos jugados.');
-      return;
-    }
     if (!window.confirm('¿Eliminar equipo? Se borrarán sus jugadores y partidos pendientes.')) return;
     try {
       await axios.delete(`${API}/equipos/${id}?temporada=${temporada}`, authHeader());
@@ -401,6 +392,36 @@ function App() {
     }
   };
 
+  // ── GESTIÓN DE TEMPORADAS ────────────────────────────────────────────────────
+  const eliminarTemporada = async (temp) => {
+    if (temporadas.length <= 1) {
+      return alert('No podés eliminar la única temporada existente.');
+    }
+    if (!window.confirm(
+      `¿Eliminar la ${formatearTemporada(temp)}?\n\n` +
+      `⚠️ Se borrarán TODOS sus partidos, clasificación y equipos.\n` +
+      `Esta acción no se puede deshacer.`
+    )) return;
+
+    try {
+      await axios.delete(`${API}/partidos/temporada?temporada=${temp}`, authHeader());
+
+      const otraTemporada = temporadas.find(t => t !== temp);
+      await cargarTemporadas();
+
+      // Si la temporada eliminada era la activa, cambiar a otra
+      if (temporada === temp) {
+        setTemporada(otraTemporada);
+        setPestaña('clasificacion');
+      }
+
+      alert(`✅ ${formatearTemporada(temp)} eliminada correctamente.`);
+    } catch (err) {
+      if (err.response?.status === 401) handleLogout();
+      alert('⚠️ ' + (err.response?.data?.error || 'Error al eliminar la temporada.'));
+    }
+  };
+
   // ── HELPERS DE VISTA POR EQUIPO ──────────────────────────────────────────────
   const partidosDelEquipo = (equipoId) => {
     const id = Number(equipoId);
@@ -435,28 +456,33 @@ function App() {
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Usuario" />
           </div>
           <div className="user-info">
-            <h4>USUARIO</h4>
+            <h4>PRO DIVISION</h4>
             <p>Temporada {temporada}</p>
           </div>
         </div>
 
         <nav className="sidebar-nav">
           <button className={`nav-item ${pestaña === 'landing' ? 'active' : ''}`} onClick={() => navigateTo('landing')}>
-            <span> Inicio</span>
+            <span>🏠 Inicio</span>
           </button>
           <button className={`nav-item ${pestaña === 'equipos' ? 'active' : ''}`} onClick={() => navigateTo('equipos')}>
-            <span> Equipos</span>
+            <span>👥 Equipos</span>
           </button>
           <button className={`nav-item ${pestaña === 'clasificacion' ? 'active' : ''}`} onClick={() => navigateTo('clasificacion')}>
-            <span> Resultados</span>
+            <span>📊 Resultados</span>
           </button>
           <button className={`nav-item ${pestaña === 'partidos' ? 'active' : ''}`} onClick={() => navigateTo('partidos')}>
-            <span> Calendario</span>
+            <span>🗓️ Calendario</span>
           </button>
           {token && (
-            <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => navigateTo('gestion')}>
-              <span> Panel administrativo</span>
-            </button>
+            <>
+              <button className={`nav-item ${pestaña === 'gestion' ? 'active' : ''}`} onClick={() => navigateTo('gestion')}>
+                <span>⚙️ Ajustes</span>
+              </button>
+              <button className={`nav-item ${pestaña === 'temporadas' ? 'active' : ''}`} onClick={() => navigateTo('temporadas')}>
+                <span>🗂️ Temporadas</span>
+              </button>
+            </>
           )}
         </nav>
 
@@ -486,7 +512,7 @@ function App() {
             <span className={pestaña === 'clasificacion' ? 'active' : ''} onClick={() => setPestaña('clasificacion')}>Estadísticas</span>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <span style={{ cursor: 'pointer', fontSize: '20px' }}></span>
+            <span style={{ cursor: 'pointer', fontSize: '20px' }}>🔔</span>
             {token ? (
               <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
             ) : (
@@ -512,7 +538,7 @@ function App() {
                   Sigue a los equipos, consulta estadísticas en vivo y no te pierdas la acción de la temporada {temporada}.
                 </p>
                 <button className="btn-primary" onClick={() => setPestaña('clasificacion')}>
-                   Ver Clasificación
+                  📊 Ver Clasificación
                 </button>
               </div>
             </section>
@@ -521,7 +547,7 @@ function App() {
             <section className="mvp-section">
               <div className="mvp-info">
                 <span className="mvp-badge">MVP de la Semana</span>
-                <h2>Carlos \"El Rayo\" Méndez</h2>
+                <h2>Carlos "El Rayo" Méndez</h2>
                 <p className="mvp-desc">
                   Promedió 28 puntos, 8 asistencias y 5 robos liderando a los Halcones hacia una racha de 3 victorias consecutivas.
                 </p>
@@ -548,7 +574,7 @@ function App() {
             {/* TEAMS SECTION */}
             <section className="teams-section">
               <div className="section-header">
-                <span></span>
+                <span>👥</span>
                 <h2>Equipos Participantes</h2>
               </div>
               <div className="teams-grid">
@@ -719,7 +745,7 @@ function App() {
                    )}
                 </div>
                 <div>
-                  <h2> {equipoSeleccionado.nombre}</h2>
+                  <h2>🏀 {equipoSeleccionado.nombre}</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
                     <p style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <strong>DT:</strong>
@@ -804,7 +830,7 @@ function App() {
                           <td><input className="edit-input" value={datosEdicionJugador.categoria} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, categoria: e.target.value })} /></td>
                           <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
                           <td>
-                            <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)} style={{ marginRight: '4px' }}></button>
+                            <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)} style={{ marginRight: '4px' }}>💾</button>
                             <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}>✖</button>
                           </td>
                         </>
@@ -1060,10 +1086,73 @@ function App() {
                   🔄 Generar Calendario Todo vs Todo
                 </button>
                 <button className="btn-danger" onClick={reiniciarTodo}>
-                  ❗ Iniciar Siguiente Temporada
+                  ⚠️ Iniciar Siguiente Temporada
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── PANEL DE TEMPORADAS (solo admin) ── */}
+        {pestaña === 'temporadas' && token && (
+          <div className="table-card anim-fade">
+            <div className="section-header">
+              <span>🗂️</span>
+              <h2>Administración de Temporadas</h2>
+            </div>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
+              Desde aquí podés eliminar temporadas completas. Se borran todos los partidos,
+              la clasificación y los equipos asociados a esa temporada.
+            </p>
+
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Temporada</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {temporadas.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                        No hay temporadas registradas.
+                      </td>
+                    </tr>
+                  ) : (
+                    temporadas.map(temp => (
+                      <tr key={temp}>
+                        <td><strong>{formatearTemporada(temp)}</strong></td>
+                        <td>
+                          {temp === temporada
+                            ? <span style={{ color: '#22c55e', fontWeight: 'bold' }}>● Activa</span>
+                            : <span style={{ color: '#94a3b8' }}>○ Inactiva</span>
+                          }
+                        </td>
+                        <td>
+                          <button
+                            className="btn-delete-inline"
+                            onClick={() => eliminarTemporada(temp)}
+                            disabled={temporadas.length <= 1}
+                            title={temporadas.length <= 1 ? 'No podés eliminar la única temporada existente' : `Eliminar ${formatearTemporada(temp)}`}
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {temporadas.length <= 1 && (
+              <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>
+                ⚠️ No podés eliminar la única temporada existente. Creá una nueva temporada primero desde el panel de Ajustes.
+              </p>
+            )}
           </div>
         )}
 
