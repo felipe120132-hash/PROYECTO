@@ -591,8 +591,8 @@ function App() {
                     <p className="team-division">División Juvenil</p>
                     <div className="team-metrics">
                       <div className="metric">
-                        <span className="metric-val">{eq.pg ?? 0}-{eq.pp ?? 0}</span>
-                        <span className="metric-label">Récord</span>
+                        <span className="metric-val">{eq.puntos ?? 0}</span>
+                        <span className="metric-label">Puntos</span>
                       </div>
                       <div className="metric">
                         <span className="metric-val metric-pos">{i + 1}º</span>
