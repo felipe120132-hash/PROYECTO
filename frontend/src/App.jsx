@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
-import heroBg from './assets/hero_bg.png';
+import heroBg from './assets/hero_bg.jpg';
 import mvpImg from './assets/mvp_player.png';
 
 const API = 'https://proyecto-4t2l.onrender.com/api';
