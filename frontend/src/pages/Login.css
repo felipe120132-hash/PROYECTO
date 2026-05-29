@@ -1,0 +1,27 @@
+/* ══════════════════════════════════════════════════════════════
+   Login.css — Login page styles
+   ══════════════════════════════════════════════════════════════ */
+
+.login-card {
+  max-width: 400px;
+  margin: 60px auto;
+}
+
+.login-card .section-header {
+  justify-content: center;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-card .input-group input {
+  width: 100%;
+}
+
+.login-card .btn-primary {
+  width: 100%;
+  justify-content: center;
+}
