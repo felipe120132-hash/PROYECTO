@@ -28,6 +28,8 @@ function App() {
           <Route path="calendario" element={<Calendario />} />
           <Route path="equipos" element={<Equipos />} />
           <Route path="estadisticas" element={<Estadisticas />} />
+          <Route path="clasificacion" element={<Estadisticas />} />
+          <Route path="dashboard" element={<Estadisticas />} />
           <Route path="equipo/:equipoId" element={<DetalleEquipo />} />
           <Route path="login" element={<Login />} />
           

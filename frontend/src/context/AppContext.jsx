@@ -17,6 +17,7 @@ export function AppProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [loginData, setLoginData] = useState({ usuario: '', password: '' });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // ── DATOS PRINCIPALES ───────────────────────────────────────────────────────
   const [equipos, setEquipos] = useState([]);
@@ -226,7 +227,7 @@ export function AppProvider({ children }) {
       ]);
       setJugadores(resJugadores.data);
       setPartidos(resPartidos.data);
-      navigate(`/jugadores/${equipo.equipo_id ?? equipo.id}`);
+      navigate(`/equipo/${equipo.equipo_id ?? equipo.id}`);
       window.scrollTo(0, 0);
     } catch {
       alert('Error al cargar la plantilla.');
@@ -448,6 +449,7 @@ export function AppProvider({ children }) {
     token, setToken,
     loginData, setLoginData,
     menuOpen, setMenuOpen,
+    searchTerm, setSearchTerm,
     equipos, setEquipos,
     partidos, setPartidos,
     jugadores, setJugadores,

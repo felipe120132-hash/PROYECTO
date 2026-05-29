@@ -11,6 +11,9 @@ function Navbar() {
     menuOpen, setMenuOpen,
     formatearTemporada,
     handleLogout,
+    searchTerm, setSearchTerm,
+    equipos,
+    verJugadores,
   } = useAppContext();
 
   const navigate = useNavigate();
@@ -27,7 +30,7 @@ function Navbar() {
           </div>
           <div className="user-info">
             <h4>PRO DIVISION</h4>
-            <p>Temporada {temporada}</p>
+            <p>Temporada {formatearTemporada(temporada)}</p>
           </div>
         </div>
 
@@ -74,35 +77,52 @@ function Navbar() {
             <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
               ☰
             </button>
-            <div className="brand">LA SUPER LIGA</div>
+            <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>LA SUPER LIGA</div>
+          </div>
+
+          <div className="search-bar-container">
+            <input
+              type="text"
+              placeholder="🔍 Buscar equipos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="top-search-input"
+            />
+            {searchTerm && (
+              <div className="search-dropdown">
+                {(() => {
+                  const filtered = equipos.filter(eq =>
+                    eq.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+                  );
+                  return filtered.length > 0 ? (
+                    filtered.map(eq => (
+                      <div
+                        key={eq.id ?? eq.equipo_id}
+                        className="search-dropdown-item"
+                        onClick={() => {
+                          verJugadores(eq);
+                          setSearchTerm('');
+                        }}
+                      >
+                        <div className="team-icon-sm" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {eq.logo ? (
+                            <img src={eq.logo} alt={eq.nombre} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                          ) : (
+                            eq.nombre.substring(0, 2).toUpperCase()
+                          )}
+                        </div>
+                        <span>{eq.nombre}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="search-dropdown-no-results">No se encontraron equipos</div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
           
-          <nav className="top-nav">
-            <NavLink to="/" end style={{ textDecoration: 'none', color: 'inherit' }}>
-              {({ isActive }) => <span className={isActive ? 'active' : ''}>Inicio</span>}
-            </NavLink>
-            <NavLink to="/calendario" style={{ textDecoration: 'none', color: 'inherit' }}>
-              {({ isActive }) => <span className={isActive ? 'active' : ''}>Calendario</span>}
-            </NavLink>
-            <NavLink to="/equipos" style={{ textDecoration: 'none', color: 'inherit' }}>
-              {({ isActive }) => <span className={isActive ? 'active' : ''}>Equipos</span>}
-            </NavLink>
-            <NavLink to="/estadisticas" style={{ textDecoration: 'none', color: 'inherit' }}>
-              {({ isActive }) => <span className={isActive ? 'active' : ''}>Estadísticas</span>}
-            </NavLink>
-            {token && (
-              <>
-                <NavLink to="/gestion" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  {({ isActive }) => <span className={isActive ? 'active' : ''}>Gestión</span>}
-                </NavLink>
-                <NavLink to="/temporadas" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  {({ isActive }) => <span className={isActive ? 'active' : ''}>Temporadas</span>}
-                </NavLink>
-              </>
-            )}
-          </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <span style={{ cursor: 'pointer', fontSize: '20px' }}></span>
             {token ? (
               <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
             ) : (

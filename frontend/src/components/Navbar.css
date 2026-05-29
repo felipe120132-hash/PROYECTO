@@ -256,7 +256,90 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* ── Responsive ── */
+/* Search Bar Styles */
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 20px;
+}
+
+.top-search-input {
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.top-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.top-search-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 200;
+  padding: 6px;
+}
+
+.search-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.search-dropdown-item:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+.search-dropdown-no-results {
+  padding: 12px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* ── Responsive & Desktop Layout ── */
+@media (min-width: 1025px) {
+  .sidebar {
+    transform: translateX(0); /* Visible permanentemente en PC */
+  }
+
+  .main-wrapper {
+    margin-left: var(--sidebar-w); /* Empuja el contenido principal en PC */
+  }
+
+  .menu-toggle {
+    display: none; /* Oculta botón hamburguesa en PC */
+  }
+}
+
 @media (max-width: 1024px) {
   .navbar {
     padding: 0 20px;
@@ -264,6 +347,10 @@
 
   .top-nav {
     display: none;
+  }
+  
+  .search-bar-container {
+    max-width: 250px;
   }
 }
 
@@ -273,7 +360,12 @@
   }
 
   .brand {
-    font-size: 16px;
+    display: none; /* Oculta logo chico para que entre la barra de búsqueda */
+  }
+  
+  .search-bar-container {
+    margin: 0;
+    max-width: 180px;
   }
 
   .footer {

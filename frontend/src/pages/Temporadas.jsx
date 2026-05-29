@@ -4,36 +4,71 @@ import './Dashboard.css';
 
 function Temporadas() {
   const {
-    nuevaTemporadaInput, setNuevaTemporadaInput,
-    crearTemporada,
+    temporada,
+    temporadas,
+    eliminarTemporada,
+    formatearTemporada,
   } = useAppContext();
 
   return (
-    <div className="table-card anim-fade" style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div className="table-card anim-fade">
       <div className="section-header">
         <span>📅</span>
         <h2>Administración de Temporadas</h2>
       </div>
+      <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
+        Desde aquí podés eliminar temporadas completas. Se borran todos los partidos,
+        la clasificación y los equipos asociados a esa temporada.
+      </p>
 
-      <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-        <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '20px' }}>
-          Crea una nueva temporada. Al hacerlo, se generará una liga en blanco para ese año.
-        </p>
-        <form onSubmit={crearTemporada} style={{ display: 'flex', gap: '12px' }}>
-          <input
-            type="number"
-            placeholder="Año de la temporada (ej. 2026)"
-            value={nuevaTemporadaInput}
-            onChange={e => setNuevaTemporadaInput(e.target.value)}
-            className="season-select"
-            style={{ flex: 1 }}
-            required
-            min="2000"
-            max="2100"
-          />
-          <button type="submit" className="btn-primary">Crear Temporada</button>
-        </form>
+      <div className="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Temporada</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {temporadas.length === 0 ? (
+              <tr>
+                <td colSpan="3" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                  No hay temporadas registradas.
+                </td>
+              </tr>
+            ) : (
+              temporadas.map(temp => (
+                <tr key={temp}>
+                  <td><strong>{formatearTemporada(temp)}</strong></td>
+                  <td>
+                    {temp === temporada
+                      ? <span style={{ color: '#22c55e', fontWeight: 'bold' }}>● Activa</span>
+                      : <span style={{ color: '#ff0808' }}>○ Inactiva</span>
+                    }
+                  </td>
+                  <td>
+                    <button
+                      className="btn-delete-inline"
+                      onClick={() => eliminarTemporada(temp)}
+                      disabled={temporadas.length <= 1}
+                      title={temporadas.length <= 1 ? 'No podés eliminar la única temporada existente' : `Eliminar ${formatearTemporada(temp)}`}
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
+
+      {temporadas.length <= 1 && (
+        <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>
+          ⚠️ No podés eliminar la única temporada existente.
+        </p>
+      )}
     </div>
   );
 }

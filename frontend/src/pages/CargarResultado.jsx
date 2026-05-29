@@ -8,10 +8,21 @@ function CargarResultado() {
   const {
     partidos,
     resultadoData, setResultadoData,
-    guardarResultado,
+    enviarResultado,
   } = useAppContext();
 
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (partidoId) {
+      setResultadoData(prev => ({
+        ...prev,
+        partidoId: partidoId,
+        puntos_local: '',
+        puntos_visitante: ''
+      }));
+    }
+  }, [partidoId, setResultadoData]);
 
   const p = partidos.find(p => p.id === Number(partidoId));
 
@@ -20,9 +31,7 @@ function CargarResultado() {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    guardarResultado();
-    navigate('/calendario');
+    enviarResultado(e);
   };
 
   return (

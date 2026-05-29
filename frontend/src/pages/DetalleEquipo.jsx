@@ -1,13 +1,16 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 function DetalleEquipo() {
+  const { equipoId } = useParams();
   const {
     token,
     temporada,
     equipoSeleccionado,
+    equipos,
     jugadores,
+    verJugadores,
     nuevoJugador, setNuevoJugador,
     editandoJugadorId, setEditandoJugadorId,
     datosEdicionJugador, setDatosEdicionJugador,
@@ -24,7 +27,27 @@ function DetalleEquipo() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (equipoId && equipos.length > 0) {
+      const eqIdNum = Number(equipoId);
+      const currentSelId = equipoSeleccionado ? (equipoSeleccionado.equipo_id ?? equipoSeleccionado.id) : null;
+      if (Number(currentSelId) !== eqIdNum) {
+        const eq = equipos.find(e => Number(e.equipo_id ?? e.id) === eqIdNum);
+        if (eq) {
+          verJugadores(eq);
+        }
+      }
+    }
+  }, [equipoId, equipos, equipoSeleccionado, verJugadores]);
+
   if (!equipoSeleccionado) {
+    if (equipoId && equipos.length === 0) {
+      return (
+        <div className="table-card anim-fade" style={{ textAlign: 'center', padding: '60px' }}>
+          <p style={{ color: '#64748b' }}>Cargando detalles del equipo...</p>
+        </div>
+      );
+    }
     return (
       <div className="table-card anim-fade" style={{ textAlign: 'center', padding: '60px' }}>
         <p style={{ color: '#64748b', marginBottom: '20px' }}>No hay equipo seleccionado.</p>
