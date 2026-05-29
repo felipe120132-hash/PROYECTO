@@ -19,10 +19,15 @@
   height: 100vh;
   z-index: 100;
   transition: transform 0.3s ease;
+  transform: translateX(-100%); /* Oculta por defecto SIEMPRE */
+}
+
+.sidebar.mobile-open {
+  transform: translateX(0); /* Se muestra solo cuando está abierta */
 }
 
 .main-wrapper {
-  margin-left: var(--sidebar-w);
+  margin-left: 0; /* Ya no empuja el contenido */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -147,7 +152,7 @@
 
 /* Mobile Toggle */
 .menu-toggle {
-  display: none;
+  display: block; /* Visible SIEMPRE */
   background: none;
   border: none;
   color: white;
@@ -253,28 +258,12 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .menu-toggle {
-    display: block;
-  }
-
-  .sidebar {
-    transform: translateX(-100%);
-  }
-
-  .main-wrapper {
-    margin-left: 0;
-  }
-
   .navbar {
     padding: 0 20px;
   }
 
   .top-nav {
     display: none;
-  }
-
-  .sidebar.mobile-open {
-    transform: translateX(0);
   }
 }
 

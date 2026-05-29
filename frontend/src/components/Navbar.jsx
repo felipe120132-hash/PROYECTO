@@ -35,12 +35,27 @@ function Navbar() {
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/" end onClick={() => setMenuOpen(false)}>
             <span> INICIO</span>
           </NavLink>
-          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/dashboard" onClick={() => setMenuOpen(false)}>
-            <span> DASHBOARD</span>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/calendario" onClick={() => setMenuOpen(false)}>
+            <span> CALENDARIO</span>
           </NavLink>
-          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/about" onClick={() => setMenuOpen(false)}>
-            <span> ABOUT</span>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/equipos" onClick={() => setMenuOpen(false)}>
+            <span> EQUIPOS</span>
           </NavLink>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/estadisticas" onClick={() => setMenuOpen(false)}>
+            <span> ESTADÍSTICAS</span>
+          </NavLink>
+          {token && (
+            <>
+              <div style={{ borderTop: '1px solid #e2e8f0', margin: '8px 0' }}></div>
+              <p className="sidebar-label" style={{ paddingLeft: '16px' }}>Administración</p>
+              <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/gestion" onClick={() => setMenuOpen(false)}>
+                <span>⚙️ GESTIÓN</span>
+              </NavLink>
+              <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/temporadas" onClick={() => setMenuOpen(false)}>
+                <span>📅 TEMPORADAS</span>
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -66,12 +81,25 @@ function Navbar() {
             <NavLink to="/" end style={{ textDecoration: 'none', color: 'inherit' }}>
               {({ isActive }) => <span className={isActive ? 'active' : ''}>Inicio</span>}
             </NavLink>
-            <NavLink to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
-              {({ isActive }) => <span className={isActive ? 'active' : ''}>Dashboard</span>}
+            <NavLink to="/calendario" style={{ textDecoration: 'none', color: 'inherit' }}>
+              {({ isActive }) => <span className={isActive ? 'active' : ''}>Calendario</span>}
             </NavLink>
-            <NavLink to="/about" style={{ textDecoration: 'none', color: 'inherit' }}>
-              {({ isActive }) => <span className={isActive ? 'active' : ''}>About</span>}
+            <NavLink to="/equipos" style={{ textDecoration: 'none', color: 'inherit' }}>
+              {({ isActive }) => <span className={isActive ? 'active' : ''}>Equipos</span>}
             </NavLink>
+            <NavLink to="/estadisticas" style={{ textDecoration: 'none', color: 'inherit' }}>
+              {({ isActive }) => <span className={isActive ? 'active' : ''}>Estadísticas</span>}
+            </NavLink>
+            {token && (
+              <>
+                <NavLink to="/gestion" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {({ isActive }) => <span className={isActive ? 'active' : ''}>Gestión</span>}
+                </NavLink>
+                <NavLink to="/temporadas" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {({ isActive }) => <span className={isActive ? 'active' : ''}>Temporadas</span>}
+                </NavLink>
+              </>
+            )}
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <span style={{ cursor: 'pointer', fontSize: '20px' }}></span>

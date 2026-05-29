@@ -6,13 +6,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Global Styles
 import './index.css';
-import './App.css'; // Keep App.css for any remaining base styles
+import './App.css'; 
 
 // Pages
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import About from './pages/About';
+import Calendario from './pages/Calendario';
+import Equipos from './pages/Equipos';
+import Estadisticas from './pages/Estadisticas';
+import DetalleEquipo from './pages/DetalleEquipo';
 import Login from './pages/Login';
+import CargarResultado from './pages/CargarResultado';
+import Gestion from './pages/Gestion';
+import Temporadas from './pages/Temporadas';
 
 function App() {
   return (
@@ -20,10 +25,30 @@ function App() {
       <Routes>
         <Route element={<Navbar />}>
           <Route index element={<Home />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="about" element={<About />} />
+          <Route path="calendario" element={<Calendario />} />
+          <Route path="equipos" element={<Equipos />} />
+          <Route path="estadisticas" element={<Estadisticas />} />
+          <Route path="equipo/:equipoId" element={<DetalleEquipo />} />
           <Route path="login" element={<Login />} />
-          {/* Fallback — redirigir rutas desconocidas al inicio */}
+          
+          {/* Rutas Protegidas (Solo Administradores) */}
+          <Route path="cargar/:partidoId" element={
+            <ProtectedRoute>
+              <CargarResultado />
+            </ProtectedRoute>
+          } />
+          <Route path="gestion" element={
+            <ProtectedRoute>
+              <Gestion />
+            </ProtectedRoute>
+          } />
+          <Route path="temporadas" element={
+            <ProtectedRoute>
+              <Temporadas />
+            </ProtectedRoute>
+          } />
+
+          {/* Fallback */}
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>

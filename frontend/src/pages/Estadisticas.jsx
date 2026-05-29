@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import './Dashboard.css';
 
-function Dashboard() {
+function Estadisticas() {
   const {
     temporada,
     equipos,
@@ -88,4 +88,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Estadisticas;
