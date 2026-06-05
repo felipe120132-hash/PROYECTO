@@ -312,6 +312,26 @@ export function AppProvider({ children }) {
     }
   };
 
+  const subirFotoJugador = async (id, archivo) => {
+    if (!archivo) return;
+    const formData = new FormData();
+    formData.append('foto', archivo);
+
+    try {
+      const res = await axios.put(`${API}/jugadores/${id}/foto`, formData, {
+        headers: {
+          ...authHeader().headers,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      verJugadores(equipoSeleccionado);
+      alert('✅ Foto del jugador actualizada correctamente.');
+    } catch (err) {
+      if (err.response?.status === 401) handleLogout();
+      alert('Error al subir la foto del jugador.');
+    }
+  };
+
   // Fetch players for any team by ID (used in CargarResultado)
   const fetchJugadoresEquipo = async (equipoId) => {
     try {
@@ -553,6 +573,7 @@ export function AppProvider({ children }) {
     iniciarEdicionJugador,
     guardarCambiosJugador,
     eliminarJugador,
+    subirFotoJugador,
     fetchJugadoresEquipo,
     actualizarPuntosJugador,
 

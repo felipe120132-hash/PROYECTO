@@ -1,11 +1,18 @@
 const db = require('../config/db');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_NAME, 
+  api_key: process.env.CLOUDINARY_KEY, 
+  api_secret: process.env.CLOUDINARY_SECRET 
+});
 
 // Obtener jugadores por equipo
 exports.obtenerJugadoresPorEquipo = async (req, res) => {
     const { equipoId } = req.params;
     try {
         const { rows } = await db.query(
-            'SELECT id, nombre, categoria, puntos_anotados FROM jugadores WHERE equipo_id = $1',
+            'SELECT id, nombre, categoria, puntos_anotados, foto FROM jugadores WHERE equipo_id = $1',
             [equipoId]
         );
         res.json(rows);
@@ -58,15 +65,6 @@ exports.actualizarJugador = async (req, res) => {
         const nombreFinal = (nombre !== undefined && nombre !== null) ? nombre.trim() : jugadorExistente.nombre;
         const categoriaFinal = (categoria !== undefined && categoria !== null) ? categoria : jugadorExistente.categoria;
         
-        // Si el usuario introduce nuevos puntos, los sumamos a los puntos actuales del jugador,
-        // o si es la edición general del jugador (donde viene todo), usamos lo que viene.
-        // Pero el requerimiento dice: "pida el jugador de los puntos... ya que solo son los puntos". 
-        // Vamos a permitir pasar "puntos_anotados" y sumarlos, o si viene "puntos_anotados"
-        // y queremos sobrescribir o sumar. Hagamos que si se provee "puntos_anotados"
-        // en esta pantalla (enviar resultado), se sume a los puntos actuales del jugador.
-        // Para diferenciar si se está editando desde el admin (donde pasamos todo y queremos pisar)
-        // o si pasamos un flag/parcial. Hagamos que si viene "puntos_anotados" y no "nombre", 
-        // se sumen los puntos.
         let puntosFinal = jugadorExistente.puntos_anotados || 0;
         if (puntos_anotados !== undefined && puntos_anotados !== null) {
             if (nombre === undefined) {
@@ -90,6 +88,31 @@ exports.actualizarJugador = async (req, res) => {
     } catch (err) {
         console.error('[actualizarJugador]', err);
         res.status(500).json({ error: 'Error al actualizar jugador.' });
+    }
+};
+
+// Subir/actualizar foto del jugador con Cloudinary
+exports.subirFotoJugador = async (req, res) => {
+    const { id } = req.params;
+    if (!req.file) {
+        return res.status(400).json({ error: 'No se subió ningún archivo.' });
+    }
+    try {
+        // Verificar si el jugador ya tiene foto para eliminarla de Cloudinary
+        const { rows } = await db.query('SELECT foto FROM jugadores WHERE id = $1', [id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Jugador no encontrado.' });
+
+        const resultado = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'liga_baloncesto/jugadores',
+            transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }]
+        });
+        const fotoUrl = resultado.secure_url;
+
+        await db.query('UPDATE jugadores SET foto = $1 WHERE id = $2', [fotoUrl, id]);
+        res.json({ success: true, foto: fotoUrl });
+    } catch (err) {
+        console.error('[subirFotoJugador]', err);
+        res.status(500).json({ error: 'Error al subir foto del jugador.' });
     }
 };
 

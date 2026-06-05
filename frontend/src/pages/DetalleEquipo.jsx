@@ -20,6 +20,7 @@ function DetalleEquipo() {
     eliminarJugador,
     guardarEntrenador,
     subirLogoArchivo,
+    subirFotoJugador,
     setEquipoSeleccionado,
     partidosDelEquipo,
     resultadoParaEquipo,
@@ -266,8 +267,12 @@ function DetalleEquipo() {
                     <>
                       <td>
                         <div className="player-row-info">
-                          <div className="player-avatar">
-                            {j.nombre.charAt(0).toUpperCase()}
+                          <div className="player-avatar" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {j.foto ? (
+                              <img src={j.foto} alt={j.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              j.nombre.charAt(0).toUpperCase()
+                            )}
                           </div>
                           <span style={{ fontWeight: 600 }}>{j.nombre}</span>
                         </div>
@@ -277,6 +282,20 @@ function DetalleEquipo() {
                       {token && (
                         <td>
                           <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                            <label htmlFor={`foto-upload-${j.id}`} className="btn-edit-inline" style={{ cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                              📷
+                            </label>
+                            <input
+                              id={`foto-upload-${j.id}`}
+                              type="file"
+                              accept="image/*"
+                              style={{ display: 'none' }}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  subirFotoJugador(j.id, e.target.files[0]);
+                                }
+                              }}
+                            />
                             <button className="btn-edit-inline" onClick={() => iniciarEdicionJugador(j)}>✏️</button>
                             <button className="btn-delete-inline" onClick={() => eliminarJugador(j.id)}>🗑️</button>
                           </div>

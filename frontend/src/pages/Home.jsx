@@ -131,8 +131,12 @@ function Home() {
           )}
         </div>
         <div className="mvp-image-container">
-          <div className="mvp-avatar-large">
-            {mvpNombre !== '—' ? mvpNombre.charAt(0).toUpperCase() : '?'}
+          <div className="mvp-avatar-large" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', borderRadius: '50%' }}>
+            {mvp?.foto ? (
+              <img src={mvp.foto} alt={mvpNombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              mvpNombre !== '—' ? mvpNombre.charAt(0).toUpperCase() : '?'
+            )}
           </div>
         </div>
       </section>
