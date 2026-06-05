@@ -18,12 +18,16 @@ function Home() {
 
   // Fetch top scorer from all teams in the active season
   useEffect(() => {
-    setMvp(null); // Limpiar el MVP anterior al cambiar de temporada o equipos
+    let cancelled = false;
+    setMvp(null); // Limpiar el MVP anterior inmediatamente
+    
     if (!equipos || equipos.length === 0) return;
 
-    let cancelled = false;
     const fetchMvp = async () => {
       try {
+        // Guardamos la temporada actual para la que estamos pidiendo los datos
+        const temporadaDeLaPeticion = temporada;
+
         // Fetch players for all teams in parallel
         const requests = equipos.map(eq =>
           axios.get(`${API}/jugadores/equipo/${eq.equipo_id ?? eq.id}`)
@@ -31,9 +35,13 @@ function Home() {
             .catch(() => [])
         );
         const results = await Promise.all(requests);
-        const todos = results.flat();
+        
+        // Si la petición fue cancelada o si el usuario cambió de temporada en el selector 
+        // mientras la consulta asíncrona estaba en vuelo, descartamos el resultado.
+        if (cancelled || temporadaDeLaPeticion !== temporada) return;
 
-        if (todos.length === 0 || cancelled) return;
+        const todos = results.flat();
+        if (todos.length === 0) return;
 
         // Find player with maximum points
         const top = todos.reduce((best, j) => {
@@ -42,14 +50,16 @@ function Home() {
           return pts > bestPts ? j : best;
         }, todos[0]);
 
-        if (!cancelled) setMvp(top);
+        setMvp(top);
       } catch (err) {
         console.error('[fetchMvp]', err);
       }
     };
 
     fetchMvp();
-    return () => { cancelled = true; };
+    return () => { 
+      cancelled = true; 
+    };
   }, [equipos, temporada]);
 
   const filteredEquipos = equipos.filter(eq =>
