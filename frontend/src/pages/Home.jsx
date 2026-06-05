@@ -18,6 +18,7 @@ function Home() {
 
   // Fetch top scorer from all teams in the active season
   useEffect(() => {
+    setMvp(null); // Limpiar el MVP anterior al cambiar de temporada o equipos
     if (!equipos || equipos.length === 0) return;
 
     let cancelled = false;
