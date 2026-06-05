@@ -1277,3 +1277,63 @@ td {
   border: 1px solid #fde68a;
   letter-spacing: 0.5px;
 }
+
+/* Premium Logo Upload UI */
+.upload-container {
+  height: 200px;
+  width: 250px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  gap: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.upload-header {
+  flex: 1;
+  width: 100%;
+  border: 2px dashed #3b82f6;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #1e293b;
+  padding: 8px;
+}
+
+.upload-header svg {
+  height: 60px;
+  color: #3b82f6;
+}
+
+.upload-footer {
+  background-color: #eff6ff;
+  width: 100%;
+  height: 38px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  font-weight: 600;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.upload-footer:hover {
+  background-color: #dbeafe;
+}
+
+.upload-footer svg {
+  height: 18px;
+  fill: #3b82f6;
+}
