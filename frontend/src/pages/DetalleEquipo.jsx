@@ -28,9 +28,9 @@ function DetalleEquipo() {
 
   const navigate = useNavigate();
 
-  // 8 filas vacías para el alta masiva de jugadores
+  // 1 fila vacía para el alta de jugador
   const emptyRow = () => ({ nombre: '', categoria: '', puntos_anotados: '' });
-  const [plantillaBatch, setPlantillaBatch] = useState(Array.from({ length: 8 }, emptyRow));
+  const [plantillaBatch, setPlantillaBatch] = useState(Array.from({ length: 1 }, emptyRow));
   const [guardandoBatch, setGuardandoBatch] = useState(false);
 
   const handleBatchChange = (index, field, value) => {
@@ -64,7 +64,7 @@ function DetalleEquipo() {
           }),
         });
       }
-      setPlantillaBatch(Array.from({ length: 8 }, emptyRow));
+      setPlantillaBatch(Array.from({ length: 1 }, emptyRow));
       verJugadores(equipoSeleccionado);
     } catch (err) {
       alert('Error al guardar la plantilla.');
@@ -183,7 +183,7 @@ function DetalleEquipo() {
       {token && (
         <div style={{ marginBottom: '32px', padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <h4 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            👥 Añadir Plantilla — Hasta 8 Jugadores
+            👥 Registrar Jugador
           </h4>
           <form onSubmit={handleBatchSubmit}>
             {/* Encabezado de columnas */}
@@ -228,7 +228,7 @@ function DetalleEquipo() {
               ))}
             </div>
             <button type="submit" className="btn-success" style={{ width: '100%', padding: '12px' }} disabled={guardandoBatch}>
-              {guardandoBatch ? '⏳ Guardando...' : '💾 Guardar Plantilla Completa'}
+              {guardandoBatch ? '⏳ Guardando...' : '💾 Guardar Jugador'}
             </button>
           </form>
         </div>
