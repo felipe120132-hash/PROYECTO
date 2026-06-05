@@ -161,8 +161,10 @@ function DetalleEquipo() {
                       <td><input className="edit-input" value={datosEdicionJugador.categoria} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, categoria: e.target.value })} /></td>
                       <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
                       <td>
-                        <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)} style={{ marginRight: '4px' }}>💾</button>
-                        <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}>✖</button>
+                        <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                          <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)}>💾</button>
+                          <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}>✖</button>
+                        </div>
                       </td>
                     </>
                   ) : (
@@ -172,8 +174,10 @@ function DetalleEquipo() {
                       <td>{j.puntos_anotados ?? j.Puntos_anotados ?? 0}</td>
                       {token && (
                         <td>
-                          <button className="btn-edit-inline" onClick={() => iniciarEdicionJugador(j)} style={{ marginRight: '4px' }}>✏️</button>
-                          <button className="btn-delete-inline" onClick={() => eliminarJugador(j.id)}>🗑️</button>
+                          <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                            <button className="btn-edit-inline" onClick={() => iniciarEdicionJugador(j)}>✏️</button>
+                            <button className="btn-delete-inline" onClick={() => eliminarJugador(j.id)}>🗑️</button>
+                          </div>
                         </td>
                       )}
                     </>

@@ -18,9 +18,6 @@ function Estadisticas() {
           <h2>Tabla de Clasificación</h2>
           <p style={{ color: '#64748b', fontSize: '14px' }}>Sigue el rendimiento de los equipos en la liga actual.</p>
         </div>
-        <div className="table-controls">
-          <button className="filter-btn">≡</button>
-        </div>
       </div>
 
       <div className="table-wrapper">
@@ -59,10 +56,12 @@ function Estadisticas() {
                       {(eq.dif ?? 0) > 0 ? '+' : ''}{eq.dif ?? 0}
                     </td>
                     <td>
-                      <button className="btn-edit-inline" onClick={() => verJugadores(eq)}>👥 Plantilla</button>
-                      {token && (
-                        <button className="btn-delete-inline" onClick={() => eliminarEquipo(eq.equipo_id ?? eq.id)}>🗑️</button>
-                      )}
+                      <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                        <button className="btn-edit-inline" onClick={() => verJugadores(eq)}>👥 Plantilla</button>
+                        {token && (
+                          <button className="btn-delete-inline" onClick={() => eliminarEquipo(eq.equipo_id ?? eq.id)}>🗑️</button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
