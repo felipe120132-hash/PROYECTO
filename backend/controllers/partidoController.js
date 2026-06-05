@@ -315,19 +315,28 @@ exports.eliminarTemporada = async (req, res) => {
     try {
         await conn.query('BEGIN');
 
-        // Obtener equipos antes de borrar
+        // Obtener los equipos registrados en esta temporada antes de borrarlos de clasificacion
         const { rows: equipos } = await conn.query(
             'SELECT equipo_id FROM clasificacion WHERE temporada = $1', [temporada]
         );
 
-        // Borrar partidos y clasificacion
+        // 1. Borrar partidos y clasificacion correspondientes a la temporada
         await conn.query('DELETE FROM partidos WHERE temporada = $1', [temporada]);
         await conn.query('DELETE FROM clasificacion WHERE temporada = $1', [temporada]);
 
-        // Borrar jugadores y equipos
+        // 2. Borrar de forma física el equipo (y sus jugadores) ÚNICAMENTE si ya no existe 
+        // registrado en ninguna otra temporada del sistema (evitando eliminar equipos compartidos).
         for (const { equipo_id } of equipos) {
-            await conn.query('DELETE FROM jugadores WHERE equipo_id = $1', [equipo_id]);
-            await conn.query('DELETE FROM equipos WHERE id = $1', [equipo_id]);
+            const { rows: conteo } = await conn.query(
+                'SELECT COUNT(*) AS total FROM clasificacion WHERE equipo_id = $1',
+                [equipo_id]
+            );
+            
+            if (parseInt(conteo[0].total) === 0) {
+                // El equipo ya no pertenece a ninguna temporada activa en el sistema.
+                await conn.query('DELETE FROM jugadores WHERE equipo_id = $1', [equipo_id]);
+                await conn.query('DELETE FROM equipos WHERE id = $1', [equipo_id]);
+            }
         }
 
         await conn.query('COMMIT');
