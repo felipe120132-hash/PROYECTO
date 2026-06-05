@@ -75,15 +75,20 @@ function CargarResultado() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      // Guardar el resultado global del partido
-      await enviarResultado(e);
+    
+    const pl = parseInt(resultadoData.puntos_local);
+    const pv = parseInt(resultadoData.puntos_visitante);
+    if (isNaN(pl) || isNaN(pv) || pl < 0 || pv < 0) {
+      return alert('Los puntos del partido deben ser números no negativos.');
+    }
 
-      // Guardar los puntos individuales de los jugadores editados/introducidos
+    try {
+      // 1. Guardar los puntos individuales de los jugadores editados/introducidos primero
       const promesas = [];
       Object.keys(puntosJugadores).forEach(jugadorId => {
         const pts = parseInt(puntosJugadores[jugadorId]);
         if (!isNaN(pts) && pts >= 0) {
+          // Enviamos la petición sin "nombre" ni "categoria" en el body para que sume
           promesas.push(actualizarPuntosJugador(jugadorId, pts));
         }
       });
@@ -91,8 +96,12 @@ function CargarResultado() {
       if (promesas.length > 0) {
         await Promise.all(promesas);
       }
+
+      // 2. Guardar el resultado global del partido (que redirecciona al terminar)
+      await enviarResultado(e);
     } catch (error) {
       console.error('Error al guardar puntos de jugadores:', error);
+      alert('⚠️ Hubo un error al guardar los puntos de los jugadores.');
     }
   };
 
