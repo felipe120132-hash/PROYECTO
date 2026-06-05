@@ -186,16 +186,16 @@ function DetalleEquipo() {
           </h4>
           <form onSubmit={handleBatchSubmit}>
             {/* Encabezado de columnas */}
-            <div style={{ display: 'grid', gridTemplateColumns: '28px 2fr 1fr 80px', gap: '8px', padding: '0 0 6px 0', borderBottom: '1px solid #e2e8f0', marginBottom: '10px' }}>
+            <div className="batch-player-header" style={{ display: 'grid', gridTemplateColumns: '28px 2fr 1fr 80px', gap: '8px', padding: '0 0 6px 0', borderBottom: '1px solid #e2e8f0', marginBottom: '10px' }}>
               <span />
               <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px' }}>Nombre y Apellido</span>
-              <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px' }}>Categoría</span>
+              <span className="batch-category-col" style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px' }}>Categoría</span>
               <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', textAlign: 'center' }}>PTS</span>
             </div>
             {/* Filas de jugadores */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
               {plantillaBatch.map((j, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 2fr 1fr 80px', gap: '8px', alignItems: 'center' }}>
+                <div key={i} className="batch-player-row" style={{ display: 'grid', gridTemplateColumns: '28px 2fr 1fr 80px', gap: '8px', alignItems: 'center' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: j.nombre.trim() ? '#1e293b' : '#cbd5e1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>
                     {i + 1}
                   </div>
@@ -212,7 +212,7 @@ function DetalleEquipo() {
                     placeholder="Categoría"
                     value={j.categoria}
                     onChange={e => handleBatchChange(i, 'categoria', e.target.value)}
-                    className="season-select"
+                    className="season-select batch-category-col"
                   />
                   <input
                     type="number"

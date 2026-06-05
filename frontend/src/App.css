@@ -1337,3 +1337,156 @@ td {
   height: 18px;
   fill: #3b82f6;
 }
+
+/* ── Responsive: DetalleEquipo & General Pages ── */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .content-area {
+    padding: 24px 16px;
+  }
+
+  .upload-container {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  /* Team header: stack logo + info + upload vertically */
+  .section-header-flex {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-header-flex > div:first-child {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+    width: 100%;
+  }
+
+  .section-header-flex > div:first-child > div:last-child {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Upload box full-width on mobile */
+  .upload-container {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 140px;
+  }
+
+  /* Batch player form: collapse to 2 columns (name + category stacked) */
+  .batch-player-row,
+  .batch-player-header {
+    grid-template-columns: 28px 1fr 72px !important;
+  }
+
+  .batch-category-col {
+    display: none !important;
+  }
+
+  /* Match cards in detail */
+  .teams {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .teams span:last-child {
+    text-align: left;
+  }
+
+  .teams .score {
+    align-self: center;
+    min-width: 80px;
+  }
+
+  /* Result badges: center them */
+  .resultado-victoria,
+  .resultado-derrota,
+  .resultado-empate {
+    display: block;
+    text-align: center;
+  }
+
+  /* Player table: make columns tighter */
+  .table-wrapper table {
+    min-width: 480px;
+  }
+
+  /* Hero */
+  .hero-section {
+    padding: 24px 16px;
+  }
+
+  /* Stats boxes: wrap to 2 per row */
+  .mvp-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat-box {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-area {
+    padding: 16px 12px;
+  }
+
+  /* Full-width action buttons */
+  .match-actions {
+    flex-direction: column;
+  }
+
+  .match-actions button {
+    width: 100%;
+  }
+
+  /* Batch form: label + pts only, hide category on smallest screens */
+  .batch-player-row,
+  .batch-player-header {
+    grid-template-columns: 24px 1fr 64px !important;
+  }
+
+  /* Team logo smaller */
+  .team-logo-circle {
+    width: 72px !important;
+    height: 72px !important;
+    font-size: 24px !important;
+  }
+
+  /* MVP avatar large */
+  .mvp-image-container {
+    width: 160px;
+    height: 160px;
+  }
+
+  /* Detail item stack */
+  .match-details {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* Navbar brand truncate */
+  .brand {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+
+  /* Reduce padding on cards */
+  .table-card {
+    padding: 16px 12px;
+  }
+}
