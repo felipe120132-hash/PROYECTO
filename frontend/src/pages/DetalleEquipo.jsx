@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
@@ -26,6 +26,51 @@ function DetalleEquipo() {
   } = useAppContext();
 
   const navigate = useNavigate();
+
+  // 8 filas vacías para el alta masiva de jugadores
+  const emptyRow = () => ({ nombre: '', categoria: '', puntos_anotados: '' });
+  const [plantillaBatch, setPlantillaBatch] = useState(Array.from({ length: 8 }, emptyRow));
+  const [guardandoBatch, setGuardandoBatch] = useState(false);
+
+  const handleBatchChange = (index, field, value) => {
+    setPlantillaBatch(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleBatchSubmit = async (e) => {
+    e.preventDefault();
+    const validos = plantillaBatch.filter(j => j.nombre.trim() && j.categoria.trim());
+    if (validos.length === 0) return alert('Completa al menos un jugador con nombre y categoría.');
+    setGuardandoBatch(true);
+    const equipoIdVal = equipoSeleccionado.equipo_id ?? equipoSeleccionado.id;
+    try {
+      for (const j of validos) {
+        await fetch(`https://proyecto-4t2l.onrender.com/api/jugadores`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'x-auth-token': token,
+          },
+          body: JSON.stringify({
+            nombre: j.nombre.trim(),
+            categoria: j.categoria.trim(),
+            puntos_anotados: parseInt(j.puntos_anotados) || 0,
+            equipo_id: equipoIdVal,
+          }),
+        });
+      }
+      setPlantillaBatch(Array.from({ length: 8 }, emptyRow));
+      verJugadores(equipoSeleccionado);
+    } catch (err) {
+      alert('Error al guardar la plantilla.');
+    } finally {
+      setGuardandoBatch(false);
+    }
+  };
 
   useEffect(() => {
     if (equipoId && equipos.length > 0) {
@@ -135,31 +180,55 @@ function DetalleEquipo() {
       </div>
 
       {token && (
-        <div style={{ marginBottom: '32px', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
-          <h4>Añadir Jugador a la Plantilla</h4>
-          <form onSubmit={guardarJugador} className="grid-form">
-            <input
-              type="text" placeholder="Nombre y Apellido"
-              value={nuevoJugador.nombre}
-              onChange={e => setNuevoJugador({ ...nuevoJugador, nombre: e.target.value })}
-              className="season-select"
-              required
-            />
-            <input
-              type="text" placeholder="Categoría (ej. Sub-18)"
-              value={nuevoJugador.categoria}
-              onChange={e => setNuevoJugador({ ...nuevoJugador, categoria: e.target.value })}
-              className="season-select"
-              required
-            />
-            <input
-              type="number" placeholder="Puntos"
-              value={nuevoJugador.puntos_anotados}
-              onChange={e => setNuevoJugador({ ...nuevoJugador, puntos_anotados: e.target.value })}
-              className="season-select"
-              required
-            />
-            <button type="submit" className="btn-success">Añadir</button>
+        <div style={{ marginBottom: '32px', padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <h4 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            👥 Añadir Plantilla — Hasta 8 Jugadores
+          </h4>
+          <form onSubmit={handleBatchSubmit}>
+            {/* Encabezado de columnas */}
+            <div style={{ display: 'grid', gridTemplateColumns: '28px 2fr 1fr 80px', gap: '8px', padding: '0 0 6px 0', borderBottom: '1px solid #e2e8f0', marginBottom: '10px' }}>
+              <span />
+              <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px' }}>Nombre y Apellido</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px' }}>Categoría</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', textAlign: 'center' }}>PTS</span>
+            </div>
+            {/* Filas de jugadores */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              {plantillaBatch.map((j, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 2fr 1fr 80px', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: j.nombre.trim() ? '#1e293b' : '#cbd5e1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>
+                    {i + 1}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Nombre y Apellido"
+                    value={j.nombre}
+                    onChange={e => handleBatchChange(i, 'nombre', e.target.value)}
+                    className="season-select"
+                    style={{ minWidth: 0 }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Categoría"
+                    value={j.categoria}
+                    onChange={e => handleBatchChange(i, 'categoria', e.target.value)}
+                    className="season-select"
+                  />
+                  <input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    value={j.puntos_anotados}
+                    onChange={e => handleBatchChange(i, 'puntos_anotados', e.target.value)}
+                    className="season-select"
+                    style={{ textAlign: 'center' }}
+                  />
+                </div>
+              ))}
+            </div>
+            <button type="submit" className="btn-success" style={{ width: '100%', padding: '12px' }} disabled={guardandoBatch}>
+              {guardandoBatch ? '⏳ Guardando...' : '💾 Guardar Plantilla Completa'}
+            </button>
           </form>
         </div>
       )}
