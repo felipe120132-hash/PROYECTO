@@ -117,25 +117,49 @@
 
 .mvp-image-container {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 240px;
+  height: 240px;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .mvp-image-container::before {
   content: '';
   position: absolute;
-  width: 280px;
-  height: 280px;
-  border: 4px solid var(--accent);
+  width: 230px;
+  height: 230px;
+  border: 3px solid var(--accent);
   border-radius: 50%;
+  animation: mvp-ring-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes mvp-ring-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.04); }
+}
+
+.mvp-avatar-large {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, #f97316 100%);
+  color: white;
+  font-size: 80px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+  letter-spacing: -4px;
+  user-select: none;
 }
 
 .mvp-img {
-  width: 260px;
-  height: 260px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   object-fit: cover;
   z-index: 1;

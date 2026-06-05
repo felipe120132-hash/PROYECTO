@@ -300,6 +300,27 @@ export function AppProvider({ children }) {
     }
   };
 
+  // Fetch players for any team by ID (used in CargarResultado)
+  const fetchJugadoresEquipo = async (equipoId) => {
+    try {
+      const res = await axios.get(`${API}/jugadores/equipo/${equipoId}`);
+      return res.data;
+    } catch (err) {
+      console.error('[fetchJugadoresEquipo]', err);
+      return [];
+    }
+  };
+
+  // Update only a player's points (quick update from match result screen)
+  const actualizarPuntosJugador = async (jugadorId, nuevosPuntos) => {
+    try {
+      await axios.put(`${API}/jugadores/${jugadorId}`, { puntos_anotados: nuevosPuntos }, authHeader());
+    } catch (err) {
+      if (err.response?.status === 401) handleLogout();
+      throw err;
+    }
+  };
+
   // ── GESTIÓN DE PARTIDOS ──────────────────────────────────────────────────────
   const enviarResultado = async (e) => {
     e.preventDefault();
@@ -520,6 +541,8 @@ export function AppProvider({ children }) {
     iniciarEdicionJugador,
     guardarCambiosJugador,
     eliminarJugador,
+    fetchJugadoresEquipo,
+    actualizarPuntosJugador,
 
     // Match management
     enviarResultado,

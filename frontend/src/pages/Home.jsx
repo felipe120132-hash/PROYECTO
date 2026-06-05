@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useAppContext } from '../context/AppContext';
 import './Home.css';
 import heroBg from '../assets/hero_bg.jpg';
-import mvpImg from '../assets/mvp_player.png';
+
+const API = 'https://proyecto-4t2l.onrender.com/api';
 
 function Home() {
   const {
@@ -12,9 +14,51 @@ function Home() {
     searchTerm,
   } = useAppContext();
 
+  const [mvp, setMvp] = useState(null);
+
+  // Fetch top scorer from all teams in the active season
+  useEffect(() => {
+    if (!equipos || equipos.length === 0) return;
+
+    let cancelled = false;
+    const fetchMvp = async () => {
+      try {
+        // Fetch players for all teams in parallel
+        const requests = equipos.map(eq =>
+          axios.get(`${API}/jugadores/equipo/${eq.equipo_id ?? eq.id}`)
+            .then(r => r.data.map(j => ({ ...j, equipo_nombre: eq.nombre })))
+            .catch(() => [])
+        );
+        const results = await Promise.all(requests);
+        const todos = results.flat();
+
+        if (todos.length === 0 || cancelled) return;
+
+        // Find player with maximum points
+        const top = todos.reduce((best, j) => {
+          const pts = j.puntos_anotados ?? j.Puntos_anotados ?? 0;
+          const bestPts = best.puntos_anotados ?? best.Puntos_anotados ?? 0;
+          return pts > bestPts ? j : best;
+        }, todos[0]);
+
+        if (!cancelled) setMvp(top);
+      } catch (err) {
+        console.error('[fetchMvp]', err);
+      }
+    };
+
+    fetchMvp();
+    return () => { cancelled = true; };
+  }, [equipos, temporada]);
+
   const filteredEquipos = equipos.filter(eq =>
     eq.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const mvpPts = mvp ? (mvp.puntos_anotados ?? mvp.Puntos_anotados ?? 0) : 0;
+  const mvpNombre = mvp?.nombre ?? '—';
+  const mvpEquipo = mvp?.equipo_nombre ?? '';
+  const mvpCategoria = mvp?.categoria ?? '';
 
   return (
     <div className="landing-grid anim-fade">
@@ -36,28 +80,49 @@ function Home() {
       {/* MVP SECTION */}
       <section className="mvp-section">
         <div className="mvp-info">
-          <span className="mvp-badge">MVP de la Semana</span>
-          <h2>Carlos "El Rayo" Méndez</h2>
-          <p className="mvp-desc">
-            Promedió 28 puntos, 8 asistencias y 5 robos liderando a los Halcones hacia una racha de 3 victorias consecutivas.
-          </p>
-          <div className="mvp-stats">
-            <div className="stat-box">
-              <span className="stat-val">28</span>
-              <span className="stat-label">PTS</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-val">8</span>
-              <span className="stat-label">AST</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-val">5</span>
-              <span className="stat-label">ROB</span>
-            </div>
-          </div>
+          <span className="mvp-badge">🏆 MVP de la Temporada</span>
+          {mvp ? (
+            <>
+              <h2>{mvpNombre}</h2>
+              <p className="mvp-desc">
+                El máximo anotador de la temporada con <strong>{mvpPts} puntos totales</strong>.
+                {mvpEquipo && <> Jugador de <strong>{mvpEquipo}</strong>.</>}
+                {mvpCategoria && <> Categoría: <strong>{mvpCategoria}</strong>.</>}
+              </p>
+              <div className="mvp-stats">
+                <div className="stat-box">
+                  <span className="stat-val">{mvpPts}</span>
+                  <span className="stat-label">PTS Totales</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-val">{mvpCategoria || '—'}</span>
+                  <span className="stat-label">Categoría</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-val" style={{ fontSize: '16px' }}>{mvpEquipo || '—'}</span>
+                  <span className="stat-label">Equipo</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 style={{ color: '#94a3b8' }}>Sin datos aún</h2>
+              <p className="mvp-desc">
+                Carga resultados y puntos de los jugadores para ver al MVP de la temporada aquí.
+              </p>
+              <div className="mvp-stats">
+                <div className="stat-box">
+                  <span className="stat-val">—</span>
+                  <span className="stat-label">PTS</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <div className="mvp-image-container">
-          <img src={mvpImg} alt="MVP Player" className="mvp-img" />
+          <div className="mvp-avatar-large">
+            {mvpNombre !== '—' ? mvpNombre.charAt(0).toUpperCase() : '?'}
+          </div>
         </div>
       </section>
 
