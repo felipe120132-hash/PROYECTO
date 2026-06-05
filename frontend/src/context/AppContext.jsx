@@ -230,7 +230,13 @@ export function AppProvider({ children }) {
   };
 
   // ── GESTIÓN DE JUGADORES ─────────────────────────────────────────────────────
+  // Referencia para cancelar peticiones obsoletas de verJugadores
+  const verJugadoresRequestId = useRef(0);
+
   const verJugadores = async (equipo) => {
+    verJugadoresRequestId.current += 1;
+    const currentRequestId = verJugadoresRequestId.current;
+
     setEquipoSeleccionado(equipo);
     setEditandoJugadorId(null);
     startLoading();
@@ -239,6 +245,10 @@ export function AppProvider({ children }) {
         axios.get(`${API}/jugadores/equipo/${equipo.equipo_id ?? equipo.id}`),
         axios.get(`${API}/partidos?temporada=${temporada}`)
       ]);
+      
+      // Si el id de petición cambió, significa que se inició otra consulta más reciente
+      if (currentRequestId !== verJugadoresRequestId.current) return;
+
       setJugadores(resJugadores.data);
       setPartidos(resPartidos.data);
       navigate(`/equipo/${equipo.equipo_id ?? equipo.id}`);
@@ -246,7 +256,9 @@ export function AppProvider({ children }) {
     } catch {
       alert('Error al cargar la plantilla.');
     } finally {
-      stopLoading();
+      if (currentRequestId === verJugadoresRequestId.current) {
+        stopLoading();
+      }
     }
   };
 

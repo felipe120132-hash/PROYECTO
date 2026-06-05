@@ -30,15 +30,21 @@ function DetalleEquipo() {
   useEffect(() => {
     if (equipoId && equipos.length > 0) {
       const eqIdNum = Number(equipoId);
-      const currentSelId = equipoSeleccionado ? (equipoSeleccionado.equipo_id ?? equipoSeleccionado.id) : null;
-      if (Number(currentSelId) !== eqIdNum) {
-        const eq = equipos.find(e => Number(e.equipo_id ?? e.id) === eqIdNum);
-        if (eq) {
-          verJugadores(eq);
+      // Validar si el equipo seleccionado actualmente existe en la lista de la nueva temporada
+      const eqEnTemporada = equipos.find(e => Number(e.equipo_id ?? e.id) === eqIdNum);
+      
+      if (!eqEnTemporada) {
+        // El equipo no existe en la temporada actual, limpiar selección y volver
+        setEquipoSeleccionado(null);
+        navigate('/equipos');
+      } else {
+        const currentSelId = equipoSeleccionado ? (equipoSeleccionado.equipo_id ?? equipoSeleccionado.id) : null;
+        if (Number(currentSelId) !== eqIdNum) {
+          verJugadores(eqEnTemporada);
         }
       }
     }
-  }, [equipoId, equipos, equipoSeleccionado, verJugadores]);
+  }, [equipoId, equipos, equipoSeleccionado, verJugadores, setEquipoSeleccionado, navigate]);
 
   if (!equipoSeleccionado) {
     if (equipoId && equipos.length === 0) {
