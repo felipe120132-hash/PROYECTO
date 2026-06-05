@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import Loader from './Loader';
 import './Navbar.css';
 
 function Navbar() {
@@ -12,6 +13,7 @@ function Navbar() {
     formatearTemporada,
     handleLogout,
     searchTerm, setSearchTerm,
+    loading,
     equipos,
     verJugadores,
   } = useAppContext();
@@ -20,6 +22,7 @@ function Navbar() {
 
   return (
     <div className="app-layout">
+      {loading && <Loader />}
       {/* Overlay para cerrar menu mobile */}
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
 

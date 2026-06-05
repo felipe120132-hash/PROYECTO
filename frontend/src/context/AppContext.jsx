@@ -18,6 +18,10 @@ export function AppProvider({ children }) {
   const [loginData, setLoginData] = useState({ usuario: '', password: '' });
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loadingCount, setLoadingCount] = useState(0);
+  const loading = loadingCount > 0;
+  const startLoading = () => setLoadingCount(c => c + 1);
+  const stopLoading = () => setLoadingCount(c => Math.max(0, c - 1));
 
   // ── DATOS PRINCIPALES ───────────────────────────────────────────────────────
   const [equipos, setEquipos] = useState([]);
@@ -88,6 +92,7 @@ export function AppProvider({ children }) {
   }, [temporada]);
 
   const cargarTemporadas = async () => {
+    startLoading();
     try {
       const res = await axios.get(`${API}/clasificacion/temporadas`);
       if (res.data && res.data.length > 0) {
@@ -95,28 +100,36 @@ export function AppProvider({ children }) {
       }
     } catch (err) {
       console.error('[cargarTemporadas]', err);
+    } finally {
+      stopLoading();
     }
   };
 
   const cargarEquipos = async (temp) => {
     const t = temp ?? temporada;
+    startLoading();
     try {
       const res = await axios.get(`${API}/clasificacion?temporada=${t}`);
       setEquipos(res.data);
     } catch (err) {
       console.error('[cargarEquipos]', err);
       setEquipos([]);
+    } finally {
+      stopLoading();
     }
   };
 
   const cargarPartidos = async (temp) => {
     const t = temp ?? temporada;
+    startLoading();
     try {
       const res = await axios.get(`${API}/partidos?temporada=${t}`);
       setPartidos(res.data);
     } catch (err) {
       console.error('[cargarPartidos]', err);
       setPartidos([]);
+    } finally {
+      stopLoading();
     }
   };
 
@@ -220,6 +233,7 @@ export function AppProvider({ children }) {
   const verJugadores = async (equipo) => {
     setEquipoSeleccionado(equipo);
     setEditandoJugadorId(null);
+    startLoading();
     try {
       const [resJugadores, resPartidos] = await Promise.all([
         axios.get(`${API}/jugadores/equipo/${equipo.equipo_id ?? equipo.id}`),
@@ -231,6 +245,8 @@ export function AppProvider({ children }) {
       window.scrollTo(0, 0);
     } catch {
       alert('Error al cargar la plantilla.');
+    } finally {
+      stopLoading();
     }
   };
 
@@ -292,6 +308,7 @@ export function AppProvider({ children }) {
     if (isNaN(pl) || isNaN(pv) || pl < 0 || pv < 0) {
       return alert('Los puntos deben ser números no negativos.');
     }
+    startLoading();
     try {
       await axios.put(
         `${API}/partidos/resultado`,
@@ -306,6 +323,8 @@ export function AppProvider({ children }) {
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
       alert('⚠️ Error al guardar el resultado:\n' + (err.response?.data?.error || err.message));
+    } finally {
+      stopLoading();
     }
   };
 
@@ -360,30 +379,38 @@ export function AppProvider({ children }) {
     const shuffled = cruces.sort(() => Math.random() - 0.5);
     const errores = [];
 
-    for (const partido of shuffled) {
-      try {
-        await axios.post(`${API}/partidos`, partido, authHeader());
-      } catch (err) {
-        if (err.response?.status === 401) { handleLogout(); return; }
-        if (err.response?.status !== 409) {
-          errores.push(err.response?.data?.msg || err.message);
+    startLoading();
+    try {
+      for (const partido of shuffled) {
+        try {
+          await axios.post(`${API}/partidos`, partido, authHeader());
+        } catch (err) {
+          if (err.response?.status === 401) { handleLogout(); return; }
+          if (err.response?.status !== 409) {
+            errores.push(err.response?.data?.msg || err.message);
+          }
         }
       }
-    }
 
-    if (errores.length > 0) {
-      alert(`⚠️ Calendario generado con ${errores.length} error(es):\n${errores.slice(0, 3).join('\n')}`);
-    } else {
-      alert('📅 Calendario ida y vuelta generado correctamente.');
-    }
+      if (errores.length > 0) {
+        alert(`⚠️ Calendario generado con ${errores.length} error(es):\n${errores.slice(0, 3).join('\n')}`);
+      } else {
+        alert('📅 Calendario ida y vuelta generado correctamente.');
+      }
 
-    cargarPartidos(temporada);
-    navigate('/partidos');
+      await cargarPartidos(temporada);
+      navigate('/partidos');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      stopLoading();
+    }
   };
 
   const reiniciarTodo = async () => {
     const siguienteTemporada = obtenerTemporadaSiguiente(temporada);
     if (!window.confirm(`¿Iniciar la siguiente temporada ${formatearTemporada(siguienteTemporada)}?\nSe conservará el histórico de la temporada actual (${formatearTemporada(temporada)}) y se registrarán los mismos equipos en la nueva temporada con 0 puntos.`)) return;
+    startLoading();
     try {
       await axios.post(`${API}/partidos/siguiente-temporada`, { temporada, siguienteTemporada }, authHeader());
       await cargarTemporadas();
@@ -393,6 +420,8 @@ export function AppProvider({ children }) {
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
       alert('⚠️ Error al iniciar siguiente temporada:\n' + (err.response?.data?.error || err.message));
+    } finally {
+      stopLoading();
     }
   };
 
@@ -407,6 +436,7 @@ export function AppProvider({ children }) {
       `Esta acción no se puede deshacer.`
     )) return;
 
+    startLoading();
     try {
       await axios.delete(`${API}/partidos/temporada?temporada=${temp}`, authHeader());
 
@@ -423,6 +453,8 @@ export function AppProvider({ children }) {
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
       alert('⚠️ ' + (err.response?.data?.error || 'Error al eliminar la temporada.'));
+    } finally {
+      stopLoading();
     }
   };
 
@@ -450,6 +482,7 @@ export function AppProvider({ children }) {
     loginData, setLoginData,
     menuOpen, setMenuOpen,
     searchTerm, setSearchTerm,
+    loading,
     equipos, setEquipos,
     partidos, setPartidos,
     jugadores, setJugadores,
