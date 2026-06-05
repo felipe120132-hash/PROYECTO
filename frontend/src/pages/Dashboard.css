@@ -231,6 +231,10 @@ td {
     width: calc(100% + 32px);
   }
 
+  .table-wrapper table {
+    min-width: 800px;
+  }
+
   table th,
   table td {
     padding: 12px 8px;
