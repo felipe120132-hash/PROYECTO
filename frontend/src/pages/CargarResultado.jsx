@@ -44,13 +44,13 @@ function CargarResultado() {
           setJugadoresLocal(localPlayers);
           setJugadoresVisitante(visitantePlayers);
           
-          // Inicializar puntos de jugadores si ya tienen o dejarlos vacíos/0
+          // Inicializar puntos de jugadores vacíos para que introduzcan solo los puntos de este partido
           const initialPts = {};
           localPlayers.forEach(j => {
-            initialPts[j.id] = j.puntos_anotados ?? j.Puntos_anotados ?? '';
+            initialPts[j.id] = '';
           });
           visitantePlayers.forEach(j => {
-            initialPts[j.id] = j.puntos_anotados ?? j.Puntos_anotados ?? '';
+            initialPts[j.id] = '';
           });
           setPuntosJugadores(initialPts);
         }

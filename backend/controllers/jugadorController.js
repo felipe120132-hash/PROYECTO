@@ -44,20 +44,48 @@ exports.agregarJugador = async (req, res) => {
 // Actualizar jugador
 exports.actualizarJugador = async (req, res) => {
     const { id } = req.params;
-    const { nombre, categoria, puntos_anotados } = req.body;
-
-    if (!nombre || !nombre.trim()) {
-        return res.status(400).json({ error: 'El nombre es obligatorio.' });
-    }
+    let { nombre, categoria, puntos_anotados } = req.body;
 
     try {
-        const { rowCount } = await db.query(
-            'UPDATE jugadores SET nombre = $1, categoria = $2, puntos_anotados = $3 WHERE id = $4',
-            [nombre.trim(), categoria, puntos_anotados ?? 0, id]
-        );
-        if (rowCount === 0) {
+        // Consultar el jugador existente primero
+        const { rows } = await db.query('SELECT * FROM jugadores WHERE id = $1', [id]);
+        if (rows.length === 0) {
             return res.status(404).json({ error: 'Jugador no encontrado.' });
         }
+        const jugadorExistente = rows[0];
+
+        // Usar los valores existentes si no se proveen en el cuerpo de la petición
+        const nombreFinal = (nombre !== undefined && nombre !== null) ? nombre.trim() : jugadorExistente.nombre;
+        const categoriaFinal = (categoria !== undefined && categoria !== null) ? categoria : jugadorExistente.categoria;
+        
+        // Si el usuario introduce nuevos puntos, los sumamos a los puntos actuales del jugador,
+        // o si es la edición general del jugador (donde viene todo), usamos lo que viene.
+        // Pero el requerimiento dice: "pida el jugador de los puntos... ya que solo son los puntos". 
+        // Vamos a permitir pasar "puntos_anotados" y sumarlos, o si viene "puntos_anotados"
+        // y queremos sobrescribir o sumar. Hagamos que si se provee "puntos_anotados"
+        // en esta pantalla (enviar resultado), se sume a los puntos actuales del jugador.
+        // Para diferenciar si se está editando desde el admin (donde pasamos todo y queremos pisar)
+        // o si pasamos un flag/parcial. Hagamos que si viene "puntos_anotados" y no "nombre", 
+        // se sumen los puntos.
+        let puntosFinal = jugadorExistente.puntos_anotados || 0;
+        if (puntos_anotados !== undefined && puntos_anotados !== null) {
+            if (nombre === undefined) {
+                // Sumar puntos del partido
+                puntosFinal += parseInt(puntos_anotados) || 0;
+            } else {
+                // Sobrescribir (panel de edición normal)
+                puntosFinal = parseInt(puntos_anotados) || 0;
+            }
+        }
+
+        if (!nombreFinal) {
+            return res.status(400).json({ error: 'El nombre es obligatorio.' });
+        }
+
+        await db.query(
+            'UPDATE jugadores SET nombre = $1, categoria = $2, puntos_anotados = $3 WHERE id = $4',
+            [nombreFinal, categoriaFinal, puntosFinal, id]
+        );
         res.json({ message: '✅ Jugador actualizado.' });
     } catch (err) {
         console.error('[actualizarJugador]', err);
