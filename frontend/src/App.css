@@ -162,7 +162,7 @@ h4 {
 }
 
 .sidebar-footer {
-  margin-top: auto;
+  margin-top: 32px;
   padding: 16px;
   background: #f8fafc;
   border-radius: 12px;
@@ -1156,4 +1156,124 @@ td {
     gap: 10px;
     align-items: center;
   }
+}
+
+/* ── Mejoras Estéticas de Jugadores e Info Deportiva ── */
+.player-row-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  border: 2px solid #e2e8f0;
+  text-shadow: none;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.player-category {
+  font-weight: 600;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: inline-block;
+  border: 1px solid #e2e8f0;
+}
+
+.player-points {
+  font-weight: 700;
+  color: var(--accent-hover);
+  background: #fff8f3;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid #ffe6d5;
+  display: inline-block;
+}
+
+/* Corrección de marcador encimado en partidos del detalle */
+.teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.teams span {
+  flex: 1;
+}
+
+.teams span:last-child {
+  text-align: right;
+}
+
+.teams .score {
+  flex: 0 0 auto;
+  background: var(--primary);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 14px;
+  min-width: 70px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Insignias de resultado deportivo */
+.resultado-victoria {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  letter-spacing: 0.5px;
+}
+
+.resultado-derrota {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  letter-spacing: 0.5px;
+}
+
+.resultado-empate {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  letter-spacing: 0.5px;
 }

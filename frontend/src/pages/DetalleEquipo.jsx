@@ -140,18 +140,20 @@ function DetalleEquipo() {
         </div>
       )}
 
-      <h4>Plantilla del Equipo</h4>
+      <h4 style={{ marginTop: '24px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        👤 Plantilla del Equipo
+      </h4>
       <div className="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Jugador</th><th>Categoría</th><th>Puntos Totales</th>
+              <th>Jugador</th><th>Categoría</th><th>PTS</th>
               {token && <th>Acciones</th>}
             </tr>
           </thead>
           <tbody>
             {jugadores.length === 0 ? (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '12px' }}>Sin jugadores registrados.</td></tr>
+              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>Sin jugadores registrados.</td></tr>
             ) : (
               jugadores.map(j => (
                 <tr key={j.id}>
@@ -169,9 +171,16 @@ function DetalleEquipo() {
                     </>
                   ) : (
                     <>
-                      <td>{j.nombre}</td>
-                      <td>{j.categoria}</td>
-                      <td>{j.puntos_anotados ?? j.Puntos_anotados ?? 0}</td>
+                      <td>
+                        <div className="player-row-info">
+                          <div className="player-avatar">
+                            {j.nombre.charAt(0).toUpperCase()}
+                          </div>
+                          <span style={{ fontWeight: 600 }}>{j.nombre}</span>
+                        </div>
+                      </td>
+                      <td><span className="player-category">{j.categoria}</span></td>
+                      <td><span className="player-points">{j.puntos_anotados ?? j.Puntos_anotados ?? 0} pts</span></td>
                       {token && (
                         <td>
                           <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
@@ -189,11 +198,13 @@ function DetalleEquipo() {
         </table>
       </div>
 
-      <h4 style={{ marginTop: '24px' }}>Partidos jugados</h4>
+      <h4 style={{ marginTop: '28px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        🏆 Partidos jugados
+      </h4>
       {(() => {
         const jugados = partidosDelEquipo(eqId).filter(p => p.jugado);
         return jugados.length === 0 ? (
-          <p style={{ color: '#888' }}>Sin partidos jugados.</p>
+          <p style={{ color: '#888', fontSize: '14px', padding: '12px 0' }}>Sin partidos jugados.</p>
         ) : jugados.map(p => {
           const res = resultadoParaEquipo(p, eqId);
           const esLocal = Number(p.equipo_local_id) === Number(eqId);
@@ -204,28 +215,35 @@ function DetalleEquipo() {
                 <span className="score">{p.puntos_local} — {p.puntos_visitante}</span>
                 <span>{p.nombre_visitante}</span>
               </div>
-              <span className={res.cls}>{res.label} ({esLocal ? 'Local' : 'Visitante'})</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span className={res.cls}>{res.label}</span>
+                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
+                  {esLocal ? 'Como Local' : 'Como Visitante'}
+                </span>
+              </div>
             </div>
           );
         });
       })()}
 
-      <h4 style={{ marginTop: '16px' }}>Partidos pendientes</h4>
+      <h4 style={{ marginTop: '24px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        📅 Partidos pendientes
+      </h4>
       {(() => {
         const pendientes = partidosDelEquipo(eqId).filter(p => !p.jugado);
         return pendientes.length === 0 ? (
-          <p style={{ color: '#888' }}>Sin partidos pendientes.</p>
+          <p style={{ color: '#888', fontSize: '14px', padding: '12px 0' }}>Sin partidos pendientes.</p>
         ) : pendientes.map(p => (
           <div key={p.id} className="partido-item">
             <div className="teams">
               <span>{p.nombre_local}</span>
-              <span className="score"> vs </span>
+              <span className="score" style={{ background: '#e2e8f0', color: '#334155', fontSize: '12px' }}>VS</span>
               <span>{p.nombre_visitante}</span>
             </div>
-            <div className="estadio-info">
-              📅 {p.fecha ? new Date(p.fecha).toLocaleDateString('es-AR') : 'Fecha pendiente'}
-              &nbsp;·&nbsp;🕐 {p.horario || 'Horario pendiente'}
-              &nbsp;·&nbsp;📍 {p.lugar || 'Lugar pendiente'}
+            <div className="estadio-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+              <span>📅 {p.fecha ? new Date(p.fecha).toLocaleDateString('es-AR') : 'Fecha pendiente'}</span>
+              <span>🕐 {p.horario || 'Horario pendiente'}</span>
+              <span>📍 {p.lugar || 'Lugar pendiente'}</span>
             </div>
           </div>
         ));
