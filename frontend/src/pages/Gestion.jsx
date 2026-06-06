@@ -16,7 +16,7 @@ function Gestion() {
   return (
     <div className="table-card anim-fade">
       <div className="section-header">
-        <span>⚙️</span>
+        <span></span>
         <h2>Gestión de Torneo</h2>
       </div>
 

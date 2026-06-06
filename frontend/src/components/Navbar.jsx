@@ -55,10 +55,10 @@ function Navbar() {
               <div style={{ borderTop: '1px solid #e2e8f0', margin: '8px 0' }}></div>
               <p className="sidebar-label" style={{ paddingLeft: '16px' }}>Administración</p>
               <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/gestion" onClick={() => setMenuOpen(false)}>
-                <span>⚙️ GESTIÓN</span>
+                <span> GESTIÓN</span>
               </NavLink>
               <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/temporadas" onClick={() => setMenuOpen(false)}>
-                <span>📅 TEMPORADAS</span>
+                <span> TEMPORADAS</span>
               </NavLink>
             </>
           )}
