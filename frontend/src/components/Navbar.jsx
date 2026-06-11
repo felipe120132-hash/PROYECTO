@@ -26,28 +26,34 @@ function Navbar() {
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
 
       <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`}>
+
+        <div className="sidebar-logo" onClick={() => { navigate('/'); setMenuOpen(false); }}>
+          <span className="sidebar-logo-text">LA SUPER LIGA</span>
+        </div>
+
         <nav className="sidebar-nav">
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/" end onClick={() => setMenuOpen(false)}>
-            <span>INICIO</span>
+            Inicio
           </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/calendario" onClick={() => setMenuOpen(false)}>
-            <span>CALENDARIO</span>
+            Calendario
           </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/equipos" onClick={() => setMenuOpen(false)}>
-            <span>EQUIPOS</span>
+            Equipos
           </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/estadisticas" onClick={() => setMenuOpen(false)}>
-            <span>ESTADÍSTICAS</span>
+            Estadísticas
           </NavLink>
+
           {token && (
             <>
-              <div style={{ borderTop: '1px solid #e2e8f0', margin: '8px 0' }}></div>
-              <p className="sidebar-label" style={{ paddingLeft: '16px' }}>Administración</p>
+              <div className="nav-divider"></div>
+              <p className="sidebar-label">Administración</p>
               <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/gestion" onClick={() => setMenuOpen(false)}>
-                <span>GESTIÓN</span>
+                Gestión
               </NavLink>
               <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/temporadas" onClick={() => setMenuOpen(false)}>
-                <span>TEMPORADAS</span>
+                Temporadas
               </NavLink>
             </>
           )}
@@ -73,7 +79,7 @@ function Navbar() {
           <div className="search-bar-container">
             <input
               type="text"
-              placeholder=" Buscar equipos..."
+              placeholder="Buscar equipos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="top-search-input"
@@ -89,10 +95,7 @@ function Navbar() {
                       <div
                         key={eq.id ?? eq.equipo_id}
                         className="search-dropdown-item"
-                        onClick={() => {
-                          verJugadores(eq);
-                          setSearchTerm('');
-                        }}
+                        onClick={() => { verJugadores(eq); setSearchTerm(''); }}
                       >
                         <div className="team-icon-sm" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                           {eq.logo ? (
@@ -117,7 +120,7 @@ function Navbar() {
               <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
             ) : (
               <button className="login-btn" onClick={() => navigate('/login')}>
-                 Iniciar Sesión
+                Iniciar Sesión
               </button>
             )}
           </div>
@@ -130,12 +133,6 @@ function Navbar() {
         <footer className="footer">
           <div className="footer-content">
             <div className="brand">LA SUPER LIGA</div>
-            <div className="footer-links">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
           </div>
           <p className="copyright"></p>
         </footer>
