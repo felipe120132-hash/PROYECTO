@@ -5,7 +5,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.7); /* Slate-900 transparent */
+  background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
@@ -18,12 +18,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .loader-container {
@@ -49,65 +45,38 @@
 }
 
 @keyframes textPulse {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
+  0%, 100% { opacity: 0.6; transform: scale(0.98); }
+  50%       { opacity: 1;   transform: scale(1.02); }
 }
 
-/* Original Ball Animation CSS rules */
+/* Ball rotation */
 @keyframes rotateBall {
-  0% {
-    transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
-  }
-  50% {
-    transform: rotateY(360deg) rotateX(360deg) rotateZ(0deg);
-  }
-  100% {
-    transform: rotateY(720deg) rotateX(720deg) rotateZ(360deg);
-  }
+  0%   { transform: rotateY(0deg)   rotateX(0deg)   rotateZ(0deg);   }
+  50%  { transform: rotateY(360deg) rotateX(360deg) rotateZ(0deg);   }
+  100% { transform: rotateY(720deg) rotateX(720deg) rotateZ(360deg); }
 }
 
+/* Ball bounce */
 @keyframes bounceBall {
-  0% {
-    transform: translateY(-70px) scale(1, 1);
-  }
-  15% {
-    transform: translateY(-56px) scale(1, 1);
-  }
-  45% {
-    transform: translateY(70px) scale(1, 1);
-  }
-  50% {
-    transform: translateY(73.5px) scale(1, 0.92);
-  }
-  55% {
-    transform: translateY(70px) scale(1, 0.95);
-  }
-  85% {
-    transform: translateY(-56px) scale(1, 1);
-  }
-  95% {
-    transform: translateY(-70px) scale(1, 1);
-  }
-  100% {
-    transform: translateY(-70px) scale(1, 1);
-  }
+  0%   { transform: translateY(-70px)  scale(1, 1);    }
+  15%  { transform: translateY(-56px)  scale(1, 1);    }
+  45%  { transform: translateY(50px)   scale(1, 1);    }
+  50%  { transform: translateY(53.5px) scale(1, 0.92); }
+  55%  { transform: translateY(50px)   scale(1, 0.95); }
+  85%  { transform: translateY(-56px)  scale(1, 1);    }
+  95%  { transform: translateY(-70px)  scale(1, 1);    }
+  100% { transform: translateY(-70px)  scale(1, 1);    }
 }
 
 .ball {
-  animation-name: bounceBall;
-  animation-duration: 1.2s;
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+  animation: bounceBall 1.2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
   border-radius: 50%;
   height: 60px;
-  position: relative;
-  transform: translateY(-70px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -30px;
+  margin-left: -30px;
   transform-style: preserve-3d;
   width: 60px;
   z-index: 1;
@@ -127,10 +96,7 @@
 }
 
 .ball .inner {
-  animation-name: rotateBall;
-  animation-duration: 25s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
+  animation: rotateBall 25s linear infinite;
   border-radius: 50%;
   height: 100%;
   position: absolute;
@@ -148,21 +114,10 @@
   width: 99%;
 }
 
-.ball .line::before {
-  transform: rotate3d(0, 0, 0, 0);
-}
-
-.ball .line::after {
-  transform: rotate3d(1, 0, 0, 90deg);
-}
-
-.ball .line--two::before {
-  transform: rotate3d(0, 0, 0, 2deg);
-}
-
-.ball .line--two::after {
-  transform: rotate3d(1, 0, 0, 88deg);
-}
+.ball .line::before  { transform: rotate3d(0, 0, 0, 0);     }
+.ball .line::after   { transform: rotate3d(1, 0, 0, 90deg); }
+.ball .line--two::before { transform: rotate3d(0, 0, 0, 2deg);  }
+.ball .line--two::after  { transform: rotate3d(1, 0, 0, 88deg); }
 
 .ball .oval::before,
 .ball .oval::after {
@@ -174,54 +129,28 @@
   width: 99%;
 }
 
-.ball .oval::before {
-  transform: rotate3d(1, 0, 0, 45deg) translate3d(0, 0, 6px);
-}
+.ball .oval::before      { transform: rotate3d(1, 0, 0,  45deg)  translate3d(0, 0,  6px); }
+.ball .oval::after       { transform: rotate3d(1, 0, 0, -45deg)  translate3d(0, 0, -6px); }
+.ball .oval--two::before { transform: rotate3d(1, 0, 0,  135deg) translate3d(0, 0, -6px); }
+.ball .oval--two::after  { transform: rotate3d(1, 0, 0, -135deg) translate3d(0, 0,  6px); }
 
-.ball .oval::after {
-  transform: rotate3d(1, 0, 0, -45deg) translate3d(0, 0, -6px);
-}
-
-.ball .oval--two::before {
-  transform: rotate3d(1, 0, 0, 135deg) translate3d(0, 0, -6px);
-}
-
-.ball .oval--two::after {
-  transform: rotate3d(1, 0, 0, -135deg) translate3d(0, 0, 6px);
-}
-
+/* Shadow — posicionada absolutamente al fondo del contenedor */
 @keyframes bounceShadow {
-  0% {
-    filter: blur(3px);
-    opacity: 0.6;
-    transform: translateY(73px) scale(0.5, 0.5);
-  }
-  45% {
-    filter: blur(1px);
-    opacity: 0.9;
-    transform: translateY(73px) scale(1, 1);
-  }
-  55% {
-    filter: blur(1px);
-    opacity: 0.9;
-    transform: translateY(73px) scale(1, 1);
-  }
-  100% {
-    filter: blur(3px);
-    opacity: 0.6;
-    transform: translateY(73px) scale(0.5, 0.5);
-  }
+  0%   { filter: blur(3px); opacity: 0.6; transform: translateX(-50%) scale(0.5, 0.5); }
+  45%  { filter: blur(1px); opacity: 0.9; transform: translateX(-50%) scale(1, 1);     }
+  55%  { filter: blur(1px); opacity: 0.9; transform: translateX(-50%) scale(1, 1);     }
+  100% { filter: blur(3px); opacity: 0.6; transform: translateX(-50%) scale(0.5, 0.5); }
 }
 
 .shadow {
-  animation-name: bounceShadow;
-  animation-duration: 1.2s;
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
-  background: black;
-  filter: blur(2px);
+  animation: bounceShadow 1.2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
   height: 6px;
-  transform: translateY(73px);
   width: 54px;
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(2px);
 }
