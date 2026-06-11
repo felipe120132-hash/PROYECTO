@@ -17,7 +17,6 @@ function CargarResultado() {
   const [jugadoresLocal, setJugadoresLocal] = useState([]);
   const [jugadoresVisitante, setJugadoresVisitante] = useState([]);
   
-  // Puntos individuales mapeados por jugador ID: { [jugadorId]: puntos }
   const [puntosJugadores, setPuntosJugadores] = useState({});
 
   const p = partidos.find(match => match.id === Number(partidoId));
@@ -33,7 +32,6 @@ function CargarResultado() {
     }
   }, [partidoId, setResultadoData]);
 
-  // Cargar jugadores de ambos equipos
   useEffect(() => {
     if (p) {
       let isCurrent = true;
@@ -43,22 +41,14 @@ function CargarResultado() {
         if (isCurrent) {
           setJugadoresLocal(localPlayers);
           setJugadoresVisitante(visitantePlayers);
-          
-          // Inicializar puntos de jugadores vacíos para que introduzcan solo los puntos de este partido
           const initialPts = {};
-          localPlayers.forEach(j => {
-            initialPts[j.id] = '';
-          });
-          visitantePlayers.forEach(j => {
-            initialPts[j.id] = '';
-          });
+          localPlayers.forEach(j => { initialPts[j.id] = ''; });
+          visitantePlayers.forEach(j => { initialPts[j.id] = ''; });
           setPuntosJugadores(initialPts);
         }
       };
       loadPlayers();
-      return () => {
-        isCurrent = false;
-      };
+      return () => { isCurrent = false; };
     }
   }, [p]);
 
@@ -67,43 +57,50 @@ function CargarResultado() {
   }
 
   const handlePuntosChange = (jugadorId, val) => {
-    setPuntosJugadores(prev => ({
-      ...prev,
-      [jugadorId]: val
-    }));
+    setPuntosJugadores(prev => ({ ...prev, [jugadorId]: val }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const pl = parseInt(resultadoData.puntos_local);
     const pv = parseInt(resultadoData.puntos_visitante);
     if (isNaN(pl) || isNaN(pv) || pl < 0 || pv < 0) {
       return alert('Los puntos del partido deben ser números no negativos.');
     }
-
     try {
-      // 1. Guardar los puntos individuales de los jugadores editados/introducidos primero
       const promesas = [];
       Object.keys(puntosJugadores).forEach(jugadorId => {
         const pts = parseInt(puntosJugadores[jugadorId]);
         if (!isNaN(pts) && pts >= 0) {
-          // Enviamos la petición sin "nombre" ni "categoria" en el body para que sume
           promesas.push(actualizarPuntosJugador(jugadorId, pts));
         }
       });
-
-      if (promesas.length > 0) {
-        await Promise.all(promesas);
-      }
-
-      // 2. Guardar el resultado global del partido (que redirecciona al terminar)
+      if (promesas.length > 0) await Promise.all(promesas);
       await enviarResultado(e);
     } catch (error) {
       console.error('Error al guardar puntos de jugadores:', error);
       alert('⚠️ Hubo un error al guardar los puntos de los jugadores.');
     }
   };
+
+  // ── Componente avatar reutilizable ──────────────────────────────
+  const PlayerAvatar = ({ jugador, color }) => (
+    jugador.foto ? (
+      <img
+        src={jugador.foto}
+        alt={jugador.nombre}
+        style={{
+          width: '32px', height: '32px', borderRadius: '50%',
+          objectFit: 'cover', border: `2px solid ${color}`,
+          flexShrink: 0
+        }}
+      />
+    ) : (
+      <div className="player-avatar" style={{ width: '32px', height: '32px', fontSize: '12px', background: color, flexShrink: 0 }}>
+        {jugador.nombre.charAt(0).toUpperCase()}
+      </div>
+    )
+  );
 
   return (
     <div className="table-card anim-fade" style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -121,13 +118,13 @@ function CargarResultado() {
         <div className="match-team team-local">
           <span>{p.nombre_local}</span>
           <div className="team-icon-sm">
-             {p.logo_local ? <img src={p.logo_local} alt="local" /> : p.nombre_local.substring(0, 2).toUpperCase()}
+            {p.logo_local ? <img src={p.logo_local} alt="local" /> : p.nombre_local.substring(0, 2).toUpperCase()}
           </div>
         </div>
         <div className="match-vs-badge">VS</div>
         <div className="match-team team-visitante">
           <div className="team-icon-sm">
-             {p.logo_visitante ? <img src={p.logo_visitante} alt="visita" /> : p.nombre_visitante.substring(0, 2).toUpperCase()}
+            {p.logo_visitante ? <img src={p.logo_visitante} alt="visita" /> : p.nombre_visitante.substring(0, 2).toUpperCase()}
           </div>
           <span>{p.nombre_visitante}</span>
         </div>
@@ -146,8 +143,7 @@ function CargarResultado() {
               value={resultadoData.puntos_local}
               onChange={e => setResultadoData({ ...resultadoData, puntos_local: e.target.value })}
               className="season-select"
-              required
-              min="0"
+              required min="0"
             />
           </div>
           <div className="input-group">
@@ -157,8 +153,7 @@ function CargarResultado() {
               value={resultadoData.puntos_visitante}
               onChange={e => setResultadoData({ ...resultadoData, puntos_visitante: e.target.value })}
               className="season-select"
-              required
-              min="0"
+              required min="0"
             />
           </div>
         </div>
@@ -169,6 +164,7 @@ function CargarResultado() {
         </h3>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '32px' }}>
+
           {/* JUGADORES LOCAL */}
           <div>
             <h4 style={{ color: '#0f172a', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -182,9 +178,7 @@ function CargarResultado() {
                 jugadoresLocal.map(j => (
                   <div key={j.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div className="player-avatar" style={{ width: '28px', height: '28px', fontSize: '11px', background: '#3b82f6' }}>
-                        {j.nombre.charAt(0).toUpperCase()}
-                      </div>
+                      <PlayerAvatar jugador={j} color="#3b82f6" />
                       <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>{j.nombre}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -217,9 +211,7 @@ function CargarResultado() {
                 jugadoresVisitante.map(j => (
                   <div key={j.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div className="player-avatar" style={{ width: '28px', height: '28px', fontSize: '11px', background: '#f97316' }}>
-                        {j.nombre.charAt(0).toUpperCase()}
-                      </div>
+                      <PlayerAvatar jugador={j} color="#f97316" />
                       <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>{j.nombre}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
