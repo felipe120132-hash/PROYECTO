@@ -57,10 +57,11 @@ const StyledWrapper = styled.div`
   margin-top: 8px;
 
   .beautiful-button {
-    width: 100%;
     position: relative;
+    width: 100%;
     display: inline-block;
-    background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
+    background: linear-gradient(135deg, #1b1c3f, #4a4e91, #1b1c3f);
+    background-size: 200% 200%;
     color: white;
     font-family: "Segoe UI", sans-serif;
     font-weight: bold;
@@ -70,18 +71,33 @@ const StyledWrapper = styled.div`
     padding: 14px 28px;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: button-shimmer 2s ease infinite;
     transition: all 0.3s ease-in-out;
   }
 
   .beautiful-button:hover {
-    background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+    background: linear-gradient(135deg, #2c2f63, #5b67b7, #2c2f63);
+    background-size: 200% 200%;
+    animation: button-particles 1s ease-in-out infinite;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(74, 78, 145, 0.4);
+    box-shadow: 0 8px 20px rgba(74, 78, 145, 0.5);
   }
 
   .beautiful-button:active {
     transform: scale(0.95);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes button-shimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes button-particles {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 `;
 
