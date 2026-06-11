@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import Loader from './Loader';
-import './Navbar.css';
 
 function Navbar() {
   const {
