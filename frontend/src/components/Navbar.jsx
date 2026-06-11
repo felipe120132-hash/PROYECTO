@@ -23,42 +23,31 @@ function Navbar() {
   return (
     <div className="app-layout">
       {loading && <Loader />}
-      {/* Overlay para cerrar menu mobile */}
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
 
       <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`}>
-        <div className="user-profile">
-          <div className="avatar">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Usuario" />
-          </div>
-          <div className="user-info">
-            <h4>PRO DIVISION</h4>
-            <p>Temporada {formatearTemporada(temporada)}</p>
-          </div>
-        </div>
-
         <nav className="sidebar-nav">
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/" end onClick={() => setMenuOpen(false)}>
-            <span> INICIO</span>
+            <span>INICIO</span>
           </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/calendario" onClick={() => setMenuOpen(false)}>
-            <span> CALENDARIO</span>
+            <span>CALENDARIO</span>
           </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/equipos" onClick={() => setMenuOpen(false)}>
-            <span> EQUIPOS</span>
+            <span>EQUIPOS</span>
           </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/estadisticas" onClick={() => setMenuOpen(false)}>
-            <span> ESTADÍSTICAS</span>
+            <span>ESTADÍSTICAS</span>
           </NavLink>
           {token && (
             <>
               <div style={{ borderTop: '1px solid #e2e8f0', margin: '8px 0' }}></div>
               <p className="sidebar-label" style={{ paddingLeft: '16px' }}>Administración</p>
               <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/gestion" onClick={() => setMenuOpen(false)}>
-                <span> GESTIÓN</span>
+                <span>GESTIÓN</span>
               </NavLink>
               <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/temporadas" onClick={() => setMenuOpen(false)}>
-                <span> TEMPORADAS</span>
+                <span>TEMPORADAS</span>
               </NavLink>
             </>
           )}
@@ -77,16 +66,14 @@ function Navbar() {
       <div className="main-wrapper">
         <header className="navbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-              ☰
-            </button>
+            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
             <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>LA SUPER LIGA</div>
           </div>
 
           <div className="search-bar-container">
             <input
               type="text"
-              placeholder="🔍 Buscar equipos..."
+              placeholder=" Buscar equipos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="top-search-input"
@@ -124,13 +111,13 @@ function Navbar() {
               </div>
             )}
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             {token ? (
               <button className="login-btn" onClick={handleLogout}>Cerrar Sesión</button>
             ) : (
               <button className="login-btn" onClick={() => navigate('/login')}>
-                👤 Iniciar Sesión
+                 Iniciar Sesión
               </button>
             )}
           </div>
@@ -142,7 +129,7 @@ function Navbar() {
 
         <footer className="footer">
           <div className="footer-content">
-            <div className="brand">LA SUPER LIGA </div>
+            <div className="brand">LA SUPER LIGA</div>
             <div className="footer-links">
               <span></span>
               <span></span>
