@@ -21,7 +21,7 @@ function Login() {
   return (
     <div className="table-card anim-fade login-card">
       <div className="section-header">
-        <span></span>
+        <span>👤</span>
         <h2>Acceso Administrativo</h2>
       </div>
       <form onSubmit={handleLogin}>
