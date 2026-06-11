@@ -25,8 +25,7 @@ function Navbar() {
       {loading && <Loader />}
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
 
-      <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`}>
-
+      <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`} style={{ background: '#12122a' }}>
         <div className="sidebar-logo" onClick={() => { navigate('/'); setMenuOpen(false); }}>
           <span className="sidebar-logo-text">LA SUPER LIGA</span>
         </div>
