@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useModal } from './ModalContext';
 
 const AppContext = createContext();
 
@@ -10,6 +11,7 @@ const API = 'https://proyecto-4t2l.onrender.com/api';
 
 export function AppProvider({ children }) {
   const navigate = useNavigate();
+  const { showAlert, showConfirm } = useModal();
 
   // ── NAVEGACIÓN ──────────────────────────────────────────────────────────────
   const [temporada, setTemporada] = useState('2026-2');
@@ -143,7 +145,7 @@ export function AppProvider({ children }) {
       localStorage.setItem('token', nuevoToken);
       navigate('/clasificacion');
     } catch (err) {
-      alert('Credenciales incorrectas o sesión no autorizada.');
+      await showAlert('⚠️ Credenciales incorrectas o sesión no autorizada.');
       console.error(err);
     }
   };
@@ -163,7 +165,7 @@ export function AppProvider({ children }) {
 
     if (!nuevoEquipo.nombre.trim()) {
       creandoEquipo.current = false;
-      return alert('El nombre del equipo es obligatorio.');
+      return await showAlert('⚠️ El nombre del equipo es obligatorio.');
     }
 
     const temporadaDestino = nuevoEquipo.temporadaEquipo || temporada;
@@ -174,26 +176,27 @@ export function AppProvider({ children }) {
         { nombre: nuevoEquipo.nombre.trim(), temporada: temporadaDestino },
         authHeader()
       );
-      alert(`✅ Equipo "${nuevoEquipo.nombre.trim()}" creado en la Temporada ${temporadaDestino}`);
+      await showAlert(`✅ Equipo "${nuevoEquipo.nombre.trim()}" creado en la Temporada ${temporadaDestino}`);
       setNuevoEquipo({ nombre: '', temporadaEquipo: temporadaDestino });
       if (temporadaDestino === temporada) cargarEquipos(temporada);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ ' + (err.response?.data?.msg || 'Error al crear equipo'));
+      await showAlert('⚠️ ' + (err.response?.data?.msg || 'Error al crear equipo'));
     } finally {
       creandoEquipo.current = false;
     }
   };
 
   const eliminarEquipo = async (id) => {
-    if (!window.confirm('¿Eliminar equipo? Se borrarán sus jugadores y partidos pendientes.')) return;
+    const ok = await showConfirm('¿Eliminar equipo? Se borrarán sus jugadores y partidos pendientes.');
+    if (!ok) return;
     try {
       await axios.delete(`${API}/equipos/${id}?temporada=${temporada}`, authHeader());
       cargarEquipos(temporada);
       cargarPartidos(temporada);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ ' + (err.response?.data?.msg || 'Error al eliminar equipo'));
+      await showAlert('⚠️ ' + (err.response?.data?.msg || 'Error al eliminar equipo'));
     }
   };
 
@@ -204,7 +207,7 @@ export function AppProvider({ children }) {
       cargarEquipos(temporada);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('Error al actualizar el entrenador.');
+      await showAlert('⚠️ Error al actualizar el entrenador.');
     }
   };
 
@@ -222,10 +225,10 @@ export function AppProvider({ children }) {
       });
       setEquipoSeleccionado(prev => ({ ...prev, logo: res.data.logo }));
       cargarEquipos(temporada);
-      alert('✅ Escudo actualizado correctamente.');
+      await showAlert('✅ Escudo actualizado correctamente.');
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('Error al subir el escudo.');
+      await showAlert('⚠️ Error al subir el escudo.');
     }
   };
 
@@ -254,7 +257,7 @@ export function AppProvider({ children }) {
       navigate(`/equipo/${equipo.equipo_id ?? equipo.id}`);
       window.scrollTo(0, 0);
     } catch {
-      alert('Error al cargar la plantilla.');
+      await showAlert('⚠️ Error al cargar la plantilla.');
     } finally {
       if (currentRequestId === verJugadoresRequestId.current) {
         stopLoading();
@@ -265,7 +268,7 @@ export function AppProvider({ children }) {
   const guardarJugador = async (e) => {
     e.preventDefault();
     if (!nuevoJugador.nombre.trim() || !nuevoJugador.categoria.trim()) {
-      return alert('Nombre y categoría son obligatorios.');
+      return await showAlert('⚠️ Nombre y categoría son obligatorios.');
     }
     try {
       await axios.post(
@@ -277,7 +280,7 @@ export function AppProvider({ children }) {
       verJugadores(equipoSeleccionado);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('Error al guardar jugador.');
+      await showAlert('⚠️ Error al guardar jugador.');
     }
   };
 
@@ -297,18 +300,19 @@ export function AppProvider({ children }) {
       verJugadores(equipoSeleccionado);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('Error al actualizar jugador.');
+      await showAlert('⚠️ Error al actualizar jugador.');
     }
   };
 
   const eliminarJugador = async (id) => {
-    if (!window.confirm('¿Eliminar jugador?')) return;
+    const ok = await showConfirm('¿Eliminar jugador?');
+    if (!ok) return;
     try {
       await axios.delete(`${API}/jugadores/${id}`, authHeader());
       verJugadores(equipoSeleccionado);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('Error al eliminar jugador.');
+      await showAlert('⚠️ Error al eliminar jugador.');
     }
   };
 
@@ -325,10 +329,10 @@ export function AppProvider({ children }) {
         }
       });
       verJugadores(equipoSeleccionado);
-      alert('✅ Foto del jugador actualizada correctamente.');
+      await showAlert('✅ Foto del jugador actualizada correctamente.');
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('Error al subir la foto del jugador.');
+      await showAlert('⚠️ Error al subir la foto del jugador.');
     }
   };
 
@@ -359,7 +363,7 @@ export function AppProvider({ children }) {
     const pl = parseInt(resultadoData.puntos_local);
     const pv = parseInt(resultadoData.puntos_visitante);
     if (isNaN(pl) || isNaN(pv) || pl < 0 || pv < 0) {
-      return alert('Los puntos deben ser números no negativos.');
+      return await showAlert('⚠️ Los puntos deben ser números no negativos.');
     }
     startLoading();
     try {
@@ -368,14 +372,14 @@ export function AppProvider({ children }) {
         { id: resultadoData.partidoId, puntos_local: pl, puntos_visitante: pv, temporada },
         authHeader()
       );
-      alert('✅ Marcador guardado y clasificación actualizada.');
+      await showAlert('✅ Marcador guardado y clasificación actualizada.');
       setResultadoData({ partidoId: '', puntos_local: '', puntos_visitante: '' });
       await cargarEquipos(temporada);
       await cargarPartidos(temporada);
       navigate('/clasificacion');
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ Error al guardar el resultado:\n' + (err.response?.data?.error || err.message));
+      await showAlert('⚠️ Error al guardar el resultado:\n' + (err.response?.data?.error || err.message));
     } finally {
       stopLoading();
     }
@@ -397,25 +401,27 @@ export function AppProvider({ children }) {
       cargarPartidos(temporada);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ Error al editar partido:\n' + (err.response?.data?.error || err.message));
+      await showAlert('⚠️ Error al editar partido:\n' + (err.response?.data?.error || err.message));
     }
   };
 
   const eliminarPartido = async (id) => {
-    if (!window.confirm('¿Eliminar este partido?')) return;
+    const ok = await showConfirm('¿Eliminar este partido?');
+    if (!ok) return;
     try {
       await axios.delete(`${API}/partidos/${id}?temporada=${temporada}`, authHeader());
       cargarPartidos(temporada);
       cargarEquipos(temporada);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ Error al eliminar partido:\n' + (err.response?.data?.error || err.message));
+      await showAlert('⚠️ Error al eliminar partido:\n' + (err.response?.data?.error || err.message));
     }
   };
 
   const generarCalendarioAleatorio = async () => {
-    if (equipos.length < 2) return alert('Necesitás al menos 2 equipos.');
-    if (!window.confirm(`¿Generar calendario Todo vs Todo (ida y vuelta) para la Temporada ${temporada}?`)) return;
+    if (equipos.length < 2) return await showAlert('⚠️ Necesitás al menos 2 equipos.');
+    const ok = await showConfirm(`📅 ¿Generar calendario Todo vs Todo (ida y vuelta) para la Temporada ${temporada}?`);
+    if (!ok) return;
 
     const cruces = [];
     for (let i = 0; i < equipos.length; i++) {
@@ -446,9 +452,9 @@ export function AppProvider({ children }) {
       }
 
       if (errores.length > 0) {
-        alert(`⚠️ Calendario generado con ${errores.length} error(es):\n${errores.slice(0, 3).join('\n')}`);
+        await showAlert(`⚠️ Calendario generado con ${errores.length} error(es):\n${errores.slice(0, 3).join('\n')}`);
       } else {
-        alert('📅 Calendario ida y vuelta generado correctamente.');
+        await showAlert('📅 Calendario ida y vuelta generado correctamente.');
       }
 
       await cargarPartidos(temporada);
@@ -462,17 +468,18 @@ export function AppProvider({ children }) {
 
   const reiniciarTodo = async () => {
     const siguienteTemporada = obtenerTemporadaSiguiente(temporada);
-    if (!window.confirm(`¿Iniciar la siguiente temporada ${formatearTemporada(siguienteTemporada)}?\nSe conservará el histórico de la temporada actual (${formatearTemporada(temporada)}) y se registrarán los mismos equipos en la nueva temporada con 0 puntos.`)) return;
+    const ok = await showConfirm(`📅 ¿Iniciar la siguiente temporada ${formatearTemporada(siguienteTemporada)}?\nSe conservará el histórico de la temporada actual (${formatearTemporada(temporada)}) y se registrarán los mismos equipos en la nueva temporada con 0 puntos.`);
+    if (!ok) return;
     startLoading();
     try {
       await axios.post(`${API}/partidos/siguiente-temporada`, { temporada, siguienteTemporada }, authHeader());
       await cargarTemporadas();
       setTemporada(siguienteTemporada);
       navigate('/clasificacion');
-      alert(`✅ Nueva temporada ${formatearTemporada(siguienteTemporada)} iniciada con éxito.`);
+      await showAlert(`✅ Nueva temporada ${formatearTemporada(siguienteTemporada)} iniciada con éxito.`);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ Error al iniciar siguiente temporada:\n' + (err.response?.data?.error || err.message));
+      await showAlert('⚠️ Error al iniciar siguiente temporada:\n' + (err.response?.data?.error || err.message));
     } finally {
       stopLoading();
     }
@@ -481,13 +488,14 @@ export function AppProvider({ children }) {
   // ── GESTIÓN DE TEMPORADAS ────────────────────────────────────────────────────
   const eliminarTemporada = async (temp) => {
     if (temporadas.length <= 1) {
-      return alert('No podés eliminar la única temporada existente.');
+      return await showAlert('⚠️ No podés eliminar la única temporada existente.');
     }
-    if (!window.confirm(
-      `¿Eliminar la ${formatearTemporada(temp)}?\n\n` +
-      `⚠️ Se borrarán TODOS sus partidos, clasificación y equipos.\n` +
+    const ok = await showConfirm(
+      `⚠️ ¿Eliminar la ${formatearTemporada(temp)}?\n\n` +
+      `Se borrarán TODOS sus partidos, clasificación y equipos.\n` +
       `Esta acción no se puede deshacer.`
-    )) return;
+    );
+    if (!ok) return;
 
     startLoading();
     try {
@@ -502,10 +510,10 @@ export function AppProvider({ children }) {
         navigate('/clasificacion');
       }
 
-      alert(`✅ ${formatearTemporada(temp)} eliminada correctamente.`);
+      await showAlert(`✅ ${formatearTemporada(temp)} eliminada correctamente.`);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
-      alert('⚠️ ' + (err.response?.data?.error || 'Error al eliminar la temporada.'));
+      await showAlert('⚠️ ' + (err.response?.data?.error || 'Error al eliminar la temporada.'));
     } finally {
       stopLoading();
     }
