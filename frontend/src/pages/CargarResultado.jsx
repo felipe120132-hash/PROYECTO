@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { ArrowLeft, Pencil, Goal, Activity, Save } from 'lucide-react';
 import './Dashboard.css';
 
 function CargarResultado() {
@@ -104,12 +105,12 @@ function CargarResultado() {
 
   return (
     <div className="table-card anim-fade" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <button className="btn-cancel" onClick={() => navigate('/calendario')} style={{ marginBottom: '20px' }}>
-        <span>←</span> Volver
+      <button className="btn-cancel" onClick={() => navigate('/calendario')} style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span><ArrowLeft size={16} /></span> Volver
       </button>
 
       <div className="section-header" style={{ justifyContent: 'center', marginBottom: '24px' }}>
-        <span>✏️</span>
+        <span><Pencil size={24} /></span>
         <h2>Cargar Marcador y Puntos</h2>
       </div>
 
@@ -132,8 +133,8 @@ function CargarResultado() {
 
       <form onSubmit={handleSubmit}>
         {/* MARCADOR GLOBAL */}
-        <h3 style={{ marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', color: '#1e293b' }}>
-          🏀 Marcador Global del Partido
+        <h3 style={{ marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Goal size={20} /> Marcador Global del Partido
         </h3>
         <div className="grid-form" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
           <div className="input-group">
@@ -159,8 +160,8 @@ function CargarResultado() {
         </div>
 
         {/* PUNTOS INDIVIDUALES JUGADORES */}
-        <h3 style={{ marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', color: '#1e293b' }}>
-          🏃 Puntos de los Jugadores
+        <h3 style={{ marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Activity size={20} /> Puntos de los Jugadores
         </h3>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '32px' }}>
@@ -232,8 +233,8 @@ function CargarResultado() {
           </div>
         </div>
 
-        <button type="submit" className="btn-success" style={{ width: '100%', padding: '12px', fontSize: '16px' }}>
-          💾 Guardar Marcador e Historial de Puntos
+        <button type="submit" className="btn-success" style={{ width: '100%', padding: '12px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <Save size={20} /> Guardar Marcador e Historial de Puntos
         </button>
       </form>
     </div>

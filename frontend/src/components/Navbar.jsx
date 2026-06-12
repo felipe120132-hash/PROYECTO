@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { Menu } from 'lucide-react';
 import Loader from './Loader';
 
 function Navbar() {
@@ -70,7 +71,7 @@ function Navbar() {
       <div className="main-wrapper">
         <header className="navbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Menu size={22} /></button>
             <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>LA SUPER LIGA</div>
           </div>
 

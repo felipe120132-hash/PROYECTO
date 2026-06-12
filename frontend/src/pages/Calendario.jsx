@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { Pencil, X } from 'lucide-react';
 import './Dashboard.css';
 
 const IconCalendario = () => (
@@ -99,17 +100,17 @@ function Calendario() {
           >
             {/* Header del modal */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1a1a2e' }}>
-                ✏️ {editandoPartido.nombre_local} vs {editandoPartido.nombre_visitante}
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1a1a2e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Pencil size={16} /> {editandoPartido.nombre_local} vs {editandoPartido.nombre_visitante}
               </h3>
               <button
                 onClick={() => setEditandoPartido(null)}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: '20px', color: '#999', lineHeight: 1,
+                  color: '#999', display: 'flex', alignItems: 'center'
                 }}
               >
-                ×
+                <X size={20} />
               </button>
             </div>
 

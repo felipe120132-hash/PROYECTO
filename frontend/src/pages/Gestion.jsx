@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
+import { PlusCircle, CalendarDays, AlertTriangle } from 'lucide-react';
 import './Dashboard.css';
 
 function Gestion() {
@@ -47,7 +48,9 @@ function Gestion() {
                 ))}
               </select>
             </div>
-            <button type="submit" className="btn-primary">➕ Registrar Equipo</button>
+            <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <PlusCircle size={18} /> Registrar Equipo
+            </button>
           </form>
         </div>
 
@@ -58,11 +61,11 @@ function Gestion() {
             Las siguientes acciones aplican a la temporada seleccionada: <strong>{formatearTemporada(temporada)}</strong>.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <button className="btn-success" onClick={generarCalendarioAleatorio} style={{ width: '100%' }}>
-              📅 Generar Fixture Todo vs Todo
+            <button className="btn-success" onClick={generarCalendarioAleatorio} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <CalendarDays size={18} /> Generar Fixture Todo vs Todo
             </button>
-            <button className="btn-danger" onClick={reiniciarTodo} style={{ width: '100%' }}>
-              ⚠️ Iniciar Siguiente Temporada
+            <button className="btn-danger" onClick={reiniciarTodo} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <AlertTriangle size={18} /> Iniciar Siguiente Temporada
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { ArrowLeft, Users, Hourglass, Save, User, X, Camera, Pencil, Trash2, Trophy, CalendarDays, Clock, MapPin } from 'lucide-react';
 
 function DetalleEquipo() {
   const { equipoId } = useParams();
@@ -114,8 +115,8 @@ function DetalleEquipo() {
 
   return (
     <div className="table-card anim-fade">
-      <button className="btn-cancel" onClick={() => navigate('/equipos')} style={{ marginBottom: '20px' }}>
-        <span>←</span> Volver a Equipos
+      <button className="btn-cancel" onClick={() => navigate('/equipos')} style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span><ArrowLeft size={16} /></span> Volver a Equipos
       </button>
 
       <div className="section-header-flex">
@@ -183,7 +184,7 @@ function DetalleEquipo() {
       {token && (
         <div style={{ marginBottom: '32px', padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <h4 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            👥 Registrar Jugador
+            <Users size={20} /> Registrar Jugador
           </h4>
           <form onSubmit={handleBatchSubmit}>
             {/* Encabezado de columnas */}
@@ -227,15 +228,15 @@ function DetalleEquipo() {
                 </div>
               ))}
             </div>
-            <button type="submit" className="btn-success" style={{ width: '100%', padding: '12px' }} disabled={guardandoBatch}>
-              {guardandoBatch ? '⏳ Guardando...' : '💾 Guardar Jugador'}
+            <button type="submit" className="btn-success" style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} disabled={guardandoBatch}>
+              {guardandoBatch ? <><Hourglass size={16} /> Guardando...</> : <><Save size={16} /> Guardar Jugador</>}
             </button>
           </form>
         </div>
       )}
 
       <h4 style={{ marginTop: '24px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        👤 Plantilla del Equipo
+        <User size={20} /> Plantilla del Equipo
       </h4>
       <div className="table-wrapper">
         <table>
@@ -258,8 +259,8 @@ function DetalleEquipo() {
                       <td><input className="edit-input" type="number" value={datosEdicionJugador.puntos_anotados} onChange={e => setDatosEdicionJugador({ ...datosEdicionJugador, puntos_anotados: e.target.value })} /></td>
                       <td>
                         <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
-                          <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)}>💾</button>
-                          <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}>✖</button>
+                          <button className="btn-edit-inline" onClick={() => guardarCambiosJugador(j.id)}><Save size={16} /></button>
+                          <button className="btn-delete-inline" onClick={() => setEditandoJugadorId(null)}><X size={16} /></button>
                         </div>
                       </td>
                     </>
@@ -283,7 +284,7 @@ function DetalleEquipo() {
                         <td>
                           <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
                             <label htmlFor={`foto-upload-${j.id}`} className="btn-edit-inline" style={{ cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                              📷
+                              <Camera size={16} />
                             </label>
                             <input
                               id={`foto-upload-${j.id}`}
@@ -296,8 +297,8 @@ function DetalleEquipo() {
                                 }
                               }}
                             />
-                            <button className="btn-edit-inline" onClick={() => iniciarEdicionJugador(j)}>✏️</button>
-                            <button className="btn-delete-inline" onClick={() => eliminarJugador(j.id)}>🗑️</button>
+                            <button className="btn-edit-inline" onClick={() => iniciarEdicionJugador(j)}><Pencil size={16} /></button>
+                            <button className="btn-delete-inline" onClick={() => eliminarJugador(j.id)}><Trash2 size={16} /></button>
                           </div>
                         </td>
                       )}
@@ -311,7 +312,7 @@ function DetalleEquipo() {
       </div>
 
       <h4 style={{ marginTop: '28px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        🏆 Partidos jugados
+        <Trophy size={20} /> Partidos jugados
       </h4>
       {(() => {
         const jugados = partidosDelEquipo(eqId).filter(p => p.jugado);
@@ -339,7 +340,7 @@ function DetalleEquipo() {
       })()}
 
       <h4 style={{ marginTop: '24px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        📅 Partidos pendientes
+        <CalendarDays size={20} /> Partidos pendientes
       </h4>
       {(() => {
         const pendientes = partidosDelEquipo(eqId).filter(p => !p.jugado);
@@ -353,9 +354,9 @@ function DetalleEquipo() {
               <span>{p.nombre_visitante}</span>
             </div>
             <div className="estadio-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-              <span>📅 {p.fecha ? new Date(p.fecha).toLocaleDateString('es-AR') : 'Fecha pendiente'}</span>
-              <span>🕐 {p.horario || 'Horario pendiente'}</span>
-              <span>📍 {p.lugar || 'Lugar pendiente'}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CalendarDays size={14} /> {p.fecha ? new Date(p.fecha).toLocaleDateString('es-AR') : 'Fecha pendiente'}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {p.horario || 'Horario pendiente'}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {p.lugar || 'Lugar pendiente'}</span>
             </div>
           </div>
         ));

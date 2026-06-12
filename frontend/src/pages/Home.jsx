@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAppContext } from '../context/AppContext';
+import { Trophy } from 'lucide-react';
 import './Home.css';
 import heroBg from '../assets/hero_bg.jpg';
 
@@ -91,7 +92,7 @@ function Home() {
       {/* MVP SECTION */}
       <section className="mvp-section">
         <div className="mvp-info">
-          <span className="mvp-badge">🏆 MVP de la Temporada</span>
+          <span className="mvp-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><Trophy size={18} /> MVP de la Temporada</span>
           {mvp ? (
             <>
               <h2>{mvpNombre}</h2>

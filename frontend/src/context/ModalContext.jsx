@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { CheckCircle2, AlertTriangle, CalendarDays, HelpCircle, Info } from 'lucide-react';
 
 const ModalContext = createContext();
 export const useModal = () => useContext(ModalContext);
@@ -25,11 +26,11 @@ export function ModalProvider({ children }) {
   }, []);
 
   const getIcono = (mensaje, modo) => {
-    if (mensaje?.startsWith('✅')) return { icono: '✅', color: '#22c55e' };
-    if (mensaje?.startsWith('⚠️')) return { icono: '⚠️', color: '#f97316' };
-    if (mensaje?.startsWith('📅')) return { icono: '📅', color: '#3b82f6' };
-    if (modo === 'confirm') return { icono: '❓', color: '#6366f1' };
-    return { icono: 'ℹ️', color: '#3b82f6' };
+    if (mensaje?.startsWith('✅')) return { icono: <CheckCircle2 size={42} />, color: '#22c55e' };
+    if (mensaje?.startsWith('⚠️')) return { icono: <AlertTriangle size={42} />, color: '#f97316' };
+    if (mensaje?.startsWith('📅')) return { icono: <CalendarDays size={42} />, color: '#3b82f6' };
+    if (modo === 'confirm') return { icono: <HelpCircle size={42} />, color: '#6366f1' };
+    return { icono: <Info size={42} />, color: '#3b82f6' };
   };
 
   return (
@@ -55,7 +56,7 @@ export function ModalProvider({ children }) {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <div style={{ textAlign: 'center', fontSize: '42px' }}>
+            <div style={{ textAlign: 'center', color: getIcono(modal.mensaje, modal.modo).color, display: 'flex', justifyContent: 'center' }}>
               {getIcono(modal.mensaje, modal.modo).icono}
             </div>
 
