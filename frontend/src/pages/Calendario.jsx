@@ -72,30 +72,129 @@ function Calendario() {
         <h2>Calendario de Partidos</h2>
       </div>
 
+      {/* ── MODAL ── */}
       {editandoPartido && (
-        <form
-          onSubmit={guardarEdicionPartido}
-          className="grid-form"
-          style={{ marginBottom: '16px', background: '#f0f4ff', padding: '12px', borderRadius: '8px' }}
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setEditandoPartido(null)}
         >
-          <h4 style={{ gridColumn: '1 / -1', margin: '0 0 8px' }}>
-            Editar: {editandoPartido.nombre_local} vs {editandoPartido.nombre_visitante}
-          </h4>
-          <div className="input-group">
-            <label>Fecha</label>
-            <input type="date" value={editandoPartido.fecha || ''} onChange={e => setEditandoPartido({ ...editandoPartido, fecha: e.target.value })} />
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: '16px',
+              padding: '28px 32px',
+              width: '100%',
+              maxWidth: '420px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header del modal */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1a1a2e' }}>
+                ✏️ {editandoPartido.nombre_local} vs {editandoPartido.nombre_visitante}
+              </h3>
+              <button
+                onClick={() => setEditandoPartido(null)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: '20px', color: '#999', lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <hr style={{ margin: 0, border: 'none', borderTop: '1px solid #eee' }} />
+
+            {/* Campos */}
+            <form onSubmit={guardarEdicionPartido} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#555' }}>
+                  <IconCalendario /> Fecha
+                </label>
+                <input
+                  type="date"
+                  value={editandoPartido.fecha || ''}
+                  onChange={e => setEditandoPartido({ ...editandoPartido, fecha: e.target.value })}
+                  style={{
+                    padding: '10px 12px', borderRadius: '8px',
+                    border: '1px solid #ddd', fontSize: '14px',
+                    outline: 'none', width: '100%', boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#555' }}>
+                  <IconReloj /> Horario
+                </label>
+                <input
+                  type="time"
+                  value={editandoPartido.horario || ''}
+                  onChange={e => setEditandoPartido({ ...editandoPartido, horario: e.target.value })}
+                  style={{
+                    padding: '10px 12px', borderRadius: '8px',
+                    border: '1px solid #ddd', fontSize: '14px',
+                    outline: 'none', width: '100%', boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#555' }}>
+                  <IconPin /> Lugar
+                </label>
+                <input
+                  type="text"
+                  placeholder="Nombre de la cancha"
+                  value={editandoPartido.lugar || ''}
+                  onChange={e => setEditandoPartido({ ...editandoPartido, lugar: e.target.value })}
+                  style={{
+                    padding: '10px 12px', borderRadius: '8px',
+                    border: '1px solid #ddd', fontSize: '14px',
+                    outline: 'none', width: '100%', boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              {/* Botones */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1, padding: '11px', borderRadius: '8px',
+                    background: '#f97316', color: '#fff',
+                    border: 'none', fontWeight: '700',
+                    fontSize: '14px', cursor: 'pointer',
+                  }}
+                >
+                  Guardar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditandoPartido(null)}
+                  style={{
+                    flex: 1, padding: '11px', borderRadius: '8px',
+                    background: '#f1f1f1', color: '#555',
+                    border: 'none', fontWeight: '600',
+                    fontSize: '14px', cursor: 'pointer',
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="input-group">
-            <label>Horario</label>
-            <input type="time" value={editandoPartido.horario || ''} onChange={e => setEditandoPartido({ ...editandoPartido, horario: e.target.value })} />
-          </div>
-          <div className="input-group">
-            <label>Lugar</label>
-            <input type="text" placeholder="Nombre de la cancha" value={editandoPartido.lugar || ''} onChange={e => setEditandoPartido({ ...editandoPartido, lugar: e.target.value })} />
-          </div>
-          <button type="submit" className="btn-success">💾 Guardar</button>
-          <button type="button" className="btn-cancel" onClick={() => setEditandoPartido(null)}>Cancelar</button>
-        </form>
+        </div>
       )}
 
       {partidos.length === 0 ? (
