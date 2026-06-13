@@ -251,7 +251,7 @@ exports.reiniciarLiga = async (req, res) => {
     } catch (err) {
         await conn.query('ROLLBACK');
         console.error('[reiniciarLiga]', err);
-        res.status(500).json({ error: 'Error al reiniciar la temporada.', detalle: err.message });
+        res.status(500).json({ error: 'Error al reiniciar la temporada.' });
     } finally {
         conn.release();
     }
@@ -300,7 +300,7 @@ exports.iniciarSiguienteTemporada = async (req, res) => {
     } catch (err) {
         await conn.query('ROLLBACK');
         console.error('[iniciarSiguienteTemporada]', err);
-        res.status(500).json({ error: 'Error al iniciar la siguiente temporada.', detalle: err.message });
+        res.status(500).json({ error: 'Error al iniciar la siguiente temporada.' });
     } finally {
         conn.release();
     }
@@ -344,7 +344,7 @@ exports.eliminarTemporada = async (req, res) => {
     } catch (err) {
         await conn.query('ROLLBACK');
         console.error('[eliminarTemporada]', err);
-        res.status(500).json({ error: 'Error al eliminar la temporada.', detalle: err.message });
+        res.status(500).json({ error: 'Error al eliminar la temporada.' });
     } finally {
         conn.release();
     }

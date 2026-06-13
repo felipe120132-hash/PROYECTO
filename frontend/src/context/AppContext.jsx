@@ -9,6 +9,19 @@ export const useAppContext = () => useContext(AppContext);
 
 const API = 'https://proyecto-4t2l.onrender.com/api';
 
+// Verifica si un JWT (sin verificar firma, solo decodificando payload) está expirado.
+// La verificación real de la firma ocurre en el servidor; esto solo evita enviar
+// tokens claramente vencidos desde el cliente.
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp && Date.now() / 1000 > payload.exp;
+  } catch {
+    return true; // token malformado → tratar como expirado
+  }
+};
+
 export function AppProvider({ children }) {
   const navigate = useNavigate();
   const { showAlert, showConfirm } = useModal();
@@ -16,7 +29,15 @@ export function AppProvider({ children }) {
   // ── NAVEGACIÓN ──────────────────────────────────────────────────────────────
   const [temporada, setTemporada] = useState('2026-2');
   const [temporadas, setTemporadas] = useState(['2025-2', '2026-2']);
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [token, setToken] = useState(() => {
+    const stored = localStorage.getItem('token') || '';
+    // Si el token guardado ya está expirado, lo descartamos de inmediato.
+    if (stored && isTokenExpired(stored)) {
+      localStorage.removeItem('token');
+      return '';
+    }
+    return stored;
+  });
   const [loginData, setLoginData] = useState({ usuario: '', password: '' });
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

@@ -23,8 +23,8 @@ exports.getEquipos = async (req, res) => {
         `, [temporada]);
         res.json(rows);
     } catch (error) {
-        console.error('❌ Error al obtener equipos:', error);
-        res.status(500).json({ msg: 'Error al obtener equipos', error });
+        console.error('Error al obtener equipos:', error);
+        res.status(500).json({ msg: 'Error al obtener equipos.' });
     }
 };
 
@@ -81,8 +81,8 @@ exports.createEquipo = async (req, res) => {
         res.status(201).json({ msg: `Equipo registrado en la temporada ${temporada}.` });
     } catch (error) {
         await conn.query('ROLLBACK');
-        console.error('❌ Error al crear equipo:', error);
-        res.status(500).json({ msg: 'Error al crear equipo.', error: error.message });
+        console.error('Error al crear equipo:', error);
+        res.status(500).json({ msg: 'Error al crear equipo.' });
     } finally {
         conn.release();
     }
@@ -123,11 +123,8 @@ exports.deleteEquipo = async (req, res) => {
 
     } catch (error) {
         await conn.query('ROLLBACK');
-        console.error('❌ Error al eliminar equipo:', error);
-        res.status(500).json({
-            msg: 'Error interno al intentar eliminar el equipo.',
-            error: error.message
-        });
+        console.error('Error al eliminar equipo:', error);
+        res.status(500).json({ msg: 'Error interno al intentar eliminar el equipo.' });
     } finally {
         conn.release();
     }

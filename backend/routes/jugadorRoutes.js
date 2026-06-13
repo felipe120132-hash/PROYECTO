@@ -1,37 +1,60 @@
-const express = require('express'); // Importamos Express para la gestión de rutas.
-const router = express.Router(); // Inicializamos el enrutador de Express.
-const jugadorController = require('../controllers/jugadorController'); // Importamos el controlador de jugadores.
-const auth = require('../middlewares/authMiddleware'); // Importamos el middleware de autenticación para proteger rutas.
+const express = require('express');
+const router = express.Router();
+const jugadorController = require('../controllers/jugadorController');
+const auth = require('../middlewares/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
-// Configuración de multer para almacenar temporalmente los archivos en el servidor
+// ── Multer: solo imágenes, máximo 5 MB ───────────────────────────────────────
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../uploads/'));
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); // Nombre único
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, Date.now() + '-' + Math.random().toString(36).slice(2) + ext);
     }
 });
 
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Tipo de archivo no permitido. Solo se aceptan imágenes (JPEG, PNG, WEBP, GIF).'), false);
+    }
+};
 
-//RUTAS DE JUGADORES
+const upload = multer({ storage, fileFilter, limits: { fileSize: MAX_FILE_SIZE } });
 
-// Obtener todos los jugadores pertenecientes a un equipo específico por su ID (Público).
+// ── RUTAS DE JUGADORES ────────────────────────────────────────────────────────
+
+// Obtener todos los jugadores de un equipo (Público).
 router.get('/equipo/:equipoId', jugadorController.obtenerJugadoresPorEquipo);
 
-// Registrar un nuevo jugador en un equipo (Acción protegida para administradores).
+// Registrar un nuevo jugador (protegido).
 router.post('/', auth, jugadorController.agregarJugador);
 
-// Actualizar la información (nombre, categoría, puntos) de un jugador existente (Acción protegida).
+// Actualizar datos de un jugador (protegido).
 router.put('/:id', auth, jugadorController.actualizarJugador);
 
-// Subir/actualizar foto del jugador
+// Subir/actualizar foto del jugador (protegido).
 router.put('/:id/foto', auth, upload.single('foto'), jugadorController.subirFotoJugador);
 
-// Eliminar de forma permanente un jugador del sistema por su ID (Acción protegida).
+// Eliminar un jugador (protegido).
 router.delete('/:id', auth, jugadorController.eliminarJugador);
 
-module.exports = router; // Exportamos el enrutador para ser utilizado en el servidor (app.js/index.js).
+// Manejo de errores de multer
+router.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'El archivo supera el límite de 5 MB.' });
+    }
+    if (err.message && err.message.includes('Tipo de archivo')) {
+        return res.status(400).json({ error: err.message });
+    }
+    next(err);
+});
+
+module.exports = router;
