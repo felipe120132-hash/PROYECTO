@@ -5,6 +5,14 @@ const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+// ── Verificación de variables de entorno críticas ─────────────────────────────
+if (!process.env.JWT_SECRET) {
+  console.error('=========================================================');
+  console.error('ERROR CRÍTICO: JWT_SECRET no está configurado.');
+  console.error('El login NO funcionará. Configurá esta variable en Render.');
+  console.error('=========================================================');
+}
+
 const equipoRoutes = require('./routes/equipoRoutes');
 const jugadorRoutes = require('./routes/jugadorRoutes');
 const partidoRoutes = require('./routes/partidoRoutes');

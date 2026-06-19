@@ -166,10 +166,18 @@ export function AppProvider({ children }) {
       localStorage.setItem('token', nuevoToken);
       navigate('/clasificacion');
     } catch (err) {
-      await showAlert('⚠️ Credenciales incorrectas o sesión no autorizada.');
-      console.error(err);
+      // Distinguir entre error de credenciales (401) y error del servidor (4xx/5xx)
+      if (err.response?.status === 401) {
+        await showAlert('⚠️ Usuario o contraseña incorrectos.');
+      } else if (err.response?.status === 429) {
+        await showAlert('⚠️ Demasiados intentos. Esperá 15 minutos e intentá de nuevo.');
+      } else {
+        await showAlert('⚠️ Error del servidor al iniciar sesión. Revisá que JWT_SECRET esté configurado en Render.');
+      }
+      console.error('[handleLogin]', err.response?.status, err.response?.data || err.message);
     }
   };
+
 
   const handleLogout = () => {
     setToken('');
