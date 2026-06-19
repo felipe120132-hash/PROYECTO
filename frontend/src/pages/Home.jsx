@@ -8,12 +8,7 @@ import heroBg from '../assets/hero_bg.jpg';
 const API = 'https://proyecto-4t2l.onrender.com/api';
 
 function Home() {
-  const {
-    temporada,
-    equipos,
-    verJugadores,
-    searchTerm,
-  } = useAppContext();
+  const { equipos, tabla, isLoading, formatearTemporada, temporada, categoriaGlobal, verJugadores, searchTerm } = useAppContext();
 
   const [mvp, setMvp] = useState(null);
 
@@ -31,7 +26,7 @@ function Home() {
 
         // Fetch players for all teams in parallel
         const requests = equipos.map(eq =>
-          axios.get(`${API}/jugadores/equipo/${eq.equipo_id ?? eq.id}`)
+          axios.get(`${API}/jugadores/equipo/${eq.equipo_id ?? eq.id}?temporada=${temporadaDeLaPeticion}&categoria=${categoriaGlobal}`)
             .then(r => r.data.map(j => ({ ...j, equipo_nombre: eq.nombre })))
             .catch(() => [])
         );

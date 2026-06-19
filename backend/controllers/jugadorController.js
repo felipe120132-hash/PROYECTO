@@ -10,11 +10,23 @@ cloudinary.config({
 // Obtener jugadores por equipo
 exports.obtenerJugadoresPorEquipo = async (req, res) => {
     const { equipoId } = req.params;
+    const { temporada, categoria = 'Profesional' } = req.query;
     try {
-        const { rows } = await db.query(
-            'SELECT id, nombre, categoria, puntos_anotados, foto FROM jugadores WHERE equipo_id = $1',
-            [equipoId]
-        );
+        let query = 'SELECT id, nombre, categoria, puntos_anotados, foto FROM jugadores WHERE equipo_id = $1 AND categoria = $2';
+        let params = [equipoId, categoria];
+        
+        if (temporada) {
+            query = `
+                SELECT j.id, j.nombre, j.categoria, j.foto, 
+                       COALESCE(je.puntos_anotados, 0) AS puntos_anotados 
+                FROM jugadores j
+                LEFT JOIN jugador_estadisticas je ON j.id = je.jugador_id AND je.temporada = $2
+                WHERE j.equipo_id = $1 AND j.categoria = $3
+            `;
+            params = [equipoId, temporada, categoria];
+        }
+
+        const { rows } = await db.query(query, params);
         res.json(rows);
     } catch (err) {
         console.error('[obtenerJugadoresPorEquipo]', err);
@@ -24,7 +36,7 @@ exports.obtenerJugadoresPorEquipo = async (req, res) => {
 
 // Agregar jugador
 exports.agregarJugador = async (req, res) => {
-    const { nombre, categoria, equipo_id, puntos_anotados } = req.body;
+    const { nombre, categoria, equipo_id, puntos_anotados, temporada } = req.body;
 
     if (!nombre || !nombre.trim()) {
         return res.status(400).json({ error: 'El nombre del jugador es obligatorio.' });
@@ -39,9 +51,18 @@ exports.agregarJugador = async (req, res) => {
     try {
         const { rows } = await db.query(
             'INSERT INTO jugadores (nombre, categoria, equipo_id, puntos_anotados) VALUES ($1, $2, $3, $4) RETURNING id',
-            [nombre.trim(), categoria.trim(), equipo_id, puntos_anotados || 0]
+            [nombre.trim(), categoria.trim(), equipo_id, 0]
         );
-        res.status(201).json({ message: '✅ Jugador registrado.', id: rows[0].id });
+        const jugadorId = rows[0].id;
+        
+        if (temporada) {
+            await db.query(`
+                INSERT INTO jugador_estadisticas (jugador_id, temporada, puntos_anotados) 
+                VALUES ($1, $2, $3)
+            `, [jugadorId, temporada, puntos_anotados || 0]);
+        }
+
+        res.status(201).json({ message: '✅ Jugador registrado.', id: jugadorId });
     } catch (err) {
         console.error('[agregarJugador]', err);
         res.status(500).json({ error: err.message || 'Error al registrar jugador.' });
@@ -51,39 +72,51 @@ exports.agregarJugador = async (req, res) => {
 // Actualizar jugador
 exports.actualizarJugador = async (req, res) => {
     const { id } = req.params;
-    let { nombre, categoria, puntos_anotados } = req.body;
+    let { nombre, categoria, puntos_anotados, temporada } = req.body;
 
     try {
-        // Consultar el jugador existente primero
         const { rows } = await db.query('SELECT * FROM jugadores WHERE id = $1', [id]);
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Jugador no encontrado.' });
         }
         const jugadorExistente = rows[0];
 
-        // Usar los valores existentes si no se proveen en el cuerpo de la petición
         const nombreFinal = (nombre !== undefined && nombre !== null) ? nombre.trim() : jugadorExistente.nombre;
         const categoriaFinal = (categoria !== undefined && categoria !== null) ? categoria : jugadorExistente.categoria;
         
-        let puntosFinal = jugadorExistente.puntos_anotados || 0;
-        if (puntos_anotados !== undefined && puntos_anotados !== null) {
-            if (nombre === undefined) {
-                // Sumar puntos del partido
-                puntosFinal += parseInt(puntos_anotados) || 0;
-            } else {
-                // Sobrescribir (panel de edición normal)
-                puntosFinal = parseInt(puntos_anotados) || 0;
-            }
-        }
-
         if (!nombreFinal) {
             return res.status(400).json({ error: 'El nombre es obligatorio.' });
         }
 
+        // Actualizar datos base del jugador
         await db.query(
-            'UPDATE jugadores SET nombre = $1, categoria = $2, puntos_anotados = $3 WHERE id = $4',
-            [nombreFinal, categoriaFinal, puntosFinal, id]
+            'UPDATE jugadores SET nombre = $1, categoria = $2 WHERE id = $3',
+            [nombreFinal, categoriaFinal, id]
         );
+
+        // Actualizar estadísticas de la temporada si se proporcionan
+        if (puntos_anotados !== undefined && puntos_anotados !== null && temporada) {
+            let ptsNum = parseInt(puntos_anotados) || 0;
+            
+            if (nombre === undefined) {
+                // Modo sumar (viene de CargarResultado)
+                const { rows: statRows } = await db.query(
+                    'SELECT puntos_anotados FROM jugador_estadisticas WHERE jugador_id = $1 AND temporada = $2', 
+                    [id, temporada]
+                );
+                let puntosActuales = statRows.length > 0 ? statRows[0].puntos_anotados : 0;
+                ptsNum += puntosActuales;
+            }
+
+            // Upsert en la tabla de estadísticas
+            await db.query(`
+                INSERT INTO jugador_estadisticas (jugador_id, temporada, puntos_anotados) 
+                VALUES ($1, $2, $3) 
+                ON CONFLICT (jugador_id, temporada) 
+                DO UPDATE SET puntos_anotados = $3
+            `, [id, temporada, ptsNum]);
+        }
+
         res.json({ message: '✅ Jugador actualizado.' });
     } catch (err) {
         console.error('[actualizarJugador]', err);

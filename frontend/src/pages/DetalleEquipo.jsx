@@ -25,6 +25,7 @@ function DetalleEquipo() {
     setEquipoSeleccionado,
     partidosDelEquipo,
     resultadoParaEquipo,
+    categoriaGlobal,
   } = useAppContext();
 
   const navigate = useNavigate();
@@ -44,8 +45,8 @@ function DetalleEquipo() {
 
   const handleBatchSubmit = async (e) => {
     e.preventDefault();
-    const validos = plantillaBatch.filter(j => j.nombre.trim() && j.categoria.trim());
-    if (validos.length === 0) return alert('Completa al menos un jugador con nombre y categoría.');
+    const validos = plantillaBatch.filter(j => j.nombre.trim());
+    if (validos.length === 0) return alert('Completa al menos un jugador con nombre.');
     setGuardandoBatch(true);
     const equipoIdVal = equipoSeleccionado.equipo_id ?? equipoSeleccionado.id;
     try {
@@ -59,7 +60,8 @@ function DetalleEquipo() {
           },
           body: JSON.stringify({
             nombre: j.nombre.trim(),
-            categoria: j.categoria.trim(),
+            categoria: categoriaGlobal,
+            temporada: temporada,
             puntos_anotados: parseInt(j.puntos_anotados) || 0,
             equipo_id: equipoIdVal,
           }),
@@ -211,10 +213,10 @@ function DetalleEquipo() {
                   />
                   <input
                     type="text"
-                    placeholder="Categoría"
-                    value={j.categoria}
-                    onChange={e => handleBatchChange(i, 'categoria', e.target.value)}
+                    value={categoriaGlobal}
+                    disabled
                     className="season-select batch-category-col"
+                    style={{ background: '#f1f5f9', cursor: 'not-allowed' }}
                   />
                   <input
                     type="number"

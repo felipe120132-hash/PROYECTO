@@ -9,18 +9,18 @@ cloudinary.config({
 
 // Obtener equipos de una temporada
 exports.getEquipos = async (req, res) => {
-    const { temporada } = req.query;
+    const { temporada, categoria = 'Profesional' } = req.query;
     if (!temporada) return res.status(400).json({ msg: 'Se requiere el parámetro temporada.' });
     try {
         const { rows } = await db.query(`
             SELECT equipos.id, equipos.nombre, equipos.entrenador, equipos.logo,
                    c.id AS clas_id, c.equipo_id, c.pj, c.pg, c.pe, c.pp,
-                   c.tf, c.tc, (c.tf - c.tc) AS dif, c.puntos
+                   c.tf, c.tc, (c.tf - c.tc) AS dif, c.puntos, c.categoria
             FROM clasificacion c
             JOIN equipos ON equipos.id = c.equipo_id
-            WHERE c.temporada = $1
+            WHERE c.temporada = $1 AND c.categoria = $2
             ORDER BY c.puntos DESC, (c.tf - c.tc) DESC, c.tf DESC
-        `, [temporada]);
+        `, [temporada, categoria]);
         res.json(rows);
     } catch (error) {
         console.error('Error al obtener equipos:', error);
@@ -72,8 +72,10 @@ exports.createEquipo = async (req, res) => {
         }
 
         await conn.query(
-            `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada)
-             VALUES ($1, 0, 0, 0, 0, 0, 0, 0, $2)`,
+            `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada, categoria)
+             VALUES ($1, 0, 0, 0, 0, 0, 0, 0, $2, 'Profesional'),
+                    ($1, 0, 0, 0, 0, 0, 0, 0, $2, 'Juvenil')
+             ON CONFLICT DO NOTHING`,
             [equipoId, temporada]
         );
 

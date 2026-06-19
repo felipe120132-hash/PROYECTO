@@ -1,77 +1,77 @@
 const db = require('../config/db');
 
 // Sincronizar clasificación (función interna)
-const sincronizarClasificacion = async (conn, temporada) => {
+const sincronizarClasificacion = async (conn, temporada, categoria) => {
     await conn.query(`
         UPDATE clasificacion c 
         SET
             pj = (
                 SELECT COUNT(*) FROM partidos
                 WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND jugado = true AND temporada = c.temporada
+                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
             ),
             pg = (
                 SELECT COUNT(*) FROM partidos
                 WHERE ((equipo_local_id = c.equipo_id AND puntos_local > puntos_visitante)
                     OR (equipo_visitante_id = c.equipo_id AND puntos_visitante > puntos_local))
-                  AND jugado = true AND temporada = c.temporada
+                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
             ),
             pe = (
                 SELECT COUNT(*) FROM partidos
                 WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND puntos_local = puntos_visitante AND jugado = true AND temporada = c.temporada
+                  AND puntos_local = puntos_visitante AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
             ),
             pp = (
                 SELECT COUNT(*) FROM partidos
                 WHERE ((equipo_local_id = c.equipo_id AND puntos_local < puntos_visitante)
                     OR (equipo_visitante_id = c.equipo_id AND puntos_visitante < puntos_local))
-                  AND jugado = true AND temporada = c.temporada
+                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
             ),
             tf = (
                 SELECT COALESCE(SUM(
                     CASE WHEN equipo_local_id = c.equipo_id THEN puntos_local ELSE puntos_visitante END
                 ), 0) FROM partidos
                 WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND jugado = true AND temporada = c.temporada
+                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
             ),
             tc = (
                 SELECT COALESCE(SUM(
                     CASE WHEN equipo_local_id = c.equipo_id THEN puntos_visitante ELSE puntos_local END
                 ), 0) FROM partidos
                 WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND jugado = true AND temporada = c.temporada
+                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
             ),
             puntos = (
                 (SELECT COUNT(*) FROM partidos
                  WHERE ((equipo_local_id = c.equipo_id AND puntos_local > puntos_visitante)
                      OR (equipo_visitante_id = c.equipo_id AND puntos_visitante > puntos_local))
-                   AND jugado = true AND temporada = c.temporada) * 3
+                   AND jugado = true AND temporada = c.temporada AND categoria = c.categoria) * 3
                 +
                 (SELECT COUNT(*) FROM partidos
                  WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                   AND puntos_local = puntos_visitante AND jugado = true AND temporada = c.temporada)
+                   AND puntos_local = puntos_visitante AND jugado = true AND temporada = c.temporada AND categoria = c.categoria)
             )
-        WHERE c.temporada = $1
-    `, [temporada]);
+        WHERE c.temporada = $1 AND c.categoria = $2
+    `, [temporada, categoria]);
 };
 
 // Obtener partidos de una temporada
 exports.obtenerPartidos = async (req, res) => {
-    const { temporada = '2026-1' } = req.query;
+    const { temporada = '2026-1', categoria = 'Profesional' } = req.query;
     try {
         const { rows } = await db.query(`
             SELECT 
                 p.id, p.jugado, p.puntos_local, p.puntos_visitante,
-                p.temporada, p.fecha, p.horario, p.lugar,
+                p.temporada, p.fecha, p.horario, p.lugar, p.categoria,
                 p.equipo_local_id, p.equipo_visitante_id,
                 e1.nombre AS nombre_local,  e1.logo AS logo_local,
                 e2.nombre AS nombre_visitante, e2.logo AS logo_visitante
             FROM partidos p
             JOIN equipos e1 ON p.equipo_local_id    = e1.id
             JOIN equipos e2 ON p.equipo_visitante_id = e2.id
-            WHERE p.temporada = $1
+            WHERE p.temporada = $1 AND p.categoria = $2
             ORDER BY p.fecha ASC, p.horario ASC
-        `, [temporada]);
+        `, [temporada, categoria]);
         res.json(rows);
     } catch (err) {
         console.error('[obtenerPartidos]', err);
@@ -81,7 +81,7 @@ exports.obtenerPartidos = async (req, res) => {
 
 // Crear partido
 exports.crearPartido = async (req, res) => {
-    const { equipo_local_id, equipo_visitante_id, temporada, fecha = null, horario = null, lugar = null } = req.body;
+    const { equipo_local_id, equipo_visitante_id, temporada, categoria = 'Profesional', fecha = null, horario = null, lugar = null } = req.body;
 
     if (Number(equipo_local_id) === Number(equipo_visitante_id)) {
         return res.status(400).json({ msg: 'Un equipo no puede ser local y visitante al mismo tiempo.' });
@@ -93,17 +93,17 @@ exports.crearPartido = async (req, res) => {
     try {
         const { rows: existe } = await db.query(`
             SELECT id FROM partidos
-            WHERE temporada = $1 AND equipo_local_id = $2 AND equipo_visitante_id = $3
-        `, [temporada, equipo_local_id, equipo_visitante_id]);
+            WHERE temporada = $1 AND equipo_local_id = $2 AND equipo_visitante_id = $3 AND categoria = $4
+        `, [temporada, equipo_local_id, equipo_visitante_id, categoria]);
 
         if (existe.length > 0) {
-            return res.status(409).json({ msg: 'Este enfrentamiento ya existe en la temporada seleccionada.' });
+            return res.status(409).json({ msg: 'Este enfrentamiento ya existe en la categoría y temporada seleccionadas.' });
         }
 
         await db.query(`
-            INSERT INTO partidos (equipo_local_id, equipo_visitante_id, temporada, fecha, horario, lugar, jugado)
-            VALUES ($1, $2, $3, $4, $5, $6, false)
-        `, [equipo_local_id, equipo_visitante_id, temporada, fecha, horario, lugar]);
+            INSERT INTO partidos (equipo_local_id, equipo_visitante_id, temporada, categoria, fecha, horario, lugar, jugado)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, false)
+        `, [equipo_local_id, equipo_visitante_id, temporada, categoria, fecha, horario, lugar]);
 
         res.status(201).json({ msg: 'Partido creado exitosamente.' });
     } catch (err) {
@@ -134,10 +134,10 @@ exports.editarPartido = async (req, res) => {
 
 // Actualizar resultado
 exports.actualizarResultado = async (req, res) => {
-    const { id, puntos_local, puntos_visitante, temporada } = req.body;
+    const { id, puntos_local, puntos_visitante, temporada, categoria = 'Profesional' } = req.body;
 
     if (!id || !temporada || puntos_local == null || puntos_visitante == null) {
-        return res.status(400).json({ error: 'Faltan datos: id, puntos_local, puntos_visitante y temporada son requeridos.' });
+        return res.status(400).json({ error: 'Faltan datos requeridos.' });
     }
     if (puntos_local < 0 || puntos_visitante < 0) {
         return res.status(400).json({ error: 'Los puntos no pueden ser negativos.' });
@@ -152,7 +152,7 @@ exports.actualizarResultado = async (req, res) => {
             [puntos_local, puntos_visitante, id]
         );
 
-        await sincronizarClasificacion(conn, temporada);
+        await sincronizarClasificacion(conn, temporada, categoria);
 
         await conn.query('COMMIT');
         res.json({ msg: 'Resultado y clasificación actualizados correctamente.' });
@@ -168,7 +168,7 @@ exports.actualizarResultado = async (req, res) => {
 // Eliminar partido
 exports.eliminarPartido = async (req, res) => {
     const { id } = req.params;
-    const { temporada } = req.query;
+    const { temporada, categoria = 'Profesional' } = req.query;
 
     if (!temporada) {
         return res.status(400).json({ error: 'Se requiere el parámetro temporada.' });
@@ -192,7 +192,7 @@ exports.eliminarPartido = async (req, res) => {
         await conn.query('DELETE FROM partidos WHERE id = $1', [id]);
 
         if (partido.jugado) {
-            await sincronizarClasificacion(conn, temporada);
+            await sincronizarClasificacion(conn, temporada, categoria);
         }
 
         await conn.query('COMMIT');
@@ -208,7 +208,7 @@ exports.eliminarPartido = async (req, res) => {
 
 // Reiniciar liga
 exports.reiniciarLiga = async (req, res) => {
-    const { temporada } = req.body;
+    const { temporada, categoria = 'Profesional' } = req.body;
 
     if (!temporada) {
         return res.status(400).json({ error: 'Se requiere el campo temporada.' });
@@ -219,29 +219,29 @@ exports.reiniciarLiga = async (req, res) => {
         await conn.query('BEGIN');
 
         await conn.query(
-            'UPDATE partidos SET puntos_local = 0, puntos_visitante = 0, jugado = false WHERE temporada = $1',
-            [temporada]
+            'UPDATE partidos SET puntos_local = 0, puntos_visitante = 0, jugado = false WHERE temporada = $1 AND categoria = $2',
+            [temporada, categoria]
         );
 
-        await conn.query('DELETE FROM clasificacion WHERE temporada = $1', [temporada]);
+        await conn.query('DELETE FROM clasificacion WHERE temporada = $1 AND categoria = $2', [temporada, categoria]);
 
         const { rows: equiposTemporada } = await conn.query(`
             SELECT DISTINCT e.id 
             FROM equipos e
             JOIN partidos p ON (p.equipo_local_id = e.id OR p.equipo_visitante_id = e.id)
-            WHERE p.temporada = $1
-        `, [temporada]);
+            WHERE p.temporada = $1 AND p.categoria = $2
+        `, [temporada, categoria]);
 
         if (equiposTemporada.length > 0) {
             const valores = equiposTemporada.map((e, i) => {
-                const base = i * 9;
-                return `($${base+1}, 0, 0, 0, 0, 0, 0, 0, $${base+2})`;
+                const base = i * 10;
+                return `($${base+1}, 0, 0, 0, 0, 0, 0, 0, $${base+2}, $${base+3})`;
             }).join(', ');
 
-            const params = equiposTemporada.flatMap(e => [e.id, temporada]);
+            const params = equiposTemporada.flatMap(e => [e.id, temporada, categoria]);
 
             await conn.query(
-                `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada) VALUES ${valores}`,
+                `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada, categoria) VALUES ${valores}`,
                 params
             );
         }
@@ -270,26 +270,26 @@ exports.iniciarSiguienteTemporada = async (req, res) => {
         await conn.query('BEGIN');
 
         const { rows: equiposActuales } = await conn.query(
-            'SELECT equipo_id FROM clasificacion WHERE temporada = $1', [temporada]
+            'SELECT equipo_id, categoria FROM clasificacion WHERE temporada = $1', [temporada]
         );
 
         if (equiposActuales.length > 0) {
             const { rows: equiposExistentes } = await conn.query(
-                'SELECT equipo_id FROM clasificacion WHERE temporada = $1', [siguienteTemporada]
+                'SELECT equipo_id, categoria FROM clasificacion WHERE temporada = $1', [siguienteTemporada]
             );
-            const existentesSet = new Set(equiposExistentes.map(e => e.equipo_id));
-            const equiposAInsertar = equiposActuales.filter(e => !existentesSet.has(e.equipo_id));
+            const existentesSet = new Set(equiposExistentes.map(e => `${e.equipo_id}-${e.categoria}`));
+            const equiposAInsertar = equiposActuales.filter(e => !existentesSet.has(`${e.equipo_id}-${e.categoria}`));
 
             if (equiposAInsertar.length > 0) {
                 const valores = equiposAInsertar.map((e, i) => {
-                    const base = i * 2;
-                    return `($${base+1}, 0, 0, 0, 0, 0, 0, 0, $${base+2})`;
+                    const base = i * 3;
+                    return `($${base+1}, 0, 0, 0, 0, 0, 0, 0, $${base+2}, $${base+3})`;
                 }).join(', ');
 
-                const params = equiposAInsertar.flatMap(e => [e.equipo_id, siguienteTemporada]);
+                const params = equiposAInsertar.flatMap(e => [e.equipo_id, siguienteTemporada, e.categoria]);
 
                 await conn.query(
-                    `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada) VALUES ${valores}`,
+                    `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada, categoria) VALUES ${valores}`,
                     params
                 );
             }

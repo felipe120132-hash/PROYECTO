@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 // Obtener tabla de clasificación
 exports.obtenerTabla = async (req, res) => {
-    const { temporada } = req.query;
+    const { temporada, categoria = 'Profesional' } = req.query;
 
     if (!temporada) {
         return res.status(400).json({ msg: 'Se requiere el parámetro temporada.' });
@@ -14,12 +14,12 @@ exports.obtenerTabla = async (req, res) => {
                 e.id, e.nombre, e.entrenador, e.logo,
                 c.id AS clas_id, c.equipo_id, c.puntos,
                 c.pj, c.pg, c.pe, c.pp, c.tf, c.tc,
-                (c.tf - c.tc) AS dif
+                (c.tf - c.tc) AS dif, c.categoria
             FROM equipos e
             INNER JOIN clasificacion c ON e.id = c.equipo_id
-            WHERE c.temporada = $1
+            WHERE c.temporada = $1 AND c.categoria = $2
             ORDER BY c.puntos DESC, (c.tf - c.tc) DESC, c.tf DESC
-        `, [temporada]);
+        `, [temporada, categoria]);
         res.json(rows);
     } catch (error) {
         console.error('Error en obtenerTabla:', error);

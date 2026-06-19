@@ -16,6 +16,7 @@ function Navbar() {
     loading,
     equipos,
     verJugadores,
+    categoriaGlobal, setCategoriaGlobal,
   } = useAppContext();
 
   const navigate = useNavigate();
@@ -60,11 +61,27 @@ function Navbar() {
 
         <div className="sidebar-footer">
           <p className="sidebar-label">Temporada activa</p>
-          <select className="season-select sidebar-select" value={temporada} onChange={(e) => setTemporada(e.target.value)}>
+          <select className="season-select sidebar-select" value={temporada} onChange={(e) => setTemporada(e.target.value)} style={{ marginBottom: '15px' }}>
             {temporadas.map(temp => (
               <option key={temp} value={temp}>{formatearTemporada(temp)}</option>
             ))}
           </select>
+
+          <p className="sidebar-label">Categoría</p>
+          <div className="category-toggle-sidebar">
+            <button 
+              className={`cat-btn ${categoriaGlobal === 'Profesional' ? 'active' : ''}`}
+              onClick={() => setCategoriaGlobal('Profesional')}
+            >
+              Profesional
+            </button>
+            <button 
+              className={`cat-btn ${categoriaGlobal === 'Juvenil' ? 'active' : ''}`}
+              onClick={() => setCategoriaGlobal('Juvenil')}
+            >
+              Juvenil
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -112,6 +129,21 @@ function Navbar() {
                 })()}
               </div>
             )}
+          </div>
+
+          <div className="topbar-category-toggle">
+            <button 
+              className={`cat-btn ${categoriaGlobal === 'Profesional' ? 'active' : ''}`}
+              onClick={() => setCategoriaGlobal('Profesional')}
+            >
+              Profesional
+            </button>
+            <button 
+              className={`cat-btn ${categoriaGlobal === 'Juvenil' ? 'active' : ''}`}
+              onClick={() => setCategoriaGlobal('Juvenil')}
+            >
+              Juvenil
+            </button>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

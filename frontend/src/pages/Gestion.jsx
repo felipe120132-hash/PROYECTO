@@ -12,6 +12,7 @@ function Gestion() {
     generarCalendarioAleatorio,
     reiniciarTodo,
     formatearTemporada,
+    categoriaGlobal,
   } = useAppContext();
 
   return (
@@ -58,7 +59,7 @@ function Gestion() {
         <div style={{ flex: '1 1 300px', background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <h4 style={{ marginBottom: '16px' }}>Acciones del Torneo</h4>
           <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
-            Las siguientes acciones aplican a la temporada seleccionada: <strong>{formatearTemporada(temporada)}</strong>.
+            Las siguientes acciones aplican a la temporada seleccionada: <strong>{formatearTemporada(temporada)}</strong> y categoría: <strong>{categoriaGlobal}</strong>.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button className="btn-success" onClick={generarCalendarioAleatorio} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>

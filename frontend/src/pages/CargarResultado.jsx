@@ -37,8 +37,8 @@ function CargarResultado() {
     if (p) {
       let isCurrent = true;
       const loadPlayers = async () => {
-        const localPlayers = await fetchJugadoresEquipo(p.equipo_local_id);
-        const visitantePlayers = await fetchJugadoresEquipo(p.equipo_visitante_id);
+        const localPlayers = await fetchJugadoresEquipo(p.equipo_local_id, p.temporada);
+        const visitantePlayers = await fetchJugadoresEquipo(p.equipo_visitante_id, p.temporada);
         if (isCurrent) {
           setJugadoresLocal(localPlayers);
           setJugadoresVisitante(visitantePlayers);
@@ -73,7 +73,7 @@ function CargarResultado() {
       Object.keys(puntosJugadores).forEach(jugadorId => {
         const pts = parseInt(puntosJugadores[jugadorId]);
         if (!isNaN(pts) && pts >= 0) {
-          promesas.push(actualizarPuntosJugador(jugadorId, pts));
+          promesas.push(actualizarPuntosJugador(jugadorId, pts, p.temporada));
         }
       });
       if (promesas.length > 0) await Promise.all(promesas);
