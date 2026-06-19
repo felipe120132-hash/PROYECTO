@@ -72,18 +72,15 @@ function Navbar() {
 
           <p className="sidebar-label">Categoría</p>
           <div className="category-toggle-sidebar">
-            <button 
-              className={`cat-btn ${categoriaGlobal === 'Profesional' ? 'active' : ''}`}
-              onClick={() => setCategoriaGlobal('Profesional')}
-            >
-              Profesional
-            </button>
-            <button 
-              className={`cat-btn ${categoriaGlobal === 'Juvenil' ? 'active' : ''}`}
-              onClick={() => setCategoriaGlobal('Juvenil')}
-            >
-              Juvenil
-            </button>
+            {['Profesional', 'Sub-19', 'Sub-15', 'Sub-10'].map(cat => (
+              <button 
+                key={cat}
+                className={`cat-btn ${categoriaGlobal === cat ? 'active' : ''}`}
+                onClick={() => setCategoriaGlobal(cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
       </aside>
@@ -135,18 +132,15 @@ function Navbar() {
           </div>
 
           <div className="topbar-category-toggle">
-            <button 
-              className={`cat-btn ${categoriaGlobal === 'Profesional' ? 'active' : ''}`}
-              onClick={() => setCategoriaGlobal('Profesional')}
-            >
-              Profesional
-            </button>
-            <button 
-              className={`cat-btn ${categoriaGlobal === 'Juvenil' ? 'active' : ''}`}
-              onClick={() => setCategoriaGlobal('Juvenil')}
-            >
-              Juvenil
-            </button>
+            {['Profesional', 'Sub-19', 'Sub-15', 'Sub-10'].map(cat => (
+              <button 
+                key={cat}
+                className={`cat-btn ${categoriaGlobal === cat ? 'active' : ''}`}
+                onClick={() => setCategoriaGlobal(cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

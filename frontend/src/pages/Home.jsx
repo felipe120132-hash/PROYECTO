@@ -158,7 +158,7 @@ function Home() {
                   )}
                 </div>
                 <h3>{eq.nombre}</h3>
-                <p className="team-division">División Juvenil</p>
+                  <p className="team-division">División {categoriaGlobal}</p>
                 <div className="team-metrics">
                   <div className="metric">
                     <span className="metric-val">{eq.puntos ?? 0}</span>
