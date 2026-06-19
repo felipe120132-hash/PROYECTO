@@ -71,17 +71,11 @@ function Navbar() {
           </select>
 
           <p className="sidebar-label">Categoría</p>
-          <div className="category-toggle-sidebar">
+          <select className="season-select sidebar-select" value={categoriaGlobal} onChange={(e) => setCategoriaGlobal(e.target.value)}>
             {['Profesional', 'Sub-19', 'Sub-15', 'Sub-10'].map(cat => (
-              <button 
-                key={cat}
-                className={`cat-btn ${categoriaGlobal === cat ? 'active' : ''}`}
-                onClick={() => setCategoriaGlobal(cat)}
-              >
-                {cat}
-              </button>
+              <option key={cat} value={cat}>{cat}</option>
             ))}
-          </div>
+          </select>
         </div>
       </aside>
 
