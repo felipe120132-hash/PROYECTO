@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { Menu } from 'lucide-react';
 import Loader from './Loader';
@@ -20,10 +20,13 @@ function Navbar() {
   } = useAppContext();
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const showLoader = loading && location.pathname !== '/login';
 
   return (
     <div className="app-layout">
-      {loading && <Loader />}
+      {showLoader && <Loader />}
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
 
       <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`} style={{ background: '#12122a' }}>

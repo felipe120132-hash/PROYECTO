@@ -27,7 +27,7 @@ export function AppProvider({ children }) {
   const { showAlert, showConfirm } = useModal();
 
   // ── NAVEGACIÓN ──────────────────────────────────────────────────────────────
-  const [temporada, setTemporada] = useState('2026-1');
+  const [temporada, setTemporada] = useState(localStorage.getItem('temporada') || '2026-2');
   const [categoriaGlobal, setCategoriaGlobal] = useState('Profesional');
   const [temporadas, setTemporadas] = useState(['2025-2', '2026-2']);
   const [token, setToken] = useState(() => {
@@ -121,6 +121,14 @@ export function AppProvider({ children }) {
       const res = await axios.get(`${API}/clasificacion/temporadas`);
       if (res.data && res.data.length > 0) {
         setTemporadas(res.data);
+        setTemporada(prev => {
+          if (!res.data.includes(prev)) {
+            const lastSeason = res.data[res.data.length - 1];
+            localStorage.setItem('temporada', lastSeason);
+            return lastSeason;
+          }
+          return prev;
+        });
       }
     } catch (err) {
       console.error('[cargarTemporadas]', err);
@@ -571,7 +579,7 @@ export function AppProvider({ children }) {
 
   const value = {
     // State
-    temporada, setTemporada,
+    temporada, setTemporada: (val) => { setTemporada(val); localStorage.setItem('temporada', val); },
     categoriaGlobal, setCategoriaGlobal,
     temporadas, setTemporadas,
     token, setToken,
