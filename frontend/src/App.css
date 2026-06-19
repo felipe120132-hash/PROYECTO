@@ -163,7 +163,7 @@ h1, h2, h3, h4 {
 }
 
 .sidebar-footer {
-  margin-top: auto;
+  margin-top: 32px;
   padding: 12px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
