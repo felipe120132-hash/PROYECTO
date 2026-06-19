@@ -59,6 +59,7 @@ h1, h2, h3, h4 {
   flex-direction: column;
   position: fixed;
   height: 100vh;
+  overflow-y: auto;
   z-index: 100;
   transition: transform 0.3s ease;
 }
