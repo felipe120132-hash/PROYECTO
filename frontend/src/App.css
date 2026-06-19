@@ -162,11 +162,11 @@ h1, h2, h3, h4 {
 }
 
 .sidebar-footer {
-  margin-top: 24px;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-select {

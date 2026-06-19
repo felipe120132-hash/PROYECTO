@@ -64,7 +64,7 @@ function Navbar() {
 
         <div className="sidebar-footer">
           <p className="sidebar-label">Temporada activa</p>
-          <select className="season-select sidebar-select" value={temporada} onChange={(e) => setTemporada(e.target.value)} style={{ marginBottom: '15px' }}>
+          <select className="season-select sidebar-select" value={temporada} onChange={(e) => setTemporada(e.target.value)} style={{ marginBottom: '10px' }}>
             {temporadas.map(temp => (
               <option key={temp} value={temp}>{formatearTemporada(temp)}</option>
             ))}
