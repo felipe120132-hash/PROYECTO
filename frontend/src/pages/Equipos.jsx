@@ -7,6 +7,7 @@ function Equipos() {
     equipos,
     verJugadores,
     searchTerm,
+    categoriaGlobal,
   } = useAppContext();
 
   const filteredEquipos = equipos.filter(eq =>
