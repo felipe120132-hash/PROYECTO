@@ -98,12 +98,12 @@ export const PartidoService = {
     const res = await api.delete(`/partidos/${id}`);
     return res.data;
   },
-  eliminarTemporada: async (temporada) => {
-    const res = await api.delete(`/partidos/temporada/${temporada}`);
+  eliminarTemporada: async (temporada, categoria) => {
+    const res = await api.delete(`/partidos/temporada?temporada=${temporada}&categoria=${categoria}`);
     return res.data;
   },
   enviarResultado: async (id, data) => {
-    const res = await api.put(`/partidos/${id}/resultado`, data);
+    const res = await api.put('/partidos/resultado', { id, ...data });
     return res.data;
   }
 };

@@ -515,7 +515,7 @@ export function AppProvider({ children }) {
 
     startLoading();
     try {
-      await PartidoService.eliminarTemporada(temp);
+      await PartidoService.eliminarTemporada(temp, categoriaGlobal);
 
       const otraTemporada = temporadas.find(t => t !== temp);
       await cargarTemporadas();
