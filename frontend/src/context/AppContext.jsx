@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import { AuthService, ClasificacionService, EquipoService, JugadorService, PartidoService } from '../services/apiService';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from './ModalContext';
 
@@ -7,7 +7,7 @@ const AppContext = createContext();
 
 export const useAppContext = () => useContext(AppContext);
 
-const API = 'https://proyecto-4t2l.onrender.com/api';
+// API Base handled by apiService.js
 
 // Verifica si un JWT (sin verificar firma, solo decodificando payload) está expirado.
 // La verificación real de la firma ocurre en el servidor; esto solo evita enviar
@@ -118,12 +118,12 @@ export function AppProvider({ children }) {
   const cargarTemporadas = async () => {
     startLoading();
     try {
-      const res = await axios.get(`${API}/clasificacion/temporadas`);
-      if (res.data && res.data.length > 0) {
-        setTemporadas(res.data);
+      const res = await ClasificacionService.getTemporadas();
+      if (res && res.length > 0) {
+        setTemporadas(res);
         setTemporada(prev => {
-          if (!res.data.includes(prev)) {
-            const lastSeason = res.data[res.data.length - 1];
+          if (!res.includes(prev)) {
+            const lastSeason = res[res.length - 1];
             localStorage.setItem('temporada', lastSeason);
             return lastSeason;
           }
@@ -141,8 +141,8 @@ export function AppProvider({ children }) {
     const t = temp ?? temporada;
     startLoading();
     try {
-      const res = await axios.get(`${API}/clasificacion?temporada=${t}&categoria=${categoriaGlobal}`);
-      setEquipos(res.data);
+      const data = await ClasificacionService.getClasificacion(t, categoriaGlobal);
+      setEquipos(data);
     } catch (err) {
       console.error('[cargarEquipos]', err);
       setEquipos([]);
@@ -155,8 +155,8 @@ export function AppProvider({ children }) {
     const t = temp ?? temporada;
     startLoading();
     try {
-      const res = await axios.get(`${API}/partidos?temporada=${t}&categoria=${categoriaGlobal}`);
-      setPartidos(res.data);
+      const data = await PartidoService.getPartidos(t, categoriaGlobal);
+      setPartidos(data);
     } catch (err) {
       console.error('[cargarPartidos]', err);
       setPartidos([]);
@@ -169,8 +169,8 @@ export function AppProvider({ children }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API}/auth/login`, loginData);
-      const nuevoToken = res.data.token;
+      const data = await AuthService.login(loginData);
+      const nuevoToken = data.token;
       setToken(nuevoToken);
       localStorage.setItem('token', nuevoToken);
       navigate('/clasificacion');
@@ -209,11 +209,7 @@ export function AppProvider({ children }) {
     const temporadaDestino = nuevoEquipo.temporadaEquipo || temporada;
 
     try {
-      await axios.post(
-        `${API}/equipos`,
-        { nombre: nuevoEquipo.nombre.trim(), temporada: temporadaDestino, categoria: categoriaGlobal },
-        authHeader()
-      );
+      await EquipoService.crear({ nombre: nuevoEquipo.nombre.trim(), temporada: temporadaDestino, categoria: categoriaGlobal });
       await showAlert(`✅ Equipo "${nuevoEquipo.nombre.trim()}" creado en la Temporada ${temporadaDestino}`);
       setNuevoEquipo({ nombre: '', temporadaEquipo: temporadaDestino });
       if (temporadaDestino === temporada) cargarEquipos(temporada);
@@ -229,7 +225,7 @@ export function AppProvider({ children }) {
     const ok = await showConfirm('¿Eliminar equipo? Se borrarán sus jugadores y partidos pendientes.');
     if (!ok) return;
     try {
-      await axios.delete(`${API}/equipos/${id}?temporada=${temporada}&categoria=${categoriaGlobal}`, authHeader());
+      await EquipoService.eliminar(id, temporada, categoriaGlobal);
       cargarEquipos(temporada);
       cargarPartidos(temporada);
     } catch (err) {
@@ -240,7 +236,7 @@ export function AppProvider({ children }) {
 
   const guardarEntrenador = async (id, nuevoNombre) => {
     try {
-      await axios.put(`${API}/equipos/${id}`, { entrenador: nuevoNombre }, authHeader());
+      await EquipoService.actualizarEntrenador(id, nuevoNombre);
       setEquipoSeleccionado(prev => ({ ...prev, entrenador: nuevoNombre }));
       cargarEquipos(temporada);
     } catch (err) {
@@ -255,13 +251,8 @@ export function AppProvider({ children }) {
     formData.append('logo', archivo);
 
     try {
-      const res = await axios.put(`${API}/equipos/${id}/logo`, formData, {
-        headers: {
-          ...authHeader().headers,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      setEquipoSeleccionado(prev => ({ ...prev, logo: res.data.logo }));
+      const data = await EquipoService.subirLogo(id, formData);
+      setEquipoSeleccionado(prev => ({ ...prev, logo: data.logo }));
       cargarEquipos(temporada);
       await showAlert('✅ Escudo actualizado correctamente.');
     } catch (err) {
@@ -283,15 +274,15 @@ export function AppProvider({ children }) {
     startLoading();
     try {
       const [resJugadores, resPartidos] = await Promise.all([
-        axios.get(`${API}/jugadores/equipo/${equipo.equipo_id ?? equipo.id}?temporada=${temporada}&categoria=${categoriaGlobal}`),
-        axios.get(`${API}/partidos?temporada=${temporada}&categoria=${categoriaGlobal}`)
+        JugadorService.getByEquipo(equipo.equipo_id ?? equipo.id, temporada, categoriaGlobal),
+        PartidoService.getPartidos(temporada, categoriaGlobal)
       ]);
       
       // Si el id de petición cambió, significa que se inició otra consulta más reciente
       if (currentRequestId !== verJugadoresRequestId.current) return;
 
-      setJugadores(resJugadores.data);
-      setPartidos(resPartidos.data);
+      setJugadores(resJugadores);
+      setPartidos(resPartidos);
       navigate(`/equipo/${equipo.equipo_id ?? equipo.id}`);
       window.scrollTo(0, 0);
     } catch {
@@ -309,11 +300,7 @@ export function AppProvider({ children }) {
       return await showAlert('⚠️ Nombre y categoría son obligatorios.');
     }
     try {
-      await axios.post(
-        `${API}/jugadores`,
-        { ...nuevoJugador, equipo_id: equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, temporada, categoria: categoriaGlobal },
-        authHeader()
-      );
+      await JugadorService.crear({ ...nuevoJugador, equipo_id: equipoSeleccionado.equipo_id ?? equipoSeleccionado.id, temporada, categoria: categoriaGlobal });
       setNuevoJugador({ nombre: '', categoria: '', puntos_anotados: '' });
       verJugadores(equipoSeleccionado);
     } catch (err) {
@@ -333,7 +320,7 @@ export function AppProvider({ children }) {
 
   const guardarCambiosJugador = async (id) => {
     try {
-      await axios.put(`${API}/jugadores/${id}`, { ...datosEdicionJugador, temporada, categoria: categoriaGlobal }, authHeader());
+      await JugadorService.actualizar(id, { ...datosEdicionJugador, temporada, categoria: categoriaGlobal });
       setEditandoJugadorId(null);
       verJugadores(equipoSeleccionado);
     } catch (err) {
@@ -346,7 +333,7 @@ export function AppProvider({ children }) {
     const ok = await showConfirm('¿Eliminar jugador?');
     if (!ok) return;
     try {
-      await axios.delete(`${API}/jugadores/${id}`, authHeader());
+      await JugadorService.eliminar(id);
       verJugadores(equipoSeleccionado);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
@@ -360,12 +347,7 @@ export function AppProvider({ children }) {
     formData.append('foto', archivo);
 
     try {
-      const res = await axios.put(`${API}/jugadores/${id}/foto`, formData, {
-        headers: {
-          ...authHeader().headers,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      await JugadorService.subirFoto(id, formData);
       verJugadores(equipoSeleccionado);
       await showAlert('✅ Foto del jugador actualizada correctamente.');
     } catch (err) {
@@ -379,8 +361,8 @@ export function AppProvider({ children }) {
     try {
       const t = temp ?? temporada;
       const c = cat ?? categoriaGlobal;
-      const res = await axios.get(`${API}/jugadores/equipo/${equipoId}?temporada=${t}&categoria=${c}`);
-      return res.data;
+      const data = await JugadorService.getByEquipo(equipoId, t, c);
+      return data;
     } catch (err) {
       console.error('[fetchJugadoresEquipo]', err);
       return [];
@@ -391,7 +373,7 @@ export function AppProvider({ children }) {
   const actualizarPuntosJugador = async (jugadorId, nuevosPuntos, temp) => {
     try {
       const t = temp ?? temporada;
-      await axios.put(`${API}/jugadores/${jugadorId}`, { puntos_anotados: nuevosPuntos, temporada: t, categoria: categoriaGlobal }, authHeader());
+      await JugadorService.sumarPuntos(jugadorId, { puntos_anotados: nuevosPuntos, temporada: t, categoria: categoriaGlobal });
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
       throw err;
@@ -408,11 +390,7 @@ export function AppProvider({ children }) {
     }
     startLoading();
     try {
-      await axios.put(
-        `${API}/partidos/resultado`,
-        { id: resultadoData.partidoId, puntos_local: pl, puntos_visitante: pv, temporada, categoria: categoriaGlobal },
-        authHeader()
-      );
+      await PartidoService.enviarResultado(resultadoData.partidoId, { ...resultadoData, temporada, categoria: categoriaGlobal });
       await showAlert('✅ Marcador guardado y clasificación actualizada.');
       setResultadoData({ partidoId: '', puntos_local: '', puntos_visitante: '' });
       await cargarEquipos(temporada);
@@ -429,15 +407,11 @@ export function AppProvider({ children }) {
   const guardarEdicionPartido = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(
-        `${API}/partidos/${editandoPartido.id}`,
-        {
-          fecha: editandoPartido.fecha || null,
-          horario: editandoPartido.horario || null,
-          lugar: editandoPartido.lugar || null,
-        },
-        authHeader()
-      );
+      await PartidoService.actualizar(editandoPartido.id, {
+        fecha: editandoPartido.fecha || null,
+        horario: editandoPartido.horario || null,
+        lugar: editandoPartido.lugar || null,
+      });
       setEditandoPartido(null);
       cargarPartidos(temporada);
     } catch (err) {
@@ -450,7 +424,7 @@ export function AppProvider({ children }) {
     const ok = await showConfirm('¿Eliminar este partido?');
     if (!ok) return;
     try {
-      await axios.delete(`${API}/partidos/${id}?temporada=${temporada}&categoria=${categoriaGlobal}`, authHeader());
+      await PartidoService.eliminar(id);
       cargarPartidos(temporada);
       cargarEquipos(temporada);
     } catch (err) {
@@ -484,7 +458,7 @@ export function AppProvider({ children }) {
     try {
       for (const partido of shuffled) {
         try {
-          await axios.post(`${API}/partidos`, partido, authHeader());
+          await PartidoService.crear(partido);
         } catch (err) {
           if (err.response?.status === 401) { handleLogout(); return; }
           if (err.response?.status !== 409) {
@@ -514,7 +488,7 @@ export function AppProvider({ children }) {
     if (!ok) return;
     startLoading();
     try {
-      await axios.post(`${API}/partidos/siguiente-temporada`, { temporada, siguienteTemporada, categoria: categoriaGlobal }, authHeader());
+      await PartidoService.siguienteTemporada(temporada, siguienteTemporada, categoriaGlobal);
       await cargarTemporadas();
       setTemporada(siguienteTemporada);
       navigate('/clasificacion');
@@ -541,7 +515,7 @@ export function AppProvider({ children }) {
 
     startLoading();
     try {
-      await axios.delete(`${API}/partidos/temporada?temporada=${temp}&categoria=${categoriaGlobal}`, authHeader());
+      await PartidoService.eliminarTemporada(temp);
 
       const otraTemporada = temporadas.find(t => t !== temp);
       await cargarTemporadas();

@@ -12,8 +12,8 @@ exports.obtenerJugadoresPorEquipo = async (req, res) => {
     const { equipoId } = req.params;
     const { temporada, categoria = 'Profesional' } = req.query;
     try {
-        let query = 'SELECT id, nombre, categoria, puntos_anotados, foto FROM jugadores WHERE equipo_id = $1 AND categoria = $2';
-        let params = [equipoId, categoria];
+        let query;
+        let params;
         
         if (temporada) {
             query = `
@@ -24,6 +24,16 @@ exports.obtenerJugadoresPorEquipo = async (req, res) => {
                 WHERE j.equipo_id = $1 AND j.categoria = $3
             `;
             params = [equipoId, temporada, categoria];
+        } else {
+            query = `
+                SELECT j.id, j.nombre, j.categoria, j.foto, 
+                       COALESCE(SUM(je.puntos_anotados), 0) AS puntos_anotados 
+                FROM jugadores j
+                LEFT JOIN jugador_estadisticas je ON j.id = je.jugador_id
+                WHERE j.equipo_id = $1 AND j.categoria = $2
+                GROUP BY j.id
+            `;
+            params = [equipoId, categoria];
         }
 
         const { rows } = await db.query(query, params);
@@ -65,7 +75,7 @@ exports.agregarJugador = async (req, res) => {
         res.status(201).json({ message: '✅ Jugador registrado.', id: jugadorId });
     } catch (err) {
         console.error('[agregarJugador]', err);
-        res.status(500).json({ error: err.message || 'Error al registrar jugador.' });
+        res.status(500).json({ error: 'Error al registrar jugador.' });
     }
 };
 
@@ -97,17 +107,6 @@ exports.actualizarJugador = async (req, res) => {
         // Actualizar estadísticas de la temporada si se proporcionan
         if (puntos_anotados !== undefined && puntos_anotados !== null && temporada) {
             let ptsNum = parseInt(puntos_anotados) || 0;
-            
-            if (nombre === undefined) {
-                // Modo sumar (viene de CargarResultado)
-                const { rows: statRows } = await db.query(
-                    'SELECT puntos_anotados FROM jugador_estadisticas WHERE jugador_id = $1 AND temporada = $2', 
-                    [id, temporada]
-                );
-                let puntosActuales = statRows.length > 0 ? statRows[0].puntos_anotados : 0;
-                ptsNum += puntosActuales;
-            }
-
             // Upsert en la tabla de estadísticas
             await db.query(`
                 INSERT INTO jugador_estadisticas (jugador_id, temporada, puntos_anotados) 
@@ -121,6 +120,40 @@ exports.actualizarJugador = async (req, res) => {
     } catch (err) {
         console.error('[actualizarJugador]', err);
         res.status(500).json({ error: 'Error al actualizar jugador.' });
+    }
+};
+
+// Sumar puntos a jugador
+exports.sumarPuntosJugador = async (req, res) => {
+    const { id } = req.params;
+    const { puntos_anotados, temporada } = req.body;
+
+    if (puntos_anotados === undefined || puntos_anotados === null || !temporada) {
+        return res.status(400).json({ error: 'Faltan datos de puntos o temporada.' });
+    }
+
+    try {
+        let ptsNum = parseInt(puntos_anotados) || 0;
+        
+        const { rows: statRows } = await db.query(
+            'SELECT puntos_anotados FROM jugador_estadisticas WHERE jugador_id = $1 AND temporada = $2', 
+            [id, temporada]
+        );
+        let puntosActuales = statRows.length > 0 ? statRows[0].puntos_anotados : 0;
+        ptsNum += puntosActuales;
+
+        // Upsert en la tabla de estadísticas
+        await db.query(`
+            INSERT INTO jugador_estadisticas (jugador_id, temporada, puntos_anotados) 
+            VALUES ($1, $2, $3) 
+            ON CONFLICT (jugador_id, temporada) 
+            DO UPDATE SET puntos_anotados = $3
+        `, [id, temporada, ptsNum]);
+
+        res.json({ message: '✅ Puntos del jugador actualizados.' });
+    } catch (err) {
+        console.error('[sumarPuntosJugador]', err);
+        res.status(500).json({ error: 'Error al sumar puntos del jugador.' });
     }
 };
 
@@ -163,5 +196,33 @@ exports.eliminarJugador = async (req, res) => {
     } catch (err) {
         console.error('[eliminarJugador]', err);
         res.status(500).json({ error: 'Error al eliminar jugador.' });
+    }
+};
+
+// Obtener MVP
+exports.obtenerMVP = async (req, res) => {
+    const { temporada, categoria } = req.query;
+    if (!temporada || !categoria) {
+        return res.status(400).json({ error: 'temporada y categoria son requeridos' });
+    }
+    try {
+        const query = `
+            SELECT j.id, j.nombre, j.categoria, j.foto, 
+                   je.puntos_anotados, e.nombre AS equipo_nombre
+            FROM jugadores j
+            JOIN jugador_estadisticas je ON j.id = je.jugador_id
+            LEFT JOIN equipos e ON j.equipo_id = e.id
+            WHERE je.temporada = $1 AND j.categoria = $2
+            ORDER BY je.puntos_anotados DESC
+            LIMIT 1
+        `;
+        const { rows } = await db.query(query, [temporada, categoria]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'No se encontró MVP para la temporada/categoría.' });
+        }
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('[obtenerMVP]', err);
+        res.status(500).json({ error: 'Error al obtener MVP.' });
     }
 };

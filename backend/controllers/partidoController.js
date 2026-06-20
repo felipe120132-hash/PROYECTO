@@ -1,57 +1,43 @@
 const db = require('../config/db');
+const { eliminarEquipoHuerfano } = require('../helpers/equipoHelper');
 
 // Sincronizar clasificación (función interna)
 const sincronizarClasificacion = async (conn, temporada, categoria) => {
     await conn.query(`
-        UPDATE clasificacion c 
-        SET
-            pj = (
-                SELECT COUNT(*) FROM partidos
-                WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
-            ),
-            pg = (
-                SELECT COUNT(*) FROM partidos
-                WHERE ((equipo_local_id = c.equipo_id AND puntos_local > puntos_visitante)
-                    OR (equipo_visitante_id = c.equipo_id AND puntos_visitante > puntos_local))
-                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
-            ),
-            pe = (
-                SELECT COUNT(*) FROM partidos
-                WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND puntos_local = puntos_visitante AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
-            ),
-            pp = (
-                SELECT COUNT(*) FROM partidos
-                WHERE ((equipo_local_id = c.equipo_id AND puntos_local < puntos_visitante)
-                    OR (equipo_visitante_id = c.equipo_id AND puntos_visitante < puntos_local))
-                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
-            ),
-            tf = (
-                SELECT COALESCE(SUM(
-                    CASE WHEN equipo_local_id = c.equipo_id THEN puntos_local ELSE puntos_visitante END
-                ), 0) FROM partidos
-                WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
-            ),
-            tc = (
-                SELECT COALESCE(SUM(
-                    CASE WHEN equipo_local_id = c.equipo_id THEN puntos_visitante ELSE puntos_local END
-                ), 0) FROM partidos
-                WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                  AND jugado = true AND temporada = c.temporada AND categoria = c.categoria
-            ),
-            puntos = (
-                (SELECT COUNT(*) FROM partidos
-                 WHERE ((equipo_local_id = c.equipo_id AND puntos_local > puntos_visitante)
-                     OR (equipo_visitante_id = c.equipo_id AND puntos_visitante > puntos_local))
-                   AND jugado = true AND temporada = c.temporada AND categoria = c.categoria) * 3
-                +
-                (SELECT COUNT(*) FROM partidos
-                 WHERE (equipo_local_id = c.equipo_id OR equipo_visitante_id = c.equipo_id)
-                   AND puntos_local = puntos_visitante AND jugado = true AND temporada = c.temporada AND categoria = c.categoria)
-            )
-        WHERE c.temporada = $1 AND c.categoria = $2
+        WITH stats AS (
+            SELECT 
+                equipo_id,
+                COUNT(*) as pj,
+                SUM(CASE WHEN es_local THEN (CASE WHEN puntos_local > puntos_visitante THEN 1 ELSE 0 END) ELSE (CASE WHEN puntos_visitante > puntos_local THEN 1 ELSE 0 END) END) as pg,
+                SUM(CASE WHEN puntos_local = puntos_visitante THEN 1 ELSE 0 END) as pe,
+                SUM(CASE WHEN es_local THEN (CASE WHEN puntos_local < puntos_visitante THEN 1 ELSE 0 END) ELSE (CASE WHEN puntos_visitante < puntos_local THEN 1 ELSE 0 END) END) as pp,
+                SUM(CASE WHEN es_local THEN puntos_local ELSE puntos_visitante END) as tf,
+                SUM(CASE WHEN es_local THEN puntos_visitante ELSE puntos_local END) as tc
+            FROM (
+                SELECT equipo_local_id AS equipo_id, true AS es_local, puntos_local, puntos_visitante 
+                FROM partidos WHERE jugado = true AND temporada = $1 AND categoria = $2
+                UNION ALL
+                SELECT equipo_visitante_id AS equipo_id, false AS es_local, puntos_local, puntos_visitante 
+                FROM partidos WHERE jugado = true AND temporada = $1 AND categoria = $2
+            ) AS p
+            GROUP BY equipo_id
+        )
+        UPDATE clasificacion c
+        SET 
+            pj = COALESCE(s.pj, 0),
+            pg = COALESCE(s.pg, 0),
+            pe = COALESCE(s.pe, 0),
+            pp = COALESCE(s.pp, 0),
+            tf = COALESCE(s.tf, 0),
+            tc = COALESCE(s.tc, 0),
+            puntos = (COALESCE(s.pg, 0) * 3) + COALESCE(s.pe, 0)
+        FROM (
+            SELECT c_inner.id, s_inner.pj, s_inner.pg, s_inner.pe, s_inner.pp, s_inner.tf, s_inner.tc
+            FROM clasificacion c_inner 
+            LEFT JOIN stats s_inner ON c_inner.equipo_id = s_inner.equipo_id 
+            WHERE c_inner.temporada = $1 AND c_inner.categoria = $2
+        ) s
+        WHERE c.id = s.id;
     `, [temporada, categoria]);
 };
 
@@ -185,7 +171,6 @@ exports.eliminarPartido = async (req, res) => {
 
         if (!partido) {
             await conn.query('ROLLBACK');
-            conn.release();
             return res.status(404).json({ error: 'Partido no encontrado.' });
         }
 
@@ -234,7 +219,7 @@ exports.reiniciarLiga = async (req, res) => {
 
         if (equiposTemporada.length > 0) {
             const valores = equiposTemporada.map((e, i) => {
-                const base = i * 10;
+                const base = i * 3;
                 return `($${base+1}, 0, 0, 0, 0, 0, 0, 0, $${base+2}, $${base+3})`;
             }).join(', ');
 
@@ -327,16 +312,7 @@ exports.eliminarTemporada = async (req, res) => {
         // 2. Borrar de forma física el equipo (y sus jugadores) ÚNICAMENTE si ya no existe 
         // registrado en ninguna otra temporada del sistema (evitando eliminar equipos compartidos).
         for (const { equipo_id } of equipos) {
-            const { rows: conteo } = await conn.query(
-                'SELECT COUNT(*) AS total FROM clasificacion WHERE equipo_id = $1',
-                [equipo_id]
-            );
-            
-            if (parseInt(conteo[0].total) === 0) {
-                // El equipo ya no pertenece a ninguna temporada activa en el sistema.
-                await conn.query('DELETE FROM jugadores WHERE equipo_id = $1', [equipo_id]);
-                await conn.query('DELETE FROM equipos WHERE id = $1', [equipo_id]);
-            }
+            await eliminarEquipoHuerfano(conn, equipo_id);
         }
 
         await conn.query('COMMIT');

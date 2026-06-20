@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const cloudinary = require('cloudinary').v2;
+const { eliminarEquipoHuerfano } = require('../helpers/equipoHelper');
 
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
@@ -51,7 +52,6 @@ exports.createEquipo = async (req, res) => {
             );
             if (tempRows[0]) {
                 await conn.query('ROLLBACK');
-                conn.release();
                 return res.status(409).json({ msg: 'Este equipo ya existe en esta temporada.' });
             }
             equipoId = equipoExistente.id;
@@ -111,14 +111,7 @@ exports.deleteEquipo = async (req, res) => {
             [id, temporada]
         );
 
-        const { rows: conteoRows } = await conn.query(
-            'SELECT COUNT(*) AS otras FROM clasificacion WHERE equipo_id = $1', [id]
-        );
-
-        if (parseInt(conteoRows[0].otras) === 0) {
-            await conn.query('DELETE FROM jugadores WHERE equipo_id = $1', [id]);
-            await conn.query('DELETE FROM equipos WHERE id = $1', [id]);
-        }
+        await eliminarEquipoHuerfano(conn, id);
 
         await conn.query('COMMIT');
         res.json({ msg: 'Equipo eliminado de la temporada correctamente.' });

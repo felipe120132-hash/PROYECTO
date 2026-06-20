@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useAppContext } from '../context/AppContext';
+import { JugadorService } from '../services/apiService';
 import { Trophy } from 'lucide-react';
 import './Home.css';
 import heroBg from '../assets/hero_bg.jpg';
 
-const API = 'https://proyecto-4t2l.onrender.com/api';
+// API Base handled by apiService.js
 
 function Home() {
   const { equipos, tabla, isLoading, formatearTemporada, temporada, categoriaGlobal, verJugadores, searchTerm } = useAppContext();
@@ -24,29 +24,11 @@ function Home() {
         // Guardamos la temporada actual para la que estamos pidiendo los datos
         const temporadaDeLaPeticion = temporada;
 
-        // Fetch players for all teams in parallel
-        const requests = equipos.map(eq =>
-          axios.get(`${API}/jugadores/equipo/${eq.equipo_id ?? eq.id}?temporada=${temporadaDeLaPeticion}&categoria=${categoriaGlobal}`)
-            .then(r => r.data.map(j => ({ ...j, equipo_nombre: eq.nombre })))
-            .catch(() => [])
-        );
-        const results = await Promise.all(requests);
+        const top = await JugadorService.getMvp(temporadaDeLaPeticion, categoriaGlobal);
         
-        // Si la petición fue cancelada o si el usuario cambió de temporada en el selector 
-        // mientras la consulta asíncrona estaba en vuelo, descartamos el resultado.
         if (cancelled || temporadaDeLaPeticion !== temporada) return;
 
-        const todos = results.flat();
-        if (todos.length === 0) return;
-
-        // Find player with maximum points
-        const top = todos.reduce((best, j) => {
-          const pts = j.puntos_anotados ?? j.Puntos_anotados ?? 0;
-          const bestPts = best.puntos_anotados ?? best.Puntos_anotados ?? 0;
-          return pts > bestPts ? j : best;
-        }, todos[0]);
-
-        setMvp(top);
+        setMvp(top || null);
       } catch (err) {
         console.error('[fetchMvp]', err);
       }
