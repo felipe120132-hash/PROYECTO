@@ -49,6 +49,16 @@ function Gestion() {
                 ))}
               </select>
             </div>
+            <div className="input-group">
+              <label>Categoría de Destino</label>
+              <input
+                type="text"
+                value={categoriaGlobal}
+                className="season-select"
+                disabled
+                style={{ backgroundColor: '#e2e8f0', color: '#475569', cursor: 'not-allowed' }}
+              />
+            </div>
             <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <PlusCircle size={18} /> Registrar Equipo
             </button>
