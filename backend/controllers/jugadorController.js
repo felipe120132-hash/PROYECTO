@@ -212,7 +212,7 @@ exports.obtenerMVP = async (req, res) => {
             FROM jugadores j
             JOIN jugador_estadisticas je ON j.id = je.jugador_id
             LEFT JOIN equipos e ON j.equipo_id = e.id
-            WHERE je.temporada = $1 AND j.categoria = $2
+            WHERE je.temporada = $1 AND j.categoria = $2 AND je.puntos_anotados > 0
             ORDER BY je.puntos_anotados DESC
             LIMIT 1
         `;
