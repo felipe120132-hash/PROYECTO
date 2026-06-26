@@ -31,7 +31,7 @@ exports.getEquipos = async (req, res) => {
 
 // Crear un nuevo equipo
 exports.createEquipo = async (req, res) => {
-    const { nombre, temporada, entrenador } = req.body;
+    const { nombre, temporada, entrenador, categoria = 'Profesional' } = req.body;
     if (!nombre || !nombre.trim()) return res.status(400).json({ msg: 'El nombre del equipo es obligatorio.' });
     if (!temporada) return res.status(400).json({ msg: 'La temporada es obligatoria.' });
 
@@ -42,17 +42,18 @@ exports.createEquipo = async (req, res) => {
         const { rows: equipoRows } = await conn.query(
             'SELECT id FROM equipos WHERE nombre = $1', [nombre.trim()]
         );
+
         const equipoExistente = equipoRows[0];
 
         let equipoId;
         if (equipoExistente) {
             const { rows: tempRows } = await conn.query(
-                'SELECT id FROM clasificacion WHERE equipo_id = $1 AND temporada = $2',
-                [equipoExistente.id, temporada]
+                'SELECT id FROM clasificacion WHERE equipo_id = $1 AND temporada = $2 AND categoria = $3',
+                [equipoExistente.id, temporada, categoria]
             );
             if (tempRows[0]) {
                 await conn.query('ROLLBACK');
-                return res.status(409).json({ msg: 'Este equipo ya existe en esta temporada.' });
+                return res.status(409).json({ msg: 'Este equipo ya existe en esta temporada y categoría.' });
             }
             equipoId = equipoExistente.id;
         } else {
@@ -73,10 +74,9 @@ exports.createEquipo = async (req, res) => {
 
         await conn.query(
             `INSERT INTO clasificacion (equipo_id, pj, pg, pe, pp, tf, tc, puntos, temporada, categoria)
-             VALUES ($1, 0, 0, 0, 0, 0, 0, 0, $2, 'Profesional'),
-                    ($1, 0, 0, 0, 0, 0, 0, 0, $2, 'Juvenil')
+             VALUES ($1, 0, 0, 0, 0, 0, 0, 0, $2, $3)
              ON CONFLICT DO NOTHING`,
-            [equipoId, temporada]
+            [equipoId, temporada, categoria]
         );
 
         await conn.query('COMMIT');
@@ -93,8 +93,9 @@ exports.createEquipo = async (req, res) => {
 // Eliminar equipo de una temporada
 exports.deleteEquipo = async (req, res) => {
     const { id } = req.params;
-    const { temporada } = req.query;
+    const { temporada, categoria } = req.query;
     if (!temporada) return res.status(400).json({ msg: 'Se requiere el parámetro temporada.' });
+    if (!categoria) return res.status(400).json({ msg: 'Se requiere el parámetro categoria.' });
 
     const conn = await db.connect();
     try {
@@ -103,12 +104,12 @@ exports.deleteEquipo = async (req, res) => {
         await conn.query(`
             DELETE FROM partidos 
             WHERE (equipo_local_id = $1 OR equipo_visitante_id = $1) 
-              AND temporada = $2
-        `, [id, temporada]);
+              AND temporada = $2 AND categoria = $3
+        `, [id, temporada, categoria]);
 
         await conn.query(
-            'DELETE FROM clasificacion WHERE equipo_id = $1 AND temporada = $2',
-            [id, temporada]
+            'DELETE FROM clasificacion WHERE equipo_id = $1 AND temporada = $2 AND categoria = $3',
+            [id, temporada, categoria]
         );
 
         await eliminarEquipoHuerfano(conn, id);

@@ -291,23 +291,23 @@ exports.iniciarSiguienteTemporada = async (req, res) => {
     }
 };
 exports.eliminarTemporada = async (req, res) => {
-    const { temporada } = req.query;
-    if (!temporada) {
-        return res.status(400).json({ error: 'Se requiere el parámetro temporada.' });
+    const { temporada, categoria } = req.query;
+    if (!temporada || !categoria) {
+        return res.status(400).json({ error: 'Se requiere el parámetro temporada y categoria.' });
     }
 
     const conn = await db.connect();
     try {
         await conn.query('BEGIN');
 
-        // Obtener los equipos registrados en esta temporada antes de borrarlos de clasificacion
+        // Obtener los equipos registrados en esta temporada y categoría antes de borrarlos de clasificacion
         const { rows: equipos } = await conn.query(
-            'SELECT equipo_id FROM clasificacion WHERE temporada = $1', [temporada]
+            'SELECT equipo_id FROM clasificacion WHERE temporada = $1 AND categoria = $2', [temporada, categoria]
         );
 
-        // 1. Borrar partidos y clasificacion correspondientes a la temporada
-        await conn.query('DELETE FROM partidos WHERE temporada = $1', [temporada]);
-        await conn.query('DELETE FROM clasificacion WHERE temporada = $1', [temporada]);
+        // 1. Borrar partidos y clasificacion correspondientes a la temporada y categoría
+        await conn.query('DELETE FROM partidos WHERE temporada = $1 AND categoria = $2', [temporada, categoria]);
+        await conn.query('DELETE FROM clasificacion WHERE temporada = $1 AND categoria = $2', [temporada, categoria]);
 
         // 2. Borrar de forma física el equipo (y sus jugadores) ÚNICAMENTE si ya no existe 
         // registrado en ninguna otra temporada del sistema (evitando eliminar equipos compartidos).

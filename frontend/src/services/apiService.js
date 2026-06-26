@@ -86,7 +86,7 @@ export const PartidoService = {
   },
   siguienteTemporada: async (temporadaOriginal, nuevaTemporada, categoria) => {
     const res = await api.post('/partidos/siguiente-temporada', {
-      temporadaOriginal, nuevaTemporada, categoria
+      temporada: temporadaOriginal, siguienteTemporada: nuevaTemporada, categoria
     });
     return res.data;
   },
