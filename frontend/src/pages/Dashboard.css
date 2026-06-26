@@ -184,14 +184,15 @@ tr:hover td {
 /* ── Botones inline ── */
 .btn-edit-inline {
   font-size: 11px;
-  padding: 5px 10px;
-  border-radius: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
   border: 1px solid #e2e8f0;
   background: white;
   color: var(--text-main);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   white-space: nowrap;
 }
@@ -204,12 +205,17 @@ tr:hover td {
 
 .btn-delete-inline {
   font-size: 11px;
-  padding: 5px 8px;
-  border-radius: 8px;
+  padding: 4px;
+  border-radius: 6px;
   border: 1px solid #fee2e2;
   background: #fff5f5;
   color: #dc2626;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
 }
 
 .btn-delete-inline:hover {
