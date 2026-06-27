@@ -68,6 +68,25 @@ function CargarResultado() {
     if (isNaN(pl) || isNaN(pv) || pl < 0 || pv < 0) {
       return alert('Los puntos del partido deben ser números no negativos.');
     }
+
+    let sumaLocal = 0;
+    jugadoresLocal.forEach(j => {
+      const pts = parseInt(puntosJugadores[j.id]);
+      if (!isNaN(pts) && pts > 0) sumaLocal += pts;
+    });
+
+    let sumaVisitante = 0;
+    jugadoresVisitante.forEach(j => {
+      const pts = parseInt(puntosJugadores[j.id]);
+      if (!isNaN(pts) && pts > 0) sumaVisitante += pts;
+    });
+
+    if (sumaLocal !== pl) {
+      return alert(`La suma de los puntos de los jugadores locales (${sumaLocal}) debe ser igual al puntaje del equipo (${pl}). Por favor, asigna los puntos correctamente.`);
+    }
+    if (sumaVisitante !== pv) {
+      return alert(`La suma de los puntos de los jugadores visitantes (${sumaVisitante}) debe ser igual al puntaje del equipo (${pv}). Por favor, asigna los puntos correctamente.`);
+    }
     try {
       const promesas = [];
       Object.keys(puntosJugadores).forEach(jugadorId => {
