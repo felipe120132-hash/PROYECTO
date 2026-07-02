@@ -22,7 +22,9 @@ const authController = require('./controllers/authController');
 const app = express();
 
 // ── Seguridad: cabeceras HTTP estándar (protección contra XSS, clickjacking, etc.) ──
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 
 // ── CORS: solo orígenes conocidos permitidos ─────────────────────────────────
 app.use(cors({
