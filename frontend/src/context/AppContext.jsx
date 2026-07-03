@@ -424,7 +424,7 @@ export function AppProvider({ children }) {
     const ok = await showConfirm('¿Eliminar este partido?');
     if (!ok) return;
     try {
-      await PartidoService.eliminar(id);
+      await PartidoService.eliminar(id, temporada, categoriaGlobal);
       cargarPartidos(temporada);
       cargarEquipos(temporada);
     } catch (err) {

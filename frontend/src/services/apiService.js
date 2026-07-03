@@ -94,8 +94,8 @@ export const PartidoService = {
     const res = await api.put(`/partidos/${id}`, data);
     return res.data;
   },
-  eliminar: async (id) => {
-    const res = await api.delete(`/partidos/${id}`);
+  eliminar: async (id, temporada, categoria) => {
+    const res = await api.delete(`/partidos/${id}?temporada=${temporada}&categoria=${categoria}`);
     return res.data;
   },
   eliminarTemporada: async (temporada, categoria) => {
