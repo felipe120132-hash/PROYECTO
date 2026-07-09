@@ -1,5 +1,10 @@
 import api from './api';
 
+/**
+ * Servicio de autenticación.
+ * Maneja el inicio de sesión de usuarios administradores.
+ */
+
 export const AuthService = {
   login: async (credentials) => {
     const res = await api.post('/auth/login', credentials);
@@ -7,6 +12,10 @@ export const AuthService = {
   }
 };
 
+/**
+ * Servicio para obtener datos de clasificación.
+ * Permite listar temporadas y obtener la tabla de posiciones.
+ */
 export const ClasificacionService = {
   getTemporadas: async () => {
     const res = await api.get('/clasificacion/temporadas');
@@ -18,6 +27,10 @@ export const ClasificacionService = {
   }
 };
 
+/**
+ * Servicio para gestionar equipos.
+ * Permite crear, eliminar y actualizar equipos, así como subir sus logos.
+ */
 export const EquipoService = {
   crear: async (data) => {
     const res = await api.post('/equipos', data);
@@ -39,6 +52,10 @@ export const EquipoService = {
   }
 };
 
+/**
+ * Servicio para gestionar jugadores.
+ * Proporciona métodos para obtener jugadores, MVPs, crear, editar, eliminar y actualizar sus estadísticas.
+ */
 export const JugadorService = {
   getByEquipo: async (equipoId, temporada, categoria) => {
     const url = temporada && categoria 
@@ -75,6 +92,10 @@ export const JugadorService = {
   }
 };
 
+/**
+ * Servicio para la gestión de partidos.
+ * Incluye funciones para obtener el fixture, registrar resultados, crear y eliminar partidos.
+ */
 export const PartidoService = {
   getPartidos: async (temporada, categoria) => {
     const res = await api.get(`/partidos?temporada=${temporada}&categoria=${categoria}`);
