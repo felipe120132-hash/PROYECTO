@@ -1,6 +1,6 @@
 /**
  * Componente Navbar.
- * Barra de navegaci�n principal, con enlaces din�micos seg�n el estado de autenticaci�n.
+ * Barra de navegacian principal, con enlaces dinamicos segan el estado de autenticacian.
  */
 import React from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';

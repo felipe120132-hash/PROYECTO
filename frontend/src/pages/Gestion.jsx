@@ -1,5 +1,5 @@
 /**
- * P�gina de Gesti�n Administrativa.
+ * Pagina de Gestian Administrativa.
  * Panel central para que el admin configure equipos, inicie nuevas temporadas o reinicie la liga.
  */
 import React from 'react';

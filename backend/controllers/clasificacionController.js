@@ -1,5 +1,5 @@
 /**
- * Controlador de Clasificaci�n.
+ * Controlador de Clasificacian.
  * Genera y devuelve la tabla de posiciones basada en los resultados de los partidos.
  */
 const db = require('../config/db');

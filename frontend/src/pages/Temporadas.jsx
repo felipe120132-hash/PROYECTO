@@ -1,5 +1,5 @@
 /**
- * P�gina de Temporadas.
+ * Pagina de Temporadas.
  * Permite consultar el historial de resultados y tablas de posiciones de temporadas pasadas.
  */
 import React from 'react';

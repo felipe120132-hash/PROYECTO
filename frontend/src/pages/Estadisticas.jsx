@@ -1,6 +1,6 @@
 /**
- * P�gina de Estad�sticas.
- * Presenta informaci�n destacada como los m�ximos goleadores, menos goleados y rankings.
+ * Pagina de Estadasticas.
+ * Presenta informacian destacada como los maximos goleadores, menos goleados y rankings.
  */
 import React from 'react';
 import { useAppContext } from '../context/AppContext';

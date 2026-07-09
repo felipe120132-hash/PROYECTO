@@ -1,6 +1,6 @@
 /**
  * Controlador de Jugadores.
- * Administra la informaci�n de los jugadores, incluyendo fotos, estad�sticas y MVP.
+ * Administra la informacian de los jugadores, incluyendo fotos, estadasticas y MVP.
  */
 const db = require('../config/db');
 const cloudinary = require('cloudinary').v2;

@@ -1,5 +1,5 @@
 /**
- * P�gina de Detalle de Equipo.
+ * Pagina de Detalle de Equipo.
  * Muestra el perfil completo de un equipo y la lista de sus jugadores.
  */
 import React, { useEffect, useState } from 'react';

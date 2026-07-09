@@ -1,5 +1,5 @@
 /**
- * P�gina de Carga de Resultados.
+ * Pagina de Carga de Resultados.
  * Permite a los administradores registrar los goles, faltas y MVP de cada partido.
  */
 import React, { useState, useEffect } from 'react';

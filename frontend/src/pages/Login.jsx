@@ -1,5 +1,5 @@
 /**
- * P�gina de Login.
+ * Pagina de Login.
  * Formulario de acceso para usuarios administradores del sistema.
  */
 import React from 'react';

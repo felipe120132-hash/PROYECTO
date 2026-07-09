@@ -1,6 +1,6 @@
 /**
  * Componente Loader.
- * Muestra una animaci�n de carga mientras se obtienen datos del servidor.
+ * Muestra una animacian de carga mientras se obtienen datos del servidor.
  */
 import React from 'react';
 import './Loader.css';

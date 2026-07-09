@@ -1,6 +1,6 @@
 /**
- * Controlador de Autenticaci�n.
- * Maneja el login de administradores y la generaci�n de tokens JWT.
+ * Controlador de Autenticacian.
+ * Maneja el login de administradores y la generacian de tokens JWT.
  */
 // controllers/authController.js
 const bcrypt = require('bcrypt');

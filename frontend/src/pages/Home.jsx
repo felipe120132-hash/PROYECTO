@@ -1,6 +1,6 @@
 /**
- * P�gina de Inicio (Home).
- * Muestra la tabla de clasificaci�n actual e informaci�n resumida de la liga.
+ * Pagina de Inicio (Home).
+ * Muestra la tabla de clasificacian actual e informacian resumida de la liga.
  */
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
