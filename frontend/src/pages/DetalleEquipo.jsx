@@ -1,3 +1,7 @@
+/**
+ * P�gina de Detalle de Equipo.
+ * Muestra el perfil completo de un equipo y la lista de sus jugadores.
+ */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';

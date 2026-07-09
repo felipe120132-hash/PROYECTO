@@ -1,3 +1,7 @@
+/**
+ * P�gina de Carga de Resultados.
+ * Permite a los administradores registrar los goles, faltas y MVP de cada partido.
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';

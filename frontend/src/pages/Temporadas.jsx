@@ -1,3 +1,7 @@
+/**
+ * P�gina de Temporadas.
+ * Permite consultar el historial de resultados y tablas de posiciones de temporadas pasadas.
+ */
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import './Dashboard.css';

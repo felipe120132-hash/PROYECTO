@@ -1,3 +1,7 @@
+/**
+ * Controlador de Partidos.
+ * Gestiona el fixture, la carga de resultados, y el avance o reinicio de temporadas.
+ */
 const db = require('../config/db');
 const { eliminarEquipoHuerfano } = require('../helpers/equipoHelper');
 

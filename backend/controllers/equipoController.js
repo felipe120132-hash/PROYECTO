@@ -1,3 +1,7 @@
+/**
+ * Controlador de Equipos.
+ * Gestiona el CRUD de los equipos y la subida de sus logos.
+ */
 const db = require('../config/db');
 const cloudinary = require('cloudinary').v2;
 const { eliminarEquipoHuerfano } = require('../helpers/equipoHelper');

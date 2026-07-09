@@ -1,3 +1,7 @@
+/**
+ * Componente ProtectedRoute.
+ * Envuelve rutas privadas para redirigir al login a los usuarios no autenticados.
+ */
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';

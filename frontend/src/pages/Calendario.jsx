@@ -1,3 +1,7 @@
+/**
+ * P�gina de Calendario.
+ * Muestra el fixture de partidos de una temporada y categor�a espec�ficas.
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';

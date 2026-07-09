@@ -1,3 +1,7 @@
+/**
+ * P�gina de Inicio (Home).
+ * Muestra la tabla de clasificaci�n actual e informaci�n resumida de la liga.
+ */
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { JugadorService } from '../services/apiService';

@@ -1,3 +1,7 @@
+/**
+ * P�gina de Gesti�n Administrativa.
+ * Panel central para que el admin configure equipos, inicie nuevas temporadas o reinicie la liga.
+ */
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { PlusCircle, CalendarDays, AlertTriangle } from 'lucide-react';

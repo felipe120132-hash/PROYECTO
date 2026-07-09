@@ -1,3 +1,7 @@
+/**
+ * Contexto Principal de la Aplicaci�n (AppContext).
+ * Provee el estado global para equipos, jugadores, partidos, temporadas y autenticaci�n.
+ */
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { AuthService, ClasificacionService, EquipoService, JugadorService, PartidoService } from '../services/apiService';
 import { useNavigate } from 'react-router-dom';

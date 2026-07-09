@@ -1,3 +1,7 @@
+/**
+ * P�gina de Login.
+ * Formulario de acceso para usuarios administradores del sistema.
+ */
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import './Login.css';

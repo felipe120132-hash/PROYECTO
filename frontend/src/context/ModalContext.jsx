@@ -1,3 +1,7 @@
+/**
+ * Contexto de Modales (ModalContext).
+ * Controla la visibilidad y estado de los modales en la interfaz de usuario.
+ */
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle2, AlertTriangle, CalendarDays, HelpCircle, Info } from 'lucide-react';
 

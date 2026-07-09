@@ -1,3 +1,7 @@
+/**
+ * P�gina de Equipos.
+ * Lista todos los equipos participantes en la temporada y permite la navegaci�n a sus detalles.
+ */
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 
